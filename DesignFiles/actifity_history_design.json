@@ -1,0 +1,333 @@
+{
+  "design_system": {
+    "screen_name": "Activity History",
+    "platform": "flutter_mobile",
+    "version": "1.0.0",
+    "
+": {
+      "primary": "#000000",
+      "secondary": "#666666",
+      "background": "#F5F5F5",
+      "surface": "#FFFFFF",
+      "accent_blue": "#B8C5E8",
+      "accent_purple": "#D4B8E8",
+      "accent_light_blue": "#B8E8E0",
+      "text_primary": "#000000",
+      "text_secondary": "#666666",
+      "text_muted": "#999999",
+      "icon_background": "#000000",
+      "tab_active": "#000000",
+      "tab_inactive": "#666666"
+    },
+    "typography": {
+      "app_bar_title": {
+        "font_family": "SF Pro Display",
+        "font_weight": "600",
+        "font_size": 20,
+        "line_height": 24,
+        "color": "#000000",
+        "letter_spacing": -0.2
+      },
+      "habit_title": {
+        "font_family": "SF Pro Text",
+        "font_weight": "600",
+        "font_size": 18,
+        "line_height": 22,
+        "color": "#000000",
+        "letter_spacing": -0.1
+      },
+      "habit_subtitle": {
+        "font_family": "SF Pro Text",
+        "font_weight": "400",
+        "font_size": 14,
+        "line_height": 18,
+        "color": "#666666",
+        "letter_spacing": 0
+      },
+      "timestamp": {
+        "font_family": "SF Pro Text",
+        "font_weight": "400",
+        "font_size": 14,
+        "line_height": 18,
+        "color": "#666666",
+        "letter_spacing": 0
+      },
+      "tab_label": {
+        "font_family": "SF Pro Text",
+        "font_weight": "500",
+        "font_size": 16,
+        "line_height": 20,
+        "letter_spacing": -0.05
+      }
+    },
+    "spacing": {
+      "xs": 4,
+      "sm": 8,
+      "md": 16,
+      "lg": 24,
+      "xl": 32,
+      "screen_padding_horizontal": 16,
+      "screen_padding_vertical": 16,
+      "card_padding_horizontal": 16,
+      "card_padding_vertical": 16,
+      "card_margin_bottom": 12,
+      "icon_margin_right": 16,
+      "tab_padding_horizontal": 24,
+      "tab_padding_vertical": 12,
+      "app_bar_padding": 16
+    },
+    "border_radius": {
+      "card": 16,
+      "tab_button": 24,
+      "icon_container": 20
+    },
+    "shadows": {
+      "card_shadow": {
+        "color": "#000000",
+        "opacity": 0.05,
+        "offset_x": 0,
+        "offset_y": 2,
+        "blur_radius": 8,
+        "spread_radius": 0
+      }
+    },
+    "components": {
+      "app_bar": {
+        "height": 56,
+        "background_color": "#F5F5F5",
+        "elevation": 0,
+        "padding": {
+          "horizontal": 16,
+          "vertical": 0
+        },
+        "title_alignment": "center",
+        "leading_icon": {
+          "icon": "arrow_back_ios",
+          "size": 24,
+          "color": "#000000"
+        },
+        "trailing_icon": {
+          "icon": "more_vert",
+          "size": 24,
+          "color": "#000000"
+        }
+      },
+      "tab_bar": {
+        "height": 48,
+        "background_color": "transparent",
+        "margin": {
+          "horizontal": 16,
+          "vertical": 16,
+          "bottom": 24
+        },
+        "tab_button": {
+          "height": 48,
+          "padding": {
+            "horizontal": 24,
+            "vertical": 12
+          },
+          "border_radius": 24,
+          "active_state": {
+            "background_color": "#000000",
+            "text_color": "#FFFFFF"
+          },
+          "inactive_state": {
+            "background_color": "transparent",
+            "text_color": "#666666"
+          }
+        },
+        "tabs": [
+          {
+            "label": "Habit",
+            "key": "habit"
+          },
+          {
+            "label": "Pomodoro",
+            "key": "pomodoro"
+          }
+        ]
+      },
+      "habit_card": {
+        "margin": {
+          "horizontal": 16,
+          "bottom": 12
+        },
+        "padding": {
+          "horizontal": 16,
+          "vertical": 16
+        },
+        "border_radius": 16,
+        "elevation": 0,
+        "layout": "row",
+        "cross_axis_alignment": "center",
+        "icon_container": {
+          "width": 40,
+          "height": 40,
+          "border_radius": 20,
+          "background_color": "#000000",
+          "margin_right": 16,
+          "alignment": "center",
+          "icon": {
+            "size": 20,
+            "color": "#FFFFFF"
+          }
+        },
+        "content_section": {
+          "flex": 1,
+          "cross_axis_alignment": "start",
+          "main_axis_alignment": "center",
+          "title_margin_bottom": 2
+        },
+        "timestamp_section": {
+          "alignment": "center_right"
+        },
+        "background_colors": {
+          "programming": "#B8C5E8",
+          "reading": "#D4B8E8",
+          "ai_learning": "#B8E8E0"
+        }
+      },
+      "habit_list": {
+        "scroll_physics": "bounce",
+        "padding": {
+          "bottom": 32
+        },
+        "items": [
+          {
+            "id": "learn_programming",
+            "title": "Learn Programming",
+            "subtitle": "Mark to habit completed",
+            "icon": "code",
+            "background_color": "#B8C5E8",
+            "timestamp": "07:30 AM"
+          },
+          {
+            "id": "read_book",
+            "title": "Read Book Before Sleep",
+            "subtitle": "Mark to habit completed",
+            "icon": "menu_book",
+            "background_color": "#D4B8E8",
+            "timestamp": "07:30 AM"
+          },
+          {
+            "id": "learn_ai",
+            "title": "Learn AI",
+            "subtitle": "Mark to habit completed",
+            "icon": "school",
+            "background_color": "#B8E8E0",
+            "timestamp": "07:30 AM"
+          }
+        ]
+      }
+    },
+    "layout": {
+      "screen_structure": {
+        "app_bar": {
+          "position": "top",
+          "fixed": true
+        },
+        "tab_bar": {
+          "position": "below_app_bar",
+          "sticky": false
+        },
+        "content_area": {
+          "position": "below_tab_bar",
+          "scrollable": true
+        }
+      },
+      "responsive_breakpoints": {
+        "mobile": 480,
+        "tablet": 768,
+        "desktop": 1024
+      }
+    },
+    "animations": {
+      "tab_switch": {
+        "duration": 300,
+        "curve": "ease_in_out"
+      },
+      "card_tap": {
+        "duration": 150,
+        "curve": "ease_out",
+        "scale": 0.98
+      },
+      "list_scroll": {
+        "physics": "bounce"
+      }
+    },
+    "states": {
+      "habit_card": {
+        "default": {
+          "elevation": 0,
+          "scale": 1.0
+        },
+        "pressed": {
+          "elevation": 2,
+          "scale": 0.98,
+          "duration": 150
+        }
+      },
+      "tab_button": {
+        "active": {
+          "background_color": "#000000",
+          "text_color": "#FFFFFF"
+        },
+        "inactive": {
+          "background_color": "transparent",
+          "text_color": "#666666"
+        },
+        "transition_duration": 300
+      }
+    },
+    "flutter_implementation": {
+      "widgets": {
+        "app_bar": "AppBar",
+        "tab_bar": "Container with Row",
+        "habit_card": "Container with Material",
+        "icon_container": "Container with CircleAvatar",
+        "scroll_view": "SingleChildScrollView",
+        "tab_button": "GestureDetector with AnimatedContainer"
+      },
+      "key_packages": [
+        "material.dart",
+        "cupertino.dart"
+      ]
+    },
+    "design_tokens": {
+      "motion": {
+        "duration_fast": 150,
+        "duration_medium": 300,
+        "duration_slow": 500,
+        "easing_standard": "Curves.easeInOut",
+        "easing_emphasized": "Curves.fastOutSlowIn"
+      },
+      "elevation": {
+        "level_0": 0,
+        "level_1": 1,
+        "level_2": 2,
+        "level_3": 4,
+        "level_4": 6,
+        "level_5": 8
+      },
+      "opacity": {
+        "disabled": 0.38,
+        "medium": 0.6,
+        "high": 0.87
+      }
+    },
+    "accessibility": {
+      "semantic_labels": {
+        "back_button": "Navigate back",
+        "more_options": "More options",
+        "habit_tab": "View habit history",
+        "pomodoro_tab": "View pomodoro history",
+        "habit_card": "Habit: {habit_name}, completed at {time}"
+      },
+      "minimum_touch_target": 44,
+      "contrast_ratios": {
+        "text_on_background": 4.5,
+        "text_on_colored_background": 3.0
+      }
+    }
+  }
+}

@@ -1,0 +1,342 @@
+{
+  "designSystem": {
+    "name": "Habit Tracker Calendar Design System",
+    "version": "1.0.0",
+    "description": "Comprehensive design system for a Flutter habit tracking app calendar component",
+    
+    "colorPalette": {
+      "primary": {
+        "background": "#E8D5F0",
+        "backgroundGradient": "linear-gradient(135deg, #E8D5F0 0%, #F0E1F5 100%)",
+        "surface": "#FFFFFF",
+        "surfaceVariant": "#F5F0F8"
+      },
+      "calendar": {
+        "completedDay": "#2C2C2C",
+        "completedDayText": "#FFFFFF",
+        "incompleteDay": "transparent",
+        "incompleteDayBorder": "#2C2C2C",
+        "incompleteDayText": "#2C2C2C",
+        "futureDay": "#FFFFFF",
+        "futureDayText": "#CCCCCC",
+        "currentDay": "#FF6B35",
+        "currentDayText": "#FFFFFF",
+        "todayIndicator": "#2C2C2C"
+      },
+      "text": {
+        "primary": "#2C2C2C",
+        "secondary": "#666666",
+        "disabled": "#CCCCCC",
+        "onDark": "#FFFFFF"
+      }
+    },
+
+    "typography": {
+      "monthTitle": {
+        "fontSize": 28,
+        "fontWeight": "600",
+        "letterSpacing": -0.5,
+        "color": "#2C2C2C",
+        "fontFamily": "SF Pro Display"
+      },
+      "dayNumber": {
+        "fontSize": 16,
+        "fontWeight": "500",
+        "color": "#2C2C2C",
+        "fontFamily": "SF Pro Text"
+      },
+      "dayNumberCompleted": {
+        "fontSize": 16,
+        "fontWeight": "600",
+        "color": "#FFFFFF",
+        "fontFamily": "SF Pro Text"
+      },
+      "dayNumberCurrent": {
+        "fontSize": 16,
+        "fontWeight": "700",
+        "color": "#FFFFFF",
+        "fontFamily": "SF Pro Text"
+      },
+      "dayNumberFuture": {
+        "fontSize": 16,
+        "fontWeight": "400",
+        "color": "#CCCCCC",
+        "fontFamily": "SF Pro Text"
+      }
+    },
+
+    "spacing": {
+      "xs": 4,
+      "sm": 8,
+      "md": 16,
+      "lg": 24,
+      "xl": 32,
+      "calendar": {
+        "containerPadding": 24,
+        "headerMarginBottom": 20,
+        "daySpacing": 8,
+        "weekSpacing": 12,
+        "cellSize": 48
+      }
+    },
+
+    "components": {
+      "calendarContainer": {
+        "width": "100%",
+        "backgroundColor": "#E8D5F0",
+        "borderRadius": 24,
+        "padding": 24,
+        "margin": 16,
+        "elevation": 0,
+        "backgroundGradient": "linear-gradient(135deg, #E8D5F0 0%, #F0E1F5 100%)"
+      },
+
+      "calendarHeader": {
+        "layout": "row",
+        "justifyContent": "spaceBetween",
+        "alignItems": "center",
+        "marginBottom": 20,
+        "monthTitle": {
+          "fontSize": 28,
+          "fontWeight": "600",
+          "color": "#2C2C2C"
+        },
+        "dayIndicator": {
+          "width": 32,
+          "height": 32,
+          "backgroundColor": "#2C2C2C",
+          "borderRadius": 8,
+          "alignItems": "center",
+          "justifyContent": "center",
+          "child": {
+            "icon": "calendar",
+            "color": "#FFFFFF",
+            "size": 18
+          }
+        }
+      },
+
+      "calendarGrid": {
+        "layout": "grid",
+        "columns": 7,
+        "gap": 8,
+        "paddingVertical": 0
+      },
+
+      "dayCell": {
+        "base": {
+          "width": 48,
+          "height": 48,
+          "borderRadius": 24,
+          "alignItems": "center",
+          "justifyContent": "center",
+          "marginBottom": 8
+        },
+        "states": {
+          "completed": {
+            "backgroundColor": "#2C2C2C",
+            "borderWidth": 0,
+            "child": {
+              "fontSize": 16,
+              "fontWeight": "600",
+              "color": "#FFFFFF"
+            }
+          },
+          "incomplete": {
+            "backgroundColor": "transparent",
+            "borderWidth": 2,
+            "borderColor": "#2C2C2C",
+            "child": {
+              "fontSize": 16,
+              "fontWeight": "500",
+              "color": "#2C2C2C"
+            }
+          },
+          "future": {
+            "backgroundColor": "#FFFFFF",
+            "borderWidth": 0,
+            "elevation": 0,
+            "child": {
+              "fontSize": 16,
+              "fontWeight": "400",
+              "color": "#CCCCCC"
+            }
+          },
+          "current": {
+            "backgroundColor": "#FF6B35",
+            "borderWidth": 0,
+            "elevation": 2,
+            "shadowColor": "#FF6B35",
+            "shadowOpacity": 0.3,
+            "shadowRadius": 4,
+            "shadowOffset": {
+              "width": 0,
+              "height": 2
+            },
+            "child": {
+              "fontSize": 16,
+              "fontWeight": "700",
+              "color": "#FFFFFF",
+              "icon": "checkmark",
+              "iconSize": 12
+            }
+          }
+        }
+      },
+
+      "streakIndicator": {
+        "position": "topRight",
+        "width": 24,
+        "height": 24,
+        "backgroundColor": "#FF6B35",
+        "borderRadius": 12,
+        "alignItems": "center",
+        "justifyContent": "center",
+        "elevation": 2,
+        "child": {
+          "icon": "flame",
+          "color": "#FFFFFF",
+          "size": 14
+        }
+      }
+    },
+
+    "animations": {
+      "dayTap": {
+        "type": "scale",
+        "duration": 150,
+        "curve": "easeInOut",
+        "scaleFrom": 1.0,
+        "scaleTo": 0.95
+      },
+      "streakComplete": {
+        "type": "combined",
+        "duration": 300,
+        "animations": [
+          {
+            "type": "scale",
+            "scaleFrom": 1.0,
+            "scaleTo": 1.1,
+            "duration": 150
+          },
+          {
+            "type": "backgroundColor",
+            "fromColor": "transparent",
+            "toColor": "#2C2C2C",
+            "duration": 200
+          }
+        ]
+      },
+      "monthTransition": {
+        "type": "slide",
+        "duration": 250,
+        "curve": "easeOutCubic"
+      }
+    },
+
+    "flutterImplementation": {
+      "widgets": {
+        "CalendarContainer": {
+          "widget": "Container",
+          "properties": {
+            "decoration": {
+              "borderRadius": "BorderRadius.circular(24)",
+              "gradient": "LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFFE8D5F0), Color(0xFFF0E1F5)])"
+            },
+            "padding": "EdgeInsets.all(24)",
+            "margin": "EdgeInsets.all(16)"
+          }
+        },
+        "DayCell": {
+          "widget": "GestureDetector",
+          "child": "Container",
+          "properties": {
+            "width": 48,
+            "height": 48,
+            "decoration": {
+              "borderRadius": "BorderRadius.circular(24)",
+              "color": "dynamicColor",
+              "border": "dynamicBorder"
+            },
+            "child": "Center(child: Text(day, style: dynamicTextStyle))"
+          }
+        },
+        "CalendarHeader": {
+          "widget": "Row",
+          "properties": {
+            "mainAxisAlignment": "MainAxisAlignment.spaceBetween",
+            "children": [
+              "Text(monthName, style: TextStyle(fontSize: 28, fontWeight: FontWeight.w600, color: Color(0xFF2C2C2C)))",
+              "Container(width: 32, height: 32, decoration: BoxDecoration(color: Color(0xFF2C2C2C), borderRadius: BorderRadius.circular(8)), child: Icon(Icons.calendar_today, color: Colors.white, size: 18))"
+            ]
+          }
+        }
+      },
+      "materialColors": {
+        "primary": "Color(0xFFE8D5F0)",
+        "secondary": "Color(0xFF2C2C2C)",
+        "accent": "Color(0xFFFF6B35)",
+        "surface": "Color(0xFFFFFFFF)",
+        "background": "Color(0xFFF5F0F8)"
+      },
+      "textStyles": {
+        "monthTitle": "TextStyle(fontSize: 28, fontWeight: FontWeight.w600, color: Color(0xFF2C2C2C), letterSpacing: -0.5)",
+        "dayNumber": "TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF2C2C2C))",
+        "dayNumberCompleted": "TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white)",
+        "dayNumberCurrent": "TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)",
+        "dayNumberFuture": "TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Color(0xFFCCCCCC))"
+      }
+    },
+
+    "stateManagement": {
+      "calendarState": {
+        "currentMonth": "DateTime",
+        "selectedDate": "DateTime?",
+        "completedDates": "Set<DateTime>",
+        "currentStreak": "int",
+        "longestStreak": "int"
+      },
+      "dayStates": {
+        "completed": "Day is marked as habit completed",
+        "incomplete": "Day is available but habit not completed",
+        "future": "Day is in the future",
+        "current": "Today's date with special highlighting"
+      }
+    },
+
+    "accessibility": {
+      "semantics": {
+        "dayCell": "Day {number}, {status}",
+        "monthHeader": "Current month: {monthName}",
+        "streakIndicator": "Current streak: {days} days"
+      },
+      "minTapTargetSize": 48,
+      "colorContrast": {
+        "completedDay": "4.5:1 (AA compliant)",
+        "incompleteDay": "4.5:1 (AA compliant)",
+        "currentDay": "4.5:1 (AA compliant)"
+      }
+    },
+
+    "designTokens": {
+      "borderRadius": {
+        "small": 8,
+        "medium": 16,
+        "large": 24,
+        "circle": 50
+      },
+      "elevation": {
+        "none": 0,
+        "low": 2,
+        "medium": 4,
+        "high": 8
+      },
+      "opacity": {
+        "disabled": 0.38,
+        "inactive": 0.54,
+        "active": 0.87,
+        "primary": 1.0
+      }
+    }
+  }
+}

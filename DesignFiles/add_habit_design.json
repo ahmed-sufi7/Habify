@@ -1,0 +1,577 @@
+{
+  "designSystem": {
+    "name": "Add Habit Screen Design System",
+    "version": "1.0.0",
+    "platform": "Flutter Mobile App",
+    "screen": "Add Habit",
+    "colors": {
+      "primary": {
+        "background": "#FFFFFF",
+        "text": "#000000",
+        "textSecondary": "#757575",
+        "placeholder": "#BDBDBD"
+      },
+      "categories": {
+        "knowledge": "#2C2C2C",
+        "health": "#FFFFFF",
+        "professionality": "#FFFFFF",
+        "kreatifity": "#FFFFFF",
+        "relaxation": "#FFFFFF",
+        "other": "#FFFFFF"
+      },
+      "fields": {
+        "priority": "#FFF9C4",
+        "duration": "#C5CAE9",
+        "notification": "#B3E5FC",
+        "repetition": "#E1BEE7",
+        "startDate": "#C8E6C9",
+        "endDate": "#FFCDD2"
+      },
+      "borders": {
+        "default": "#E0E0E0",
+        "focused": "#2196F3",
+        "category": "#757575",
+        "categorySelected": "#000000"
+      }
+    },
+    "typography": {
+      "header": {
+        "fontSize": 24,
+        "fontWeight": "w600",
+        "color": "#000000",
+        "fontFamily": "System",
+        "letterSpacing": 0.0
+      },
+      "fieldLabel": {
+        "fontSize": 18,
+        "fontWeight": "w500",
+        "color": "#000000",
+        "fontFamily": "System",
+        "letterSpacing": 0.0
+      },
+      "inputText": {
+        "fontSize": 16,
+        "fontWeight": "w400",
+        "color": "#000000",
+        "fontFamily": "System",
+        "letterSpacing": 0.0
+      },
+      "placeholder": {
+        "fontSize": 16,
+        "fontWeight": "w400",
+        "color": "#BDBDBD",
+        "fontFamily": "System",
+        "letterSpacing": 0.0
+      },
+      "dropdownText": {
+        "fontSize": 16,
+        "fontWeight": "w500",
+        "color": "#000000",
+        "fontFamily": "System",
+        "letterSpacing": 0.0
+      },
+      "categoryText": {
+        "fontSize": 16,
+        "fontWeight": "w500",
+        "color": "#000000",
+        "fontFamily": "System",
+        "letterSpacing": 0.0
+      },
+      "categoryTextSelected": {
+        "fontSize": 16,
+        "fontWeight": "w500",
+        "color": "#FFFFFF",
+        "fontFamily": "System",
+        "letterSpacing": 0.0
+      },
+      "buttonText": {
+        "fontSize": 18,
+        "fontWeight": "w600",
+        "color": "#FFFFFF",
+        "fontFamily": "System",
+        "letterSpacing": 0.5
+      }
+    },
+    "spacing": {
+      "screenPadding": 24,
+      "sectionSpacing": 32,
+      "fieldSpacing": 20,
+      "labelToField": 8,
+      "fieldHeight": 56,
+      "categoryButtonSpacing": 12,
+      "categoryRowSpacing": 16,
+      "buttonBottomMargin": 32
+    },
+    "borderRadius": {
+      "inputField": 28,
+      "dropdown": 28,
+      "categoryButton": 20,
+      "primaryButton": 28,
+      "textArea": 20
+    },
+    "components": {
+      "appBar": {
+        "height": 56,
+        "backgroundColor": "#FFFFFF",
+        "elevation": 0,
+        "leadingIcon": {
+          "icon": "arrow_back_ios",
+          "size": 24,
+          "color": "#000000"
+        },
+        "title": {
+          "text": "Add Habit",
+          "style": "header",
+          "alignment": "center"
+        }
+      },
+      "textField": {
+        "height": 56,
+        "borderRadius": 28,
+        "borderWidth": 2,
+        "borderColor": "#E0E0E0",
+        "backgroundColor": "#FFFFFF",
+        "contentPadding": {
+          "horizontal": 24,
+          "vertical": 16
+        },
+        "focusedBorderColor": "#2196F3",
+        "textStyle": "inputText",
+        "placeholderStyle": "placeholder"
+      },
+      "textArea": {
+        "minHeight": 120,
+        "maxHeight": 200,
+        "borderRadius": 20,
+        "borderWidth": 2,
+        "borderColor": "#E0E0E0",
+        "backgroundColor": "#FFFFFF",
+        "contentPadding": {
+          "horizontal": 20,
+          "vertical": 16
+        },
+        "focusedBorderColor": "#2196F3",
+        "textStyle": "inputText",
+        "placeholderStyle": "placeholder",
+        "maxLines": null,
+        "textAlignVertical": "top"
+      },
+      "dropdown": {
+        "height": 56,
+        "borderRadius": 28,
+        "borderWidth": 0,
+        "contentPadding": {
+          "horizontal": 24,
+          "vertical": 16
+        },
+        "textStyle": "dropdownText",
+        "iconSize": 24,
+        "iconColor": "#757575",
+        "elevation": 0,
+        "dropdownMenuStyle": {
+          "borderRadius": 12,
+          "elevation": 8,
+          "backgroundColor": "#FFFFFF",
+          "padding": 8
+        },
+        "dropdownItemStyle": {
+          "height": 48,
+          "padding": {
+            "horizontal": 16,
+            "vertical": 12
+          },
+          "textStyle": "inputText"
+        }
+      },
+      "categoryButton": {
+        "height": 48,
+        "borderRadius": 20,
+        "borderWidth": 2,
+        "contentPadding": {
+          "horizontal": 20,
+          "vertical": 12
+        },
+        "defaultState": {
+          "backgroundColor": "#FFFFFF",
+          "borderColor": "#757575",
+          "textStyle": "categoryText"
+        },
+        "selectedState": {
+          "backgroundColor": "#2C2C2C",
+          "borderColor": "#2C2C2C",
+          "textStyle": "categoryTextSelected"
+        }
+      },
+      "primaryButton": {
+        "height": 56,
+        "borderRadius": 28,
+        "backgroundColor": "#2C2C2C",
+        "elevation": 0,
+        "contentPadding": {
+          "horizontal": 32,
+          "vertical": 16
+        },
+        "textStyle": "buttonText",
+        "splashColor": "#424242"
+      }
+    },
+    "layout": {
+      "screen": {
+        "backgroundColor": "#FFFFFF",
+        "padding": 24,
+        "safeArea": true
+      },
+      "sections": [
+        {
+          "name": "header",
+          "type": "appBar",
+          "marginBottom": 0
+        },
+        {
+          "name": "nameField",
+          "type": "textField",
+          "label": "Name",
+          "placeholder": "Enter your name",
+          "marginBottom": 32
+        },
+        {
+          "name": "priorityDurationRow",
+          "type": "row",
+          "spacing": 16,
+          "marginBottom": 32,
+          "children": [
+            {
+              "name": "priority",
+              "type": "dropdown",
+              "label": "Priority",
+              "backgroundColor": "#FFF9C4",
+              "defaultValue": "Do First",
+              "flex": 1,
+              "options": [
+                "Do First",
+                "Schedule",
+                "Delegate",
+                "Eliminate"
+              ]
+            },
+            {
+              "name": "duration",
+              "type": "dropdown",
+              "label": "Duration",
+              "backgroundColor": "#C5CAE9",
+              "defaultValue": "10 min",
+              "flex": 1,
+              "options": [
+                "5 min",
+                "10 min",
+                "15 min",
+                "30 min",
+                "45 min",
+                "1 hour",
+                "2 hours",
+                "Custom"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "notificationRepetitionRow",
+          "type": "row",
+          "spacing": 16,
+          "marginBottom": 32,
+          "children": [
+            {
+              "name": "notification",
+              "type": "dropdown",
+              "label": "Notification",
+              "backgroundColor": "#B3E5FC",
+              "defaultValue": "07.30 AM",
+              "flex": 1,
+              "options": [
+                "06.00 AM",
+                "06.30 AM",
+                "07.00 AM",
+                "07.30 AM",
+                "08.00 AM",
+                "08.30 AM",
+                "09.00 AM",
+                "Custom"
+              ]
+            },
+            {
+              "name": "repetition",
+              "type": "dropdown",
+              "label": "Repetition",
+              "backgroundColor": "#E1BEE7",
+              "defaultValue": "Everyday",
+              "flex": 1,
+              "options": [
+                "Everyday",
+                "Weekdays",
+                "Weekends",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday",
+                "Custom"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "startEndDateRow",
+          "type": "row",
+          "spacing": 16,
+          "marginBottom": 32,
+          "children": [
+            {
+              "name": "startDate",
+              "type": "dropdown",
+              "label": "Start Date",
+              "backgroundColor": "#C8E6C9",
+              "defaultValue": "Today",
+              "flex": 1,
+              "options": [
+                "Today",
+                "Tomorrow",
+                "This Week",
+                "Next Week",
+                "Custom"
+              ]
+            },
+            {
+              "name": "endDate",
+              "type": "dropdown",
+              "label": "End Date",
+              "backgroundColor": "#FFCDD2",
+              "defaultValue": "No End Date",
+              "flex": 1,
+              "options": [
+                "No End Date",
+                "1 Week",
+                "1 Month",
+                "3 Months",
+                "6 Months",
+                "1 Year",
+                "Custom"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "categorySection",
+          "type": "column",
+          "marginBottom": 32,
+          "children": [
+            {
+              "name": "categoryLabel",
+              "type": "label",
+              "text": "Category",
+              "style": "fieldLabel",
+              "marginBottom": 8
+            },
+            {
+              "name": "categoryGrid",
+              "type": "wrap",
+              "spacing": 12,
+              "runSpacing": 16,
+              "children": [
+                {
+                  "name": "knowledge",
+                  "type": "categoryButton",
+                  "text": "Knowledge",
+                  "isSelected": true
+                },
+                {
+                  "name": "health",
+                  "type": "categoryButton",
+                  "text": "Health",
+                  "isSelected": false
+                },
+                {
+                  "name": "professionality",
+                  "type": "categoryButton",
+                  "text": "Professionality",
+                  "isSelected": false
+                },
+                {
+                  "name": "kreatifity",
+                  "type": "categoryButton",
+                  "text": "Kreatifity",
+                  "isSelected": false
+                },
+                {
+                  "name": "relaxation",
+                  "type": "categoryButton",
+                  "text": "Relaxation",
+                  "isSelected": false
+                },
+                {
+                  "name": "other",
+                  "type": "categoryButton",
+                  "text": "Other",
+                  "isSelected": false
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "descriptionField",
+          "type": "textArea",
+          "label": "Description",
+          "placeholder": "Enter your description",
+          "marginBottom": 40
+        },
+        {
+          "name": "createButton",
+          "type": "primaryButton",
+          "text": "Create",
+          "width": "full",
+          "marginBottom": 32
+        }
+      ]
+    },
+    "animations": {
+      "buttonTap": {
+        "duration": 150,
+        "curve": "easeInOut",
+        "scaleDown": 0.95
+      },
+      "categorySelection": {
+        "duration": 200,
+        "curve": "easeInOut",
+        "colorTransition": true,
+        "scaleEffect": 1.02
+      },
+      "dropdownOpen": {
+        "duration": 300,
+        "curve": "easeOutCubic",
+        "slideDown": true,
+        "fadeIn": true
+      },
+      "fieldFocus": {
+        "duration": 200,
+        "curve": "easeInOut",
+        "borderColorTransition": true,
+        "elevation": 2
+      }
+    },
+    "states": {
+      "textField": {
+        "default": {
+          "borderColor": "#E0E0E0",
+          "backgroundColor": "#FFFFFF",
+          "elevation": 0
+        },
+        "focused": {
+          "borderColor": "#2196F3",
+          "backgroundColor": "#FFFFFF",
+          "elevation": 1
+        },
+        "error": {
+          "borderColor": "#F44336",
+          "backgroundColor": "#FFFFFF",
+          "elevation": 0
+        }
+      },
+      "dropdown": {
+        "default": {
+          "elevation": 0
+        },
+        "opened": {
+          "elevation": 2
+        }
+      },
+      "categoryButton": {
+        "default": {
+          "backgroundColor": "#FFFFFF",
+          "borderColor": "#757575",
+          "textColor": "#000000",
+          "elevation": 0
+        },
+        "selected": {
+          "backgroundColor": "#2C2C2C",
+          "borderColor": "#2C2C2C",
+          "textColor": "#FFFFFF",
+          "elevation": 1
+        },
+        "pressed": {
+          "scale": 0.98,
+          "elevation": 2
+        }
+      },
+      "primaryButton": {
+        "default": {
+          "backgroundColor": "#2C2C2C",
+          "elevation": 0
+        },
+        "pressed": {
+          "backgroundColor": "#424242",
+          "elevation": 2,
+          "scale": 0.98
+        },
+        "disabled": {
+          "backgroundColor": "#E0E0E0",
+          "textColor": "#9E9E9E",
+          "elevation": 0
+        }
+      }
+    },
+    "responsive": {
+      "breakpoints": {
+        "mobile": 480,
+        "tablet": 768
+      },
+      "adaptiveSpacing": {
+        "mobile": {
+          "screenPadding": 16,
+          "sectionSpacing": 24,
+          "fieldSpacing": 16
+        },
+        "tablet": {
+          "screenPadding": 32,
+          "sectionSpacing": 40,
+          "fieldSpacing": 24
+        }
+      }
+    },
+    "accessibility": {
+      "semantics": {
+        "textField": {
+          "label": "required",
+          "hint": "optional"
+        },
+        "dropdown": {
+          "label": "required",
+          "hint": "Tap to select option"
+        },
+        "categoryButton": {
+          "label": "required",
+          "hint": "Tap to select category",
+          "selectedHint": "Currently selected category"
+        },
+        "primaryButton": {
+          "label": "required",
+          "hint": "Tap to create habit"
+        }
+      },
+      "minimumTouchTarget": 44,
+      "focusOrder": [
+        "nameField",
+        "priority",
+        "duration",
+        "notification",
+        "repetition",
+        "startDate",
+        "endDate",
+        "categoryButtons",
+        "descriptionField",
+        "createButton"
+      ]
+    }
+  }
+}

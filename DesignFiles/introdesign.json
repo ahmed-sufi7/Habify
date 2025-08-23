@@ -1,0 +1,391 @@
+{
+  "designSystem": {
+    "name": "Habify Design System",
+    "version": "1.0.0",
+    "description": "Design system extracted from Habify habit tracking app intro screens",
+    
+    "colors": {
+      "primary": {
+        "background": "#F8F9FA",
+        "surface": "#FFFFFF",
+        "accent": "#3B82F6",
+        "dark": "#1F2937",
+        "lightBlue": "#DBEAFE"
+      },
+      "neutral": {
+        "black": "#000000",
+        "darkGray": "#374151",
+        "mediumGray": "#6B7280",
+        "lightGray": "#E5E7EB",
+        "white": "#FFFFFF"
+      },
+      "illustration": {
+        "blue": "#3B82F6",
+        "darkBlue": "#1E40AF",
+        "yellow": "#FCD34D",
+        "lightBlue": "#BFDBFE",
+        "purple": "#8B5CF6"
+      }
+    },
+
+    "typography": {
+      "fontFamily": {
+        "primary": "SF Pro Display",
+        "fallback": "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+      },
+      "weights": {
+        "regular": 400,
+        "medium": 500,
+        "semibold": 600,
+        "bold": 700
+      },
+      "scales": {
+        "h1": {
+          "fontSize": "32px",
+          "lineHeight": "38px",
+          "fontWeight": 700,
+          "letterSpacing": "-0.02em"
+        },
+        "h2": {
+          "fontSize": "28px",
+          "lineHeight": "34px",
+          "fontWeight": 700,
+          "letterSpacing": "-0.01em"
+        },
+        "h3": {
+          "fontSize": "24px",
+          "lineHeight": "30px",
+          "fontWeight": 600,
+          "letterSpacing": "0em"
+        },
+        "body1": {
+          "fontSize": "18px",
+          "lineHeight": "26px",
+          "fontWeight": 400,
+          "letterSpacing": "0em"
+        },
+        "body2": {
+          "fontSize": "16px",
+          "lineHeight": "24px",
+          "fontWeight": 400,
+          "letterSpacing": "0em"
+        },
+        "label": {
+          "fontSize": "14px",
+          "lineHeight": "20px",
+          "fontWeight": 500,
+          "letterSpacing": "0.01em"
+        }
+      }
+    },
+
+    "spacing": {
+      "xs": "4px",
+      "sm": "8px",
+      "md": "16px",
+      "lg": "24px",
+      "xl": "32px",
+      "2xl": "48px",
+      "3xl": "64px",
+      "4xl": "80px"
+    },
+
+    "borderRadius": {
+      "none": "0px",
+      "sm": "4px",
+      "md": "8px",
+      "lg": "12px",
+      "xl": "16px",
+      "2xl": "24px",
+      "3xl": "32px",
+      "full": "999px"
+    },
+
+    "shadows": {
+      "none": "none",
+      "sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+      "md": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+      "lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
+    },
+
+    "components": {
+      "logo": {
+        "variants": {
+          "primary": {
+            "background": "#000000",
+            "shape": "circle",
+            "size": "56px",
+            "textColor": "#FFFFFF",
+            "fontSize": "24px",
+            "fontWeight": 700,
+            "asset": "black_logo.png"
+          }
+        }
+      },
+
+      "button": {
+        "variants": {
+          "primary": {
+            "backgroundColor": "#1F2937",
+            "textColor": "#FFFFFF",
+            "fontSize": "18px",
+            "fontWeight": 600,
+            "padding": "16px 24px",
+            "borderRadius": "24px",
+            "minHeight": "56px",
+            "width": "100%",
+            "border": "none",
+            "states": {
+              "hover": {
+                "backgroundColor": "#374151"
+              },
+              "pressed": {
+                "backgroundColor": "#111827"
+              }
+            }
+          }
+        }
+      },
+
+      "input": {
+        "variants": {
+          "text": {
+            "backgroundColor": "#FFFFFF",
+            "borderColor": "#1F2937",
+            "borderWidth": "2px",
+            "borderRadius": "24px",
+            "padding": "16px 20px",
+            "fontSize": "16px",
+            "fontWeight": 400,
+            "textColor": "#1F2937",
+            "placeholderColor": "#9CA3AF",
+            "minHeight": "56px",
+            "states": {
+              "focus": {
+                "borderColor": "#3B82F6",
+                "outline": "none"
+              }
+            }
+          },
+          "dropdown": {
+            "backgroundColor": "#DBEAFE",
+            "borderColor": "transparent",
+            "borderWidth": "0px",
+            "borderRadius": "24px",
+            "padding": "16px 20px",
+            "fontSize": "16px",
+            "fontWeight": 400,
+            "textColor": "#6B7280",
+            "minHeight": "56px",
+            "iconColor": "#1F2937",
+            "states": {
+              "focus": {
+                "backgroundColor": "#BFDBFE"
+              }
+            }
+          }
+        }
+      },
+
+      "label": {
+        "variants": {
+          "form": {
+            "fontSize": "16px",
+            "fontWeight": 500,
+            "textColor": "#1F2937",
+            "marginBottom": "8px",
+            "required": {
+              "indicator": "*",
+              "color": "#EF4444"
+            },
+            "optional": {
+              "text": "(Optional)",
+              "color": "#6B7280",
+              "fontWeight": 400
+            }
+          }
+        }
+      },
+
+      "illustration": {
+        "variants": {
+          "welcome": {
+            "asset": "reading.png",
+            "backgroundColor": "#DBEAFE",
+            "shape": "organic",
+            "padding": "32px",
+            "elements": {
+              "person": {
+                "position": "center",
+                "reading": true,
+                "sitting": "cross-legged"
+              },
+              "lamp": {
+                "type": "desk",
+                "color": "#1E40AF"
+              },
+              "clock": {
+                "type": "alarm",
+                "color": "#FCD34D"
+              },
+              "books": {
+                "stack": true,
+                "colors": ["#3B82F6", "#1E40AF", "#FCD34D"]
+              },
+              "plant": {
+                "type": "monstera",
+                "color": "#BFDBFE"
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "layout": {
+      "containers": {
+        "screen": {
+          "padding": "24px",
+          "backgroundColor": "#F8F9FA"
+        },
+        "form": {
+          "padding": "0px",
+          "gap": "24px"
+        },
+        "illustration": {
+          "marginTop": "64px",
+          "marginBottom": "48px",
+          "alignment": "center"
+        }
+      },
+      
+      "grid": {
+        "columns": 12,
+        "gutter": "16px",
+        "margin": "24px"
+      }
+    },
+
+    "patterns": {
+      "onboarding": {
+        "structure": [
+          "logo",
+          "illustration",
+          "headline",
+          "description",
+          "primaryAction"
+        ],
+        "spacing": {
+          "logoToIllustration": "80px",
+          "illustrationToText": "48px",
+          "headlineToDescription": "16px",
+          "descriptionToAction": "48px"
+        }
+      },
+
+      "form": {
+        "structure": [
+          "header",
+          "formFields",
+          "primaryAction"
+        ],
+        "fieldSpacing": "24px",
+        "labelToInput": "8px",
+        "validation": {
+          "errorColor": "#EF4444",
+          "successColor": "#10B981"
+        }
+      }
+    },
+
+    "navigation": {
+      "topBar": {
+        "height": "56px",
+        "backgroundColor": "transparent",
+        "actions": {
+          "skip": {
+            "position": "top-right",
+            "fontSize": "16px",
+            "fontWeight": 500,
+            "textColor": "#6B7280",
+            "padding": "8px 16px"
+          }
+        }
+      }
+    },
+
+    "content": {
+      "headlines": {
+        "welcome": "Welcome to Habify!",
+        "getStarted": "Two steps to get started a Habit!"
+      },
+      
+      "descriptions": {
+        "taglines": [
+          "Small habits, create big changes with Habify",
+          "Build a positive routine every day, achieving your life goals in a consistent and enjoyable way."
+        ]
+      },
+      
+      "actions": {
+        "primary": [
+          "Get Started",
+          "Create First Habit"
+        ]
+      },
+
+      "placeholders": {
+        "name": "Enter your name",
+        "gender": "Enter your gender",
+        "age": "Enter your age"
+      }
+    },
+
+    "accessibility": {
+      "contrast": {
+        "minimum": "4.5:1",
+        "enhanced": "7:1"
+      },
+      "focusIndicator": {
+        "color": "#3B82F6",
+        "width": "2px",
+        "style": "solid",
+        "offset": "2px"
+      },
+      "touchTarget": {
+        "minimum": "44px"
+      }
+    },
+
+    "responsive": {
+      "breakpoints": {
+        "mobile": "0px",
+        "tablet": "768px",
+        "desktop": "1024px"
+      },
+      "scaling": {
+        "typography": {
+          "mobile": "1.0",
+          "tablet": "1.1",
+          "desktop": "1.2"
+        },
+        "spacing": {
+          "mobile": "1.0",
+          "tablet": "1.2",
+          "desktop": "1.4"
+        }
+      }
+    },
+
+    "assets": {
+      "images": {
+        "logo": "black_logo.png",
+        "illustration": "reading.png"
+      },
+      "usage": {
+        "logo": "Brand identifier, used in headers and splash screens",
+        "illustration": "Welcome screen illustration showing reading person in study environment"
+      }
+    }
+  }
+}

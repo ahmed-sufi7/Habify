@@ -1,0 +1,520 @@
+{
+  "designSystem": {
+    "name": "Habit Tracker Statistics Screen",
+    "version": "1.0",
+    "platform": "Flutter",
+    "screen": "Statistics"
+  },
+  
+  "colors": {
+    "primary": {
+      "background": "#FFFFFF",
+      "surface": "#F8F9FA"
+    },
+    "statistics": {
+      "totalCard": "#D6D9FF",
+      "completedCard": "#FFF4B3",
+      "missedCard": "#C7E0E8"
+    },
+    "habitStats": {
+      "background": "#E8D5FF",
+      "chartBackground": "#FFFFFF"
+    },
+    "text": {
+      "primary": "#000000",
+      "secondary": "#666666",
+      "accent": "#FF6B35"
+    },
+    "chart": {
+      "activeBar": "#000000",
+      "inactiveBar": "#FFFFFF",
+      "completedDot": "#000000",
+      "incompleteDot": "#E0E0E0"
+    }
+  },
+
+  "typography": {
+    "greeting": {
+      "fontSize": 16,
+      "fontWeight": "w400",
+      "color": "#666666",
+      "letterSpacing": 0.5
+    },
+    "userName": {
+      "fontSize": 20,
+      "fontWeight": "w600",
+      "color": "#000000",
+      "letterSpacing": 0.3
+    },
+    "statisticValue": {
+      "fontSize": 32,
+      "fontWeight": "w700",
+      "color": "#000000"
+    },
+    "statisticLabel": {
+      "fontSize": 14,
+      "fontWeight": "w500",
+      "color": "#000000"
+    },
+    "sectionTitle": {
+      "fontSize": 18,
+      "fontWeight": "w600",
+      "color": "#000000"
+    },
+    "streakCount": {
+      "fontSize": 20,
+      "fontWeight": "w700",
+      "color": "#FF6B35"
+    },
+    "habitName": {
+      "fontSize": 16,
+      "fontWeight": "w600",
+      "color": "#000000"
+    },
+    "countdown": {
+      "fontSize": 12,
+      "fontWeight": "w500",
+      "color": "#FF6B35"
+    },
+    "seeAll": {
+      "fontSize": 14,
+      "fontWeight": "w500",
+      "color": "#A0A0A0"
+    }
+  },
+
+  "spacing": {
+    "screenPadding": 20,
+    "cardSpacing": 16,
+    "innerCardPadding": 20,
+    "headerSpacing": 24,
+    "elementSpacing": 12,
+    "chartPadding": 16,
+    "iconSpacing": 8
+  },
+
+  "borderRadius": {
+    "card": 20,
+    "button": 25,
+    "avatar": 25,
+    "chartDot": 6,
+    "icon": 15
+  },
+
+  "components": {
+    "header": {
+      "structure": {
+        "height": 100,
+        "padding": {
+          "horizontal": 20,
+          "top": 50,
+          "bottom": 24
+        },
+        "layout": "row_space_between"
+      },
+      "leftSection": {
+        "avatar": {
+          "size": 50,
+          "borderRadius": 25,
+          "borderWidth": 0
+        },
+        "textColumn": {
+          "spacing": 4,
+          "greeting": "Good Morning,",
+          "userName": "Go Youn-jung"
+        }
+      },
+      "rightSection": {
+        "notificationButton": {
+          "size": 50,
+          "backgroundColor": "#F5F5F5",
+          "borderRadius": 25,
+          "iconSize": 24,
+          "iconColor": "#000000"
+        }
+      }
+    },
+
+    "statisticsCards": {
+      "container": {
+        "padding": {
+          "horizontal": 20,
+          "vertical": 0
+        },
+        "layout": "row",
+        "spacing": 12,
+        "distribution": "equal_flex"
+      },
+      "card": {
+        "height": 100,
+        "borderRadius": 20,
+        "padding": 20,
+        "layout": "column_center",
+        "spacing": 8
+      },
+      "variants": {
+        "total": {
+          "backgroundColor": "#D6D9FF",
+          "value": "86%",
+          "label": "Total"
+        },
+        "completed": {
+          "backgroundColor": "#FFF4B3",
+          "value": "186",
+          "label": "Completed"
+        },
+        "missed": {
+          "backgroundColor": "#C7E0E8",
+          "value": "23",
+          "label": "Missed"
+        }
+      }
+    },
+
+    "habitStatistics": {
+      "container": {
+        "margin": {
+          "horizontal": 20,
+          "top": 24,
+          "bottom": 20
+        },
+        "backgroundColor": "#E8D5FF",
+        "borderRadius": 20,
+        "padding": 20
+      },
+      "header": {
+        "layout": "row_space_between",
+        "alignment": "center",
+        "marginBottom": 20
+      },
+      "titleSection": {
+        "layout": "row",
+        "alignment": "center",
+        "spacing": 12,
+        "icon": {
+          "size": 40,
+          "backgroundColor": "#000000",
+          "borderRadius": 20,
+          "iconColor": "#FFFFFF",
+          "iconSize": 20
+        },
+        "title": {
+          "text": "Habit Statistic",
+          "style": "sectionTitle"
+        }
+      },
+      "streakSection": {
+        "layout": "row",
+        "alignment": "center",
+        "spacing": 6,
+        "count": {
+          "text": "68",
+          "style": "streakCount"
+        },
+        "icon": {
+          "size": 20,
+          "color": "#FF6B35"
+        }
+      },
+      "chart": {
+        "container": {
+          "height": 120,
+          "backgroundColor": "#FFFFFF",
+          "borderRadius": 16,
+          "padding": 16,
+          "layout": "row",
+          "spacing": 12,
+          "alignment": "bottom"
+        },
+        "bars": {
+          "width": 32,
+          "borderRadius": 16,
+          "spacing": 8,
+          "activeColor": "#000000",
+          "inactiveColor": "#F0F0F0",
+          "labels": ["Read", "Run", "Write", "Coding", "Guitar", "Dring"]
+        },
+        "heights": {
+          "read": 0.7,
+          "run": 0.8,
+          "write": 0.6,
+          "coding": 1.0,
+          "guitar": 0.9,
+          "dring": 0.65
+        }
+      }
+    },
+
+    "allHabitSection": {
+      "header": {
+        "container": {
+          "padding": {
+            "horizontal": 20,
+            "vertical": 16
+          },
+          "layout": "row_space_between",
+          "alignment": "center"
+        },
+        "leftSection": {
+          "layout": "row",
+          "alignment": "center",
+          "spacing": 12,
+          "icon": {
+            "size": 24,
+            "color": "#000000"
+          },
+          "title": {
+            "text": "All Habit",
+            "style": "sectionTitle"
+          }
+        },
+        "rightSection": {
+          "seeAll": {
+            "text": "See All",
+            "style": "seeAll"
+          }
+        }
+      }
+    },
+
+    "habitCards": {
+      "note": "Copy design from home screen habit cards",
+      "container": {
+        "padding": {
+          "horizontal": 20,
+          "bottom": 100
+        },
+        "spacing": 16
+      },
+      "card": {
+        "height": 180,
+        "borderRadius": 20,
+        "padding": 20,
+        "layout": "column"
+      },
+      "variants": {
+        "readBook": {
+          "backgroundColor": "#D6D9FF",
+          "habitName": "Read Book Before Sleep",
+          "streakCount": "18",
+          "status": "completed",
+          "countdown": "03.20 Minut Coming!",
+          "dotGrid": {
+            "rows": 4,
+            "columns": 14,
+            "dotSize": 12,
+            "spacing": 6,
+            "completedColor": "#000000",
+            "incompleteColor": "#E8E8E8"
+          }
+        },
+        "learnProgramming": {
+          "backgroundColor": "#C7E0E8",
+          "habitName": "Learn Programming",
+          "streakCount": "18",
+          "status": "in_progress",
+          "time": "01.30",
+          "dotGrid": {
+            "rows": 4,
+            "columns": 14,
+            "dotSize": 12,
+            "spacing": 6,
+            "completedColor": "#000000",
+            "incompleteColor": "#E8E8E8"
+          }
+        }
+      },
+      "elements": {
+        "header": {
+          "layout": "row_space_between",
+          "alignment": "center",
+          "marginBottom": 16
+        },
+        "leftSection": {
+          "layout": "row",
+          "alignment": "center",
+          "spacing": 12,
+          "icon": {
+            "size": 40,
+            "backgroundColor": "#000000",
+            "borderRadius": 20,
+            "iconColor": "#FFFFFF"
+          },
+          "habitName": {
+            "style": "habitName"
+          }
+        },
+        "rightSection": {
+          "layout": "row",
+          "alignment": "center",
+          "spacing": 6,
+          "streakCount": {
+            "style": "streakCount"
+          },
+          "fireIcon": {
+            "size": 20,
+            "color": "#FF6B35"
+          }
+        },
+        "dotGrid": {
+          "marginTop": 16,
+          "marginBottom": 16
+        },
+        "footer": {
+          "layout": "row_space_between",
+          "alignment": "center"
+        },
+        "countdown": {
+          "style": "countdown"
+        },
+        "statusButton": {
+          "completed": {
+            "backgroundColor": "#000000",
+            "textColor": "#FFFFFF",
+            "text": "Completed",
+            "borderRadius": 20,
+            "padding": {
+              "horizontal": 16,
+              "vertical": 8
+            },
+            "iconSize": 16
+          }
+        }
+      }
+    },
+
+    "navigation": {
+      "note": "Copy design from home screen navigation bar",
+      "container": {
+        "height": 80,
+        "backgroundColor": "#000000",
+        "borderRadius": {
+          "topLeft": 25,
+          "topRight": 25
+        },
+        "padding": {
+          "horizontal": 40,
+          "vertical": 16
+        },
+        "position": "fixed_bottom"
+      },
+      "elements": {
+        "layout": "row_space_between",
+        "alignment": "center",
+        "homeIcon": {
+          "size": 24,
+          "color": "#FFFFFF"
+        },
+        "addButton": {
+          "size": 56,
+          "backgroundColor": "#FFFFFF",
+          "borderRadius": 28,
+          "iconSize": 24,
+          "iconColor": "#000000"
+        },
+        "pauseIcon": {
+          "size": 24,
+          "color": "#FFFFFF"
+        }
+      }
+    }
+  },
+
+  "layout": {
+    "screen": {
+      "backgroundColor": "#FFFFFF",
+      "safeArea": true,
+      "scrollable": true
+    },
+    "structure": [
+      {
+        "component": "header",
+        "order": 1
+      },
+      {
+        "component": "statisticsCards",
+        "order": 2,
+        "marginTop": 0
+      },
+      {
+        "component": "habitStatistics",
+        "order": 3,
+        "marginTop": 24
+      },
+      {
+        "component": "allHabitSection.header",
+        "order": 4,
+        "marginTop": 20
+      },
+      {
+        "component": "habitCards",
+        "order": 5,
+        "marginTop": 0
+      },
+      {
+        "component": "navigation",
+        "order": 6,
+        "position": "fixed_bottom"
+      }
+    ]
+  },
+
+  "animations": {
+    "chartBars": {
+      "type": "scale_up",
+      "duration": 800,
+      "delay": 100,
+      "easing": "ease_out"
+    },
+    "cards": {
+      "type": "fade_slide_up",
+      "duration": 600,
+      "staggerDelay": 150
+    },
+    "dotGrid": {
+      "type": "progressive_fill",
+      "duration": 1000,
+      "easing": "ease_in_out"
+    }
+  },
+
+  "shadows": {
+    "card": {
+      "color": "rgba(0, 0, 0, 0.05)",
+      "offset": {
+        "x": 0,
+        "y": 4
+      },
+      "blurRadius": 12,
+      "spreadRadius": 0
+    },
+    "navigation": {
+      "color": "rgba(0, 0, 0, 0.1)",
+      "offset": {
+        "x": 0,
+        "y": -4
+      },
+      "blurRadius": 20,
+      "spreadRadius": 0
+    }
+  },
+
+  "implementation": {
+    "dependencies": {
+      "illustrations": "Use provided images/illustrations for habit stats card bottom right corner",
+      "habitCards": "Copy exact design from home screen habit cards",
+      "header": "Copy exact design from home screen header",
+      "navigation": "Copy exact design from home screen navigation bar"
+    },
+    "notes": [
+      "Maintain consistent 20px horizontal padding throughout",
+      "Use the same color palette across all cards",
+      "Ensure dot grid animation matches completion patterns",
+      "Fire icons should be consistently sized and colored",
+      "Avatar image should be dynamically loaded",
+      "Chart bars should animate on load with staggered timing",
+      "Maintain accessibility with proper contrast ratios",
+      "Test on different screen sizes for responsive behavior"
+    ]
+  }
+}

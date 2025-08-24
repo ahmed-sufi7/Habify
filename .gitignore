@@ -11,6 +11,13 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
+# Task Master - Include structure but ignore sensitive data
+.taskmaster/state.json
+.taskmaster/reports/
+.env
+.env.local
+.env.production
+.env.development
 
 # IntelliJ related
 *.iml
@@ -43,3 +50,27 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Logs
+logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dev-debug.log
+# Dependency directories
+node_modules/
+# Environment variables (already covered above)
+# .env
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+# OS specific
+
+# Task files
+# tasks.json
+# tasks/ 

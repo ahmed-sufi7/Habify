@@ -1,0 +1,37 @@
+# Task ID: 12
+# Title: Activity History Screen Implementation
+# Status: pending
+# Dependencies: 11
+# Priority: medium
+# Description: Step 11: Create history view following actifity_history_design.json exactly
+# Details:
+
+
+# Test Strategy:
+
+
+# Subtasks:
+## 1. Create tabbed history UI [pending]
+### Dependencies: None
+### Description: Habits and Pomodoro history tabs
+### Details:
+
+
+## 2. Implement habit history [pending]
+### Dependencies: None
+### Description: Chronological list, date headers, completion status
+### Details:
+
+
+## 3. Add pomodoro history [pending]
+### Dependencies: None
+### Description: Session logs, duration details, productivity metrics
+### Details:
+
+
+## 4. Implement search and export [pending]
+### Dependencies: None
+### Description: Search functionality, CSV/PDF export options
+### Details:
+
+

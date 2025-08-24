@@ -1,0 +1,43 @@
+# Task ID: 4
+# Title: Add Habit Screen Implementation
+# Status: pending
+# Dependencies: 3
+# Priority: high
+# Description: Step 3: Create habit creation form following add_habit_design.json exactly
+# Details:
+
+
+# Test Strategy:
+
+
+# Subtasks:
+## 1. Create habit input form UI [pending]
+### Dependencies: None
+### Description: Name, category, priority, duration fields following design
+### Details:
+
+
+## 2. Implement date pickers [pending]
+### Dependencies: None
+### Description: Start date, end date, reminder time pickers
+### Details:
+
+
+## 3. Add repetition pattern selector [pending]
+### Dependencies: None
+### Description: Daily, weekly, monthly, custom interval options
+### Details:
+
+
+## 4. Implement notification settings [pending]
+### Dependencies: None
+### Description: Toggle switches for notifications and alarms
+### Details:
+
+
+## 5. Add form validation and save [pending]
+### Dependencies: None
+### Description: Validate inputs, save to database, return to home
+### Details:
+
+

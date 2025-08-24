@@ -1,0 +1,634 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Project Setup & Configuration",
+        "description": "Initialize Flutter project with required dependencies and architecture setup",
+        "status": "pending",
+        "priority": "high",
+        "complexity": 5,
+        "tags": [
+          "setup",
+          "architecture"
+        ],
+        "dependencies": [],
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Update pubspec.yaml dependencies",
+            "description": "Add state management, database, Firebase, and other required packages",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Create project folder structure",
+            "description": "Set up lib/ folders: models, screens, widgets, services, utils",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Setup SQLite database schema",
+            "description": "Create database helper with Habits, HabitProgress, Pomodoro, PomodoroHistory tables",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Configure state management",
+            "description": "Set up Provider/Riverpod for app-wide state management",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "App Launch & Splash Screen",
+        "description": "Step 1: Create app launch flow with splash screen and first-time user detection",
+        "status": "pending",
+        "priority": "high",
+        "complexity": 3,
+        "tags": [
+          "ui",
+          "launch",
+          "step-1"
+        ],
+        "dependencies": [
+          "1"
+        ],
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create splash screen widget",
+            "description": "App logo, branding, loading animation",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Implement first-time user detection",
+            "description": "Check local storage for app initialization flag",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Setup navigation routing",
+            "description": "Route to Intro (new users) or Home (returning users)",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Intro Screen Implementation",
+        "description": "Step 2: Create onboarding screen following introdesign.json exactly",
+        "status": "pending",
+        "priority": "high",
+        "complexity": 4,
+        "tags": [
+          "ui",
+          "onboarding",
+          "step-2"
+        ],
+        "dependencies": [
+          "2"
+        ],
+        "design_file": "introdesign.json",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Parse introdesign.json specifications",
+            "description": "Extract colors, typography, layout specs from design file",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Create intro screen UI components",
+            "description": "Welcome message, feature highlights, swipeable cards",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Implement skip and get started actions",
+            "description": "Navigation to Add Habit screen, set intro completion flag",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Add Habit Screen Implementation",
+        "description": "Step 3: Create habit creation form following add_habit_design.json exactly",
+        "status": "pending",
+        "priority": "high",
+        "complexity": 7,
+        "tags": [
+          "ui",
+          "forms",
+          "step-3"
+        ],
+        "dependencies": [
+          "3"
+        ],
+        "design_file": "add_habit_design.json",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create habit input form UI",
+            "description": "Name, category, priority, duration fields following design",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Implement date pickers",
+            "description": "Start date, end date, reminder time pickers",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Add repetition pattern selector",
+            "description": "Daily, weekly, monthly, custom interval options",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Implement notification settings",
+            "description": "Toggle switches for notifications and alarms",
+            "status": "pending"
+          },
+          {
+            "id": 5,
+            "title": "Add form validation and save",
+            "description": "Validate inputs, save to database, return to home",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Home Screen Implementation",
+        "description": "Step 4: Create main dashboard following home_design.json exactly",
+        "status": "pending",
+        "priority": "high",
+        "complexity": 8,
+        "tags": [
+          "ui",
+          "dashboard",
+          "step-4"
+        ],
+        "dependencies": [
+          "4"
+        ],
+        "design_file": "home_design.json",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create home screen layout",
+            "description": "Header, today's habits list, navigation elements",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Implement habit cards",
+            "description": "Habit display cards with completion toggles and progress",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Add quick stats summary",
+            "description": "Mini dashboard with key metrics display",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Implement habit completion logic",
+            "description": "Toggle buttons, streak calculation, progress persistence",
+            "status": "pending"
+          },
+          {
+            "id": 5,
+            "title": "Add navigation drawer integration",
+            "description": "Menu sidebar access and navigation routing",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Statistics Screen Implementation",
+        "description": "Step 5: Create analytics dashboard following statistic_design.json exactly",
+        "status": "pending",
+        "priority": "high",
+        "complexity": 6,
+        "tags": [
+          "ui",
+          "analytics",
+          "step-5"
+        ],
+        "dependencies": [
+          "5"
+        ],
+        "design_file": "statistic_design.json",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create statistics dashboard UI",
+            "description": "Counters for total, completed, missed habits",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Implement habit statistics graph",
+            "description": "Line/bar/pie charts for trend analysis",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Add completion rate calculations",
+            "description": "Percentage-based success metrics and display",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Create category breakdown view",
+            "description": "Grouped statistics by habit category",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Habit Details Screen Implementation",
+        "description": "Step 6: Create detailed habit view following Habit_details.json exactly",
+        "status": "pending",
+        "priority": "high",
+        "complexity": 6,
+        "tags": [
+          "ui",
+          "details",
+          "step-6"
+        ],
+        "dependencies": [
+          "6"
+        ],
+        "design_file": "Habit_details.json",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create habit details layout",
+            "description": "Header with habit name, category, description",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Display performance metrics",
+            "description": "Current streak, highest streak, completion rate, totals",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Add calendar view",
+            "description": "Mini calendar showing habit completion history",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Implement edit/delete actions",
+            "description": "Edit navigation, delete confirmation, share progress",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Add Pomodoro Screen Implementation",
+        "description": "Step 7: Create pomodoro creation form following pomodaro_design.json exactly",
+        "status": "pending",
+        "priority": "medium",
+        "complexity": 5,
+        "tags": [
+          "ui",
+          "pomodoro",
+          "step-7"
+        ],
+        "dependencies": [
+          "7"
+        ],
+        "design_file": "pomodaro_design.json",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create pomodoro form UI",
+            "description": "Task name, work/break durations, session count",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Add duration pickers",
+            "description": "Work duration, break duration, long break settings",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Implement notification settings",
+            "description": "Alert preferences, auto-start toggle",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Add save and navigation",
+            "description": "Store pomodoro config, navigate to timer screen",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Pomodoro Timer Screen Implementation",
+        "description": "Step 8: Create timer interface following pomodaro_design.json exactly",
+        "status": "pending",
+        "priority": "medium",
+        "complexity": 7,
+        "tags": [
+          "ui",
+          "timer",
+          "step-8"
+        ],
+        "dependencies": [
+          "8"
+        ],
+        "design_file": "pomodaro_design.json",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create timer display UI",
+            "description": "Large countdown timer, session indicator, progress ring",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Implement timer logic",
+            "description": "Countdown functionality, session management, break automation",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Add control buttons",
+            "description": "Start/pause, stop, skip, reset functionality",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Create session history",
+            "description": "Completed sessions log, focus time tracking",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Notification Screen Implementation",
+        "description": "Step 9: Create notification center following notification_design.json exactly",
+        "status": "pending",
+        "priority": "medium",
+        "complexity": 4,
+        "tags": [
+          "ui",
+          "notifications",
+          "step-9"
+        ],
+        "dependencies": [
+          "9"
+        ],
+        "design_file": "notification_design.json",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create notification list UI",
+            "description": "Notification cards with timestamps, read/unread status",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Implement notification history",
+            "description": "Store and display habit/pomodoro notification history",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Add interaction features",
+            "description": "Mark as read, clear all, deep linking to habits",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "title": "Menu Sidebar Implementation",
+        "description": "Step 10: Create navigation drawer with user stats and app navigation",
+        "status": "pending",
+        "priority": "medium",
+        "complexity": 3,
+        "tags": [
+          "ui",
+          "navigation",
+          "step-10"
+        ],
+        "dependencies": [
+          "10"
+        ],
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create sidebar layout",
+            "description": "User stats summary, navigation menu items",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Implement navigation items",
+            "description": "Home, Habits, Statistics, Pomodoro, History, Settings links",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Add drawer animation",
+            "description": "Smooth slide animation, active item highlighting",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "title": "Activity History Screen Implementation",
+        "description": "Step 11: Create history view following actifity_history_design.json exactly",
+        "status": "pending",
+        "priority": "medium",
+        "complexity": 5,
+        "tags": [
+          "ui",
+          "history",
+          "step-11"
+        ],
+        "dependencies": [
+          "11"
+        ],
+        "design_file": "actifity_history_design.json",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create tabbed history UI",
+            "description": "Habits and Pomodoro history tabs",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Implement habit history",
+            "description": "Chronological list, date headers, completion status",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Add pomodoro history",
+            "description": "Session logs, duration details, productivity metrics",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Implement search and export",
+            "description": "Search functionality, CSV/PDF export options",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 13,
+        "title": "Firebase Integration",
+        "description": "Integrate Firebase services for push notifications and analytics",
+        "status": "pending",
+        "priority": "medium",
+        "complexity": 6,
+        "tags": [
+          "firebase",
+          "notifications",
+          "analytics"
+        ],
+        "dependencies": [
+          "12"
+        ],
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Setup Firebase project",
+            "description": "Create Firebase project, configure Android app",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Implement Firebase Messaging",
+            "description": "FCM setup for push notifications",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Add Firebase Analytics",
+            "description": "User behavior tracking, custom events",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Setup Crashlytics",
+            "description": "Error monitoring and crash reporting",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 14,
+        "title": "Google Ads Integration",
+        "description": "Implement AdMob for app monetization",
+        "status": "pending",
+        "priority": "low",
+        "complexity": 4,
+        "tags": [
+          "ads",
+          "monetization"
+        ],
+        "dependencies": [
+          "13"
+        ],
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Setup AdMob account",
+            "description": "Create AdMob account, configure ad units",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Implement banner ads",
+            "description": "Add banner ads to home screen",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Add interstitial ads",
+            "description": "Show ads after habit completion",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Implement rewarded ads",
+            "description": "Rewarded ads for premium features",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 15,
+        "title": "Testing & Quality Assurance",
+        "description": "Comprehensive testing suite and quality assurance",
+        "status": "pending",
+        "priority": "high",
+        "complexity": 7,
+        "tags": [
+          "testing",
+          "qa"
+        ],
+        "dependencies": [
+          "14"
+        ],
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Write widget tests",
+            "description": "Test all screens and UI components",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Create integration tests",
+            "description": "Test critical user flows end-to-end",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Performance testing",
+            "description": "Memory usage, startup time, battery optimization",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Device compatibility testing",
+            "description": "Test on different Android versions and screen sizes",
+            "status": "pending"
+          }
+        ]
+      }
+    ],
+    "metadata": {
+      "project": "Habify - Habit Tracking Flutter App",
+      "description": "Complete habit tracking mobile application with 11-step development workflow",
+      "created": "2025-08-24T00:00:00Z",
+      "workflow": "Sequential development following exact PRD specifications"
+    }
+  }
+}

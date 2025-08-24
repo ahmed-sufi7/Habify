@@ -1,0 +1,31 @@
+# Task ID: 11
+# Title: Menu Sidebar Implementation
+# Status: pending
+# Dependencies: 10
+# Priority: medium
+# Description: Step 10: Create navigation drawer with user stats and app navigation
+# Details:
+
+
+# Test Strategy:
+
+
+# Subtasks:
+## 1. Create sidebar layout [pending]
+### Dependencies: None
+### Description: User stats summary, navigation menu items
+### Details:
+
+
+## 2. Implement navigation items [pending]
+### Dependencies: None
+### Description: Home, Habits, Statistics, Pomodoro, History, Settings links
+### Details:
+
+
+## 3. Add drawer animation [pending]
+### Dependencies: None
+### Description: Smooth slide animation, active item highlighting
+### Details:
+
+

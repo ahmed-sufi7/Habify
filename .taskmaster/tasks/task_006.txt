@@ -1,0 +1,37 @@
+# Task ID: 6
+# Title: Statistics Screen Implementation
+# Status: pending
+# Dependencies: 5
+# Priority: high
+# Description: Step 5: Create analytics dashboard following statistic_design.json exactly
+# Details:
+
+
+# Test Strategy:
+
+
+# Subtasks:
+## 1. Create statistics dashboard UI [pending]
+### Dependencies: None
+### Description: Counters for total, completed, missed habits
+### Details:
+
+
+## 2. Implement habit statistics graph [pending]
+### Dependencies: None
+### Description: Line/bar/pie charts for trend analysis
+### Details:
+
+
+## 3. Add completion rate calculations [pending]
+### Dependencies: None
+### Description: Percentage-based success metrics and display
+### Details:
+
+
+## 4. Create category breakdown view [pending]
+### Dependencies: None
+### Description: Grouped statistics by habit category
+### Details:
+
+

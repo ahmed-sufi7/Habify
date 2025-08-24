@@ -1,0 +1,43 @@
+# Task ID: 5
+# Title: Home Screen Implementation
+# Status: pending
+# Dependencies: 4
+# Priority: high
+# Description: Step 4: Create main dashboard following home_design.json exactly
+# Details:
+
+
+# Test Strategy:
+
+
+# Subtasks:
+## 1. Create home screen layout [pending]
+### Dependencies: None
+### Description: Header, today's habits list, navigation elements
+### Details:
+
+
+## 2. Implement habit cards [pending]
+### Dependencies: None
+### Description: Habit display cards with completion toggles and progress
+### Details:
+
+
+## 3. Add quick stats summary [pending]
+### Dependencies: None
+### Description: Mini dashboard with key metrics display
+### Details:
+
+
+## 4. Implement habit completion logic [pending]
+### Dependencies: None
+### Description: Toggle buttons, streak calculation, progress persistence
+### Details:
+
+
+## 5. Add navigation drawer integration [pending]
+### Dependencies: None
+### Description: Menu sidebar access and navigation routing
+### Details:
+
+

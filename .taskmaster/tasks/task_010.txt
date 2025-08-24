@@ -1,0 +1,31 @@
+# Task ID: 10
+# Title: Notification Screen Implementation
+# Status: pending
+# Dependencies: 9
+# Priority: medium
+# Description: Step 9: Create notification center following notification_design.json exactly
+# Details:
+
+
+# Test Strategy:
+
+
+# Subtasks:
+## 1. Create notification list UI [pending]
+### Dependencies: None
+### Description: Notification cards with timestamps, read/unread status
+### Details:
+
+
+## 2. Implement notification history [pending]
+### Dependencies: None
+### Description: Store and display habit/pomodoro notification history
+### Details:
+
+
+## 3. Add interaction features [pending]
+### Dependencies: None
+### Description: Mark as read, clear all, deep linking to habits
+### Details:
+
+

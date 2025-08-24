@@ -1,0 +1,37 @@
+# Task ID: 7
+# Title: Habit Details Screen Implementation
+# Status: pending
+# Dependencies: 6
+# Priority: high
+# Description: Step 6: Create detailed habit view following Habit_details.json exactly
+# Details:
+
+
+# Test Strategy:
+
+
+# Subtasks:
+## 1. Create habit details layout [pending]
+### Dependencies: None
+### Description: Header with habit name, category, description
+### Details:
+
+
+## 2. Display performance metrics [pending]
+### Dependencies: None
+### Description: Current streak, highest streak, completion rate, totals
+### Details:
+
+
+## 3. Add calendar view [pending]
+### Dependencies: None
+### Description: Mini calendar showing habit completion history
+### Details:
+
+
+## 4. Implement edit/delete actions [pending]
+### Dependencies: None
+### Description: Edit navigation, delete confirmation, share progress
+### Details:
+
+

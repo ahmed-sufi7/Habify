@@ -1,0 +1,664 @@
+# Product Requirements Document (PRD)
+# Habify - Habit Tracking App
+
+## 1. Executive Summary
+
+### 1.1 Product Overview
+Habify is a comprehensive habit tracking mobile application built with Flutter that empowers users to create, track, manage, and build positive habits through daily progress monitoring, streak visualization, and motivation maintenance features.
+
+### 1.2 Vision Statement
+To provide users with an intuitive, feature-rich habit tracking solution that combines habit management with productivity tools (Pomodoro timer) to help users achieve their personal development goals without the friction of authentication requirements.
+
+### 1.3 Target Platform
+- **Primary**: Android Mobile Application
+- **Framework**: Flutter (Dart)
+- **Backend Services**: Firebase (Push Notifications)
+- **Monetization**: Google Ads Integration
+
+### 1.4 Development Approach
+**CRITICAL**: This app must be built following the EXACT workflow sequence specified, with each screen implementation strictly adhering to its corresponding design JSON file while ensuring FULL functionality (not just UI).
+
+## 2. Core Objectives
+
+### 2.1 Primary Goals
+- Enable users to create and customize habits with comprehensive configuration options
+- Provide visual tracking mechanisms (streaks, calendars, progress grids)
+- Maintain user engagement through reminders and notifications
+- Offer productivity enhancement through integrated Pomodoro timer
+- Generate insights through statistics and activity history
+
+### 2.2 Success Metrics
+- Daily active user engagement rate
+- Habit completion rate
+- User retention (7-day, 30-day)
+- Average number of habits created per user
+- Streak maintenance rate
+
+## 3. User Personas
+
+### 3.1 Primary Persona: The Self-Improvement Enthusiast
+- **Age**: 18-45
+- **Characteristics**: Goal-oriented, values personal growth, seeks structure
+- **Needs**: Simple habit tracking, visual progress indicators, flexible reminders
+- **Pain Points**: Forgetting habits, losing motivation, complex app interfaces
+
+### 3.2 Secondary Persona: The Productivity Optimizer
+- **Age**: 22-40
+- **Characteristics**: Time-conscious, multitasker, efficiency-focused
+- **Needs**: Pomodoro timer integration, activity history, quick habit logging
+- **Pain Points**: Context switching between apps, time management
+
+## 4. Functional Requirements
+
+### 4.1 Habit Creation Module
+
+#### 4.1.1 Core Attributes
+- **Habit Name**: Text input (required)
+- **Habit Category**: Predefined categories selection
+- **Habit Priority**: High/Medium/Low priority levels
+- **Habit Duration**: Time-based duration setting
+- **Habit Description**: Optional detailed description field
+- **Start Date**: Date picker for habit initiation
+- **End Date**: Optional date picker for time-bound habits
+- **Repetition Pattern**: 
+  - Daily
+  - Weekly (with day selection)
+  - Monthly
+  - Custom interval
+
+#### 4.1.2 Notification Settings
+- **Reminder Time**: Time picker for notification scheduling
+- **Alarm Option**: Toggle for alarm-style notifications
+- **Notification Frequency**: Once/Multiple times per day
+- **Custom Messages**: Personalized reminder text
+
+### 4.2 Habit Tracking Module
+
+#### 4.2.1 Visual Tracking Components
+- **Habit Streak Counter**: Consecutive days display
+- **Habit Calendar**: Monthly view with completion markers
+- **Hybrid Calendar Timeline**: Combined calendar and timeline view
+- **Dot Calendar Grid Matrix**: Visual progress grid showing:
+  - Completed (filled dot)
+  - Missed (empty dot)
+  - Future (grayed dot)
+- **Completion Toggle**: Quick-action button to mark habit as complete
+
+#### 4.2.2 Progress Indicators
+- **Current Streak**: Active consecutive days
+- **Longest Streak**: Historical best performance
+- **Completion Rate**: Percentage-based success metric
+- **Weekly/Monthly Summary**: Aggregated performance view
+
+### 4.3 Statistics Module
+
+#### 4.3.1 Dashboard Metrics
+- **Total Habits**: Count of all created habits
+- **Active Habits**: Currently tracked habits
+- **Completed Today**: Daily completion count
+- **Total Missed**: Cumulative missed habits
+- **Overall Completion Rate**: Global success percentage
+
+#### 4.3.2 Visualization Components
+- **Habit Statistics Graph**: 
+  - Line chart for trend analysis
+  - Bar chart for category comparison
+  - Pie chart for habit distribution
+- **Streak Heatmap**: Intensity-based calendar view
+- **Category Performance**: Grouped statistics by category
+- **Time-based Analytics**: Weekly/Monthly/Yearly views
+
+### 4.4 Reminder System
+
+#### 4.4.1 Notification Types
+- **Push Notifications**: Firebase-powered notifications
+- **Local Notifications**: Device-based reminders
+- **Alarm Integration**: System alarm triggering
+- **Smart Reminders**: Context-aware notifications
+
+#### 4.4.2 Notification Management
+- **Notification Center**: Centralized notification history
+- **Snooze Options**: 5/10/15/30 minute delays
+- **Batch Notifications**: Grouped habit reminders
+- **Do Not Disturb**: Time-based notification blocking
+
+### 4.5 Habit Details Screen
+
+#### 4.5.1 Information Display
+- **Habit Metadata**: Name, category, description
+- **Performance Metrics**:
+  - Current streak
+  - Highest streak
+  - Total completed
+  - Total missed
+  - Completion rate
+  - Average completion time
+- **Visual Progress**: Mini calendar view
+- **History Log**: Timestamped completion records
+
+#### 4.5.2 Actions
+- **Edit Habit**: Modify habit parameters
+- **Pause/Resume**: Temporary habit suspension
+- **Delete Habit**: Remove with confirmation
+- **Share Progress**: Social sharing capability
+
+### 4.6 Pomodoro Module
+
+#### 4.6.1 Pomodoro Creation
+- **Task Name**: Identifier for Pomodoro session
+- **Work Duration**: Customizable work period (default 25 min)
+- **Break Duration**: Short break period (default 5 min)
+- **Long Break**: Extended break after sessions (default 15 min)
+- **Session Count**: Number of Pomodoro cycles
+- **Notification Settings**: Alert preferences
+- **Auto-start Next**: Automatic session progression
+
+#### 4.6.2 Pomodoro Timer Screen
+- **Timer Display**: Large countdown timer
+- **Session Indicator**: Current session number
+- **Progress Ring**: Visual completion indicator
+- **Control Buttons**:
+  - Start/Pause
+  - Stop
+  - Skip to break
+  - Reset
+- **Session History**: 
+  - Completed sessions log
+  - Total focus time
+  - Break time utilized
+  - Productivity score
+
+### 4.7 Activity History
+
+#### 4.7.1 Habit History
+- **Chronological View**: Date-sorted habit completions
+- **Filter Options**:
+  - By category
+  - By date range
+  - By completion status
+- **Export Capability**: CSV/PDF export
+- **Search Functionality**: Find specific habits/dates
+
+#### 4.7.2 Pomodoro History
+- **Session Logs**: Detailed Pomodoro records
+- **Productivity Metrics**:
+  - Total focus hours
+  - Average session length
+  - Completion rate
+- **Task Analysis**: Most productive times/days
+
+### 4.8 User Interface Components
+
+#### 4.8.1 Home Screen
+- **Today's Habits**: List of pending habits
+- **Quick Stats**: Mini dashboard
+- **Motivational Quote**: Daily inspiration
+- **Quick Actions**: Fast access buttons
+- **Progress Overview**: Visual summary
+
+#### 4.8.2 Menu Sidebar
+- **Navigation Items**:
+  - Home
+  - Habits
+  - Statistics
+  - Pomodoro
+  - Activity History
+  - Notifications
+  - Settings
+- **User Stats Summary**: Quick metrics view
+- **App Version**: Version information
+
+#### 4.8.3 Intro Screen (New Users)
+- **Welcome Message**: App introduction
+- **Feature Highlights**: Key capabilities
+- **Quick Tutorial**: Interactive walkthrough
+- **Skip Option**: Direct to home
+- **Get Started**: Begin habit creation
+
+## 5. Technical Requirements
+
+### 5.1 Frontend Architecture
+- **Framework**: Flutter (Latest Stable Version)
+- **State Management**: Provider/Riverpod/Bloc
+- **Local Storage**: SQLite/Hive for offline data
+- **UI Components**: Material Design 3
+- **Responsive Design**: Multiple screen size support
+
+### 5.2 Backend Services
+- **Firebase Integration**:
+  - Cloud Messaging (FCM) for push notifications
+  - Analytics for user behavior tracking
+  - Crashlytics for error monitoring
+- **Google Ads**: AdMob integration
+  - Banner ads
+  - Interstitial ads
+  - Rewarded ads for premium features
+
+### 5.3 Data Architecture
+
+#### 5.3.1 Local Database Schema
+```
+Habits Table:
+- id (Primary Key)
+- name
+- category
+- priority
+- description
+- startDate
+- endDate
+- repetitionPattern
+- reminderTime
+- createdAt
+- updatedAt
+
+HabitProgress Table:
+- id (Primary Key)
+- habitId (Foreign Key)
+- date
+- completed
+- completedAt
+- notes
+
+Pomodoro Table:
+- id (Primary Key)
+- name
+- workDuration
+- breakDuration
+- sessions
+- createdAt
+
+PomodoroHistory Table:
+- id (Primary Key)
+- pomodoroId (Foreign Key)
+- startTime
+- endTime
+- completed
+- sessionsCompleted
+```
+
+### 5.4 Performance Requirements
+- **App Launch**: < 2 seconds cold start
+- **Screen Transitions**: < 300ms
+- **Data Operations**: < 100ms for local operations
+- **Memory Usage**: < 150MB average
+- **Battery Optimization**: Minimal background drain
+
+## 6. Design Specifications
+
+### 6.1 Design System
+- **Color Palette**: 
+  - Primary: Habit category colors
+  - Secondary: Progress indicators
+  - Accent: CTAs and notifications
+- **Typography**: Clear hierarchy with readable fonts
+- **Icons**: Consistent iconography set
+- **Spacing**: 8pt grid system
+
+### 6.2 Screen-Specific Designs
+Each screen implementation must strictly follow the corresponding design JSON file:
+
+1. **Intro Screen**: `introdesign.json`
+2. **Add Habit Screen**: `add_habit_design.json`
+3. **Home Screen**: `home_design.json`
+4. **Statistics Screen**: `statistic_design.json`
+5. **Habit Details Screen**: `Habit_details.json`
+6. **Add Pomodoro Screen**: `pomodaro_design.json`
+7. **Pomodoro Timer Screen**: `pomodaro_design.json`
+8. **Notification Screen**: `notification_design.json`
+9. **Activity History Screen**: `activity_history_design.json`
+
+### 6.3 Responsive Considerations
+- **Phone Portrait**: Primary layout
+- **Phone Landscape**: Adapted layout
+- **Tablet Support**: Scaled interface
+- **Dark Mode**: Full theme support
+
+## 7. User Flow
+
+### 7.1 First-Time User Flow
+1. App Launch → Splash Screen
+2. Intro Screen (Onboarding)
+3. Add First Habit prompt
+4. Habit Creation Screen
+5. Home Screen with first habit
+6. Tutorial tooltips for key features
+
+### 7.2 Returning User Flow
+1. App Launch → Splash Screen
+2. Home Screen (Today's habits)
+3. Quick habit completion toggles
+4. Navigation to desired features
+
+### 7.3 Habit Creation Flow
+1. Home Screen → Add Habit button
+2. Add Habit Screen
+3. Fill required fields
+4. Configure notifications
+5. Save → Return to Home
+6. Confirmation toast/feedback
+
+### 7.4 Pomodoro Flow
+1. Menu → Pomodoro
+2. Create/Select Pomodoro
+3. Start Timer
+4. Work Session → Break → Repeat
+5. Session Complete → History Update
+
+## 8. Non-Functional Requirements
+
+### 8.1 Security & Privacy
+- **No Authentication**: Anonymous usage
+- **Local Data Storage**: User data remains on device
+- **Data Export**: User-controlled data portability
+- **No Personal Data Collection**: Privacy-first approach
+
+### 8.2 Accessibility
+- **Screen Reader Support**: Full TalkBack compatibility
+- **Font Scaling**: Dynamic type support
+- **Color Contrast**: WCAG 2.1 AA compliance
+- **Touch Targets**: Minimum 44x44 pt
+
+### 8.3 Localization
+- **Initial Launch**: English
+- **Future Support**: Multi-language capability
+- **Date/Time Formats**: Locale-based formatting
+- **RTL Support**: Bidirectional text ready
+
+## 9. App Creation Workflow - Implementation Order
+
+### CRITICAL: Follow this exact sequence for app development. Each screen MUST be built in this order and MUST use the corresponding design JSON file.
+
+### 9.1 Development Sequence
+
+#### Step 1: App Launch
+- **Component**: Splash Screen
+- **Requirements**: 
+  - App logo and branding
+  - Loading animation
+  - Version check
+  - Navigation to Intro (new users) or Home (returning users)
+
+#### Step 2: Intro Screen (New Users)
+- **Design File**: `introdesign.json` - MUST follow this design exactly
+- **Components**:
+  - Welcome message
+  - Feature highlights with illustrations
+  - Swipeable onboarding cards
+  - Skip button
+  - Get Started CTA
+- **Functionality**: 
+  - First-time user detection
+  - Local storage flag for intro completion
+  - Navigation to Add Habit screen
+
+#### Step 3: Add Habit Screen
+- **Design File**: `add_habit_design.json` - MUST follow this design exactly
+- **Components**:
+  - Habit name input
+  - Category selector
+  - Priority picker (High/Medium/Low)
+  - Duration settings
+  - Reminder time picker
+  - Notification toggle
+  - Alarm toggle
+  - Repetition pattern selector
+  - Start/End date pickers
+  - Description field
+  - Save button
+- **Functionality**:
+  - Form validation
+  - Local database storage
+  - Notification scheduling
+  - Return to Home after save
+
+#### Step 4: Home Screen
+- **Design File**: `home_design.json` - MUST follow this design exactly
+- **Components**:
+  - Today's habits list
+  - Completion toggle buttons
+  - Progress indicators
+  - Quick stats summary
+  - Add habit FAB
+  - Navigation drawer trigger
+  - Daily motivational quote
+- **Functionality**:
+  - Real-time habit status updates
+  - Streak calculation
+  - Progress persistence
+  - Navigation to all features
+
+#### Step 5: Statistics Screen
+- **Design File**: `statistic_design.json` - MUST follow this design exactly
+- **Components**:
+  - Total habits counter
+  - Completed habits counter
+  - Missed habits counter
+  - Habit statistics graph
+  - Completion rate percentage
+  - Category breakdown
+  - Time period selector
+- **Functionality**:
+  - Data aggregation
+  - Graph rendering
+  - Filter capabilities
+  - Export options
+
+#### Step 6: Habit Details Screen
+- **Design File**: `Habit_details.json` - MUST follow this design exactly
+- **Components**:
+  - Habit title and category
+  - Current streak display
+  - Highest streak record
+  - Completion rate
+  - Completed/Missed counters
+  - Calendar view
+  - Edit/Delete buttons
+  - Progress timeline
+- **Functionality**:
+  - Historical data display
+  - Edit navigation
+  - Delete confirmation
+  - Share progress feature
+
+#### Step 7: Add Pomodoro Screen
+- **Design File**: `pomodaro_design.json` - MUST follow this design exactly
+- **Components**:
+  - Task name input
+  - Work duration picker
+  - Break duration picker
+  - Long break duration
+  - Session count selector
+  - Notification settings
+  - Auto-start toggle
+  - Save button
+- **Functionality**:
+  - Pomodoro configuration storage
+  - Default values
+  - Validation
+  - Navigation to timer
+
+#### Step 8: Pomodoro Timer Screen
+- **Design File**: `pomodaro_design.json` - MUST follow this design exactly
+- **Components**:
+  - Large countdown timer
+  - Session indicator
+  - Progress ring animation
+  - Start/Pause button
+  - Stop button
+  - Skip button
+  - Session history list
+  - Total focus time
+- **Functionality**:
+  - Timer countdown logic
+  - Session management
+  - Break automation
+  - Notification triggers
+  - History logging
+
+#### Step 9: Notification Screen
+- **Design File**: `notification_design.json` - MUST follow this design exactly
+- **Components**:
+  - Notification list
+  - Read/Unread indicators
+  - Time stamps
+  - Notification types (habit/pomodoro)
+  - Clear all button
+  - Settings link
+- **Functionality**:
+  - Notification history
+  - Mark as read
+  - Batch operations
+  - Deep linking to habits
+
+#### Step 10: Menu Sidebar
+- **Components**:
+  - User stats summary
+  - Navigation items:
+    - Home
+    - Habits
+    - Statistics  
+    - Pomodoro
+    - Activity History
+    - Notifications
+    - Settings
+    - About
+  - App version
+- **Functionality**:
+  - Smooth drawer animation
+  - Active item highlighting
+  - Navigation management
+
+#### Step 11: Activity History Screen
+- **Design File**: `activity_history_design.json` - MUST follow this design exactly
+- **Components**:
+  - Tab bar (Habits/Pomodoro)
+  - Habit History Tab:
+    - Chronological list
+    - Date headers
+    - Completion status
+    - Filter options
+  - Pomodoro History Tab:
+    - Session logs
+    - Duration details
+    - Productivity metrics
+  - Search bar
+  - Export button
+- **Functionality**:
+  - Historical data retrieval
+  - Search implementation
+  - Filter logic
+  - Export to CSV/PDF
+
+### 9.2 Integration Requirements
+
+#### Firebase Integration (Throughout Development)
+- **Push Notifications**: Implement after Step 4 (Home Screen)
+- **Analytics**: Add from Step 1 (App Launch)
+- **Crashlytics**: Configure at Step 1
+
+#### Google Ads Integration (After Core Features)
+- **Banner Ads**: Add to Home Screen (Step 4)
+- **Interstitial Ads**: After habit completion
+- **Rewarded Ads**: For premium features
+
+### 9.3 Critical Implementation Notes
+
+1. **MANDATORY**: Each screen MUST be built in the exact order specified above
+2. **DESIGN COMPLIANCE**: Every screen MUST exactly match its corresponding JSON design file
+3. **FUNCTIONALITY FIRST**: Each screen must be fully functional, not just UI mockups
+4. **PROGRESSIVE DEVELOPMENT**: Complete each step fully before moving to the next
+5. **TESTING**: Test each screen thoroughly before proceeding
+6. **NO AUTHENTICATION**: Ensure all features work without user login
+7. **OFFLINE FIRST**: All core features must work offline
+
+## 10. Design File Mapping - CRITICAL REFERENCE
+
+### IMPORTANT: Every screen implementation MUST strictly follow its corresponding design JSON file
+
+| Screen | Design JSON File | Priority |
+|--------|-----------------|----------|
+| Intro Screen | **`introdesign.json`** | Step 2 |
+| Add Habit Screen | **`add_habit_design.json`** | Step 3 |
+| Home Screen | **`home_design.json`** | Step 4 |
+| Statistics Screen | **`statistic_design.json`** | Step 5 |
+| Habit Details Screen | **`Habit_details.json`** | Step 6 |
+| Add Pomodoro Screen | **`pomodaro_design.json`** | Step 7 |
+| Pomodoro Timer Screen | **`pomodaro_design.json`** | Step 8 |
+| Notification Screen | **`notification_design.json`** | Step 9 |
+| Activity History Screen | **`activity_history_design.json`** | Step 11 |
+
+### Design Implementation Rules:
+1. **EXACT REPLICATION**: Copy the exact design from the JSON file
+2. **ADD FUNCTIONALITY**: Design files show UI only - you MUST add all functionality
+3. **NO DEVIATIONS**: Do not modify or "improve" the designs - follow them exactly
+4. **COMPLETE FEATURES**: Every button, toggle, and input must be fully functional
+5. **RESPONSIVE**: Ensure designs work on different screen sizes while maintaining the design language
+
+## 11. Success Criteria
+
+### 10.1 Functional Completeness
+- All 11 specified features implemented
+- Design JSON files accurately replicated
+- Full offline functionality
+- Smooth user experience
+
+### 10.2 Quality Metrics
+- Crash-free rate > 99.5%
+- User rating > 4.0 stars
+- Daily active users growth
+- Feature adoption rates
+
+## 11. Testing Requirements
+
+### 11.1 Test Coverage
+- **Unit Tests**: >80% code coverage
+- **Widget Tests**: All screens tested
+- **Integration Tests**: Critical user flows
+- **Performance Tests**: Load and stress testing
+
+### 11.2 Device Testing
+- **Android Versions**: 5.0+ (API 21+)
+- **Screen Sizes**: Phone and tablet
+- **Orientations**: Portrait and landscape
+- **Network Conditions**: Offline/Online
+
+## 12. Delivery Specifications
+
+### 12.1 Deliverables
+1. Complete Flutter source code
+2. APK for Android deployment
+3. Documentation (code and user)
+4. Design implementation matching JSON files
+5. Test suite and reports
+
+### 12.2 Development Guidelines for Claude Code
+- Follow Flutter best practices
+- Implement clean architecture
+- Use meaningful variable names
+- Add comprehensive comments
+- Create reusable components
+- Ensure null safety
+- Implement error handling
+- Follow the design JSON files exactly
+- Test each feature thoroughly
+- Optimize for performance
+
+## 13. Appendix
+
+### 13.1 Glossary
+- **Habit**: A recurring task or behavior to track
+- **Streak**: Consecutive days of habit completion
+- **Pomodoro**: Time management technique (25 min work + 5 min break)
+- **Grid Matrix**: Visual representation of habit completion over time
+
+### 13.2 References
+- Material Design Guidelines
+- Flutter Documentation
+- Firebase Documentation
+- Google AdMob Guidelines
+
+---
+
+**Document Version**: 1.0
+**Last Updated**: Current Date
+**Status**: Ready for Implementation

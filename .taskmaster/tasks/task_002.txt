@@ -1,0 +1,31 @@
+# Task ID: 2
+# Title: App Launch & Splash Screen
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Step 1: Create app launch flow with splash screen and first-time user detection
+# Details:
+
+
+# Test Strategy:
+
+
+# Subtasks:
+## 1. Create splash screen widget [pending]
+### Dependencies: None
+### Description: App logo, branding, loading animation
+### Details:
+
+
+## 2. Implement first-time user detection [pending]
+### Dependencies: None
+### Description: Check local storage for app initialization flag
+### Details:
+
+
+## 3. Setup navigation routing [pending]
+### Dependencies: None
+### Description: Route to Intro (new users) or Home (returning users)
+### Details:
+
+

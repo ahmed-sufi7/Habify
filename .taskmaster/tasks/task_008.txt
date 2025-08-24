@@ -1,0 +1,37 @@
+# Task ID: 8
+# Title: Add Pomodoro Screen Implementation
+# Status: pending
+# Dependencies: 7
+# Priority: medium
+# Description: Step 7: Create pomodoro creation form following pomodaro_design.json exactly
+# Details:
+
+
+# Test Strategy:
+
+
+# Subtasks:
+## 1. Create pomodoro form UI [pending]
+### Dependencies: None
+### Description: Task name, work/break durations, session count
+### Details:
+
+
+## 2. Add duration pickers [pending]
+### Dependencies: None
+### Description: Work duration, break duration, long break settings
+### Details:
+
+
+## 3. Implement notification settings [pending]
+### Dependencies: None
+### Description: Alert preferences, auto-start toggle
+### Details:
+
+
+## 4. Add save and navigation [pending]
+### Dependencies: None
+### Description: Store pomodoro config, navigate to timer screen
+### Details:
+
+

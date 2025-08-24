@@ -1,0 +1,37 @@
+# Task ID: 1
+# Title: Project Setup & Configuration
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Initialize Flutter project with required dependencies and architecture setup
+# Details:
+
+
+# Test Strategy:
+
+
+# Subtasks:
+## 1. Update pubspec.yaml dependencies [pending]
+### Dependencies: None
+### Description: Add state management, database, Firebase, and other required packages
+### Details:
+
+
+## 2. Create project folder structure [pending]
+### Dependencies: None
+### Description: Set up lib/ folders: models, screens, widgets, services, utils
+### Details:
+
+
+## 3. Setup SQLite database schema [pending]
+### Dependencies: None
+### Description: Create database helper with Habits, HabitProgress, Pomodoro, PomodoroHistory tables
+### Details:
+
+
+## 4. Configure state management [pending]
+### Dependencies: None
+### Description: Set up Provider/Riverpod for app-wide state management
+### Details:
+
+

@@ -1,0 +1,37 @@
+# Task ID: 14
+# Title: Google Ads Integration
+# Status: pending
+# Dependencies: 13
+# Priority: low
+# Description: Implement AdMob for app monetization
+# Details:
+
+
+# Test Strategy:
+
+
+# Subtasks:
+## 1. Setup AdMob account [pending]
+### Dependencies: None
+### Description: Create AdMob account, configure ad units
+### Details:
+
+
+## 2. Implement banner ads [pending]
+### Dependencies: None
+### Description: Add banner ads to home screen
+### Details:
+
+
+## 3. Add interstitial ads [pending]
+### Dependencies: None
+### Description: Show ads after habit completion
+### Details:
+
+
+## 4. Implement rewarded ads [pending]
+### Dependencies: None
+### Description: Rewarded ads for premium features
+### Details:
+
+

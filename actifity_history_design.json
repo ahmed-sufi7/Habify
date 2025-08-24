@@ -3,8 +3,7 @@
     "screen_name": "Activity History",
     "platform": "flutter_mobile",
     "version": "1.0.0",
-    "
-": {
+    "colors": {
       "primary": "#000000",
       "secondary": "#666666",
       "background": "#F5F5F5",

@@ -1,0 +1,31 @@
+# Task ID: 3
+# Title: Intro Screen Implementation
+# Status: pending
+# Dependencies: 2
+# Priority: high
+# Description: Step 2: Create onboarding screen following introdesign.json exactly
+# Details:
+
+
+# Test Strategy:
+
+
+# Subtasks:
+## 1. Parse introdesign.json specifications [pending]
+### Dependencies: None
+### Description: Extract colors, typography, layout specs from design file
+### Details:
+
+
+## 2. Create intro screen UI components [pending]
+### Dependencies: None
+### Description: Welcome message, feature highlights, swipeable cards
+### Details:
+
+
+## 3. Implement skip and get started actions [pending]
+### Dependencies: None
+### Description: Navigation to Add Habit screen, set intro completion flag
+### Details:
+
+

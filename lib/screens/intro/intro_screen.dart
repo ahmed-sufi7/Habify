@@ -17,14 +17,21 @@ class IntroScreen extends StatefulWidget {
   State<IntroScreen> createState() => _IntroScreenState();
 }
 
-class _IntroScreenState extends State<IntroScreen> {
+class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin {
   PageController _pageController = PageController();
   int _currentStep = 0;
+  bool _isLoading = false;
 
   // Form controllers for user info
   final _nameController = TextEditingController();
   final _ageController = TextEditingController();
   String? _selectedGender;
+
+  // Animation controllers for smooth button feedback
+  late AnimationController _getStartedButtonController;
+  late AnimationController _completeButtonController;
+  late Animation<double> _getStartedButtonScale;
+  late Animation<double> _completeButtonScale;
 
   // Design color palette
   static const Color primaryDark = Color(0xFF2D2D2D);
@@ -38,21 +45,46 @@ class _IntroScreenState extends State<IntroScreen> {
   static const Color borderLight = Color(0xFFE5E7EB);
 
   @override
+  void initState() {
+    super.initState();
+    _getStartedButtonController = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
+    );
+    _completeButtonController = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
+    );
+    _getStartedButtonScale = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _getStartedButtonController, curve: Curves.easeInOut),
+    );
+    _completeButtonScale = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _completeButtonController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
   void dispose() {
     _pageController.dispose();
     _nameController.dispose();
     _ageController.dispose();
+    _getStartedButtonController.dispose();
+    _completeButtonController.dispose();
     super.dispose();
   }
 
-  void _nextStep() {
+  void _nextStep() async {
     if (_currentStep < 1) {
+      // Add button press animation
+      await _getStartedButtonController.forward();
+      await _getStartedButtonController.reverse();
+      
       setState(() {
         _currentStep++;
       });
-      _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
+      await _pageController.nextPage(
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOutCubic,
       );
     }
   }
@@ -63,19 +95,35 @@ class _IntroScreenState extends State<IntroScreen> {
   }
 
   void _completeSetup() async {
-    // Save user data locally and complete the setup process
+    // Add button press animation
+    await _completeButtonController.forward();
+    await _completeButtonController.reverse();
+    
+    // Validate age input
+    if (_ageController.text.isNotEmpty) {
+      final age = int.tryParse(_ageController.text.trim());
+      if (age == null || age < 1 || age > 120) {
+        _showErrorDialog('Please enter a valid age between 1 and 120');
+        return;
+      }
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
       // Save user data
       final settingsProvider = context.read<AppSettingsProvider>();
-      if (_nameController.text.isNotEmpty) {
+      if (_nameController.text.trim().isNotEmpty) {
         await settingsProvider.setUserName(_nameController.text.trim());
       }
       if (_selectedGender != null) {
         await settingsProvider.setUserGender(_selectedGender!);
       }
-      if (_ageController.text.isNotEmpty) {
-        final age = int.tryParse(_ageController.text);
-        if (age != null) {
+      if (_ageController.text.trim().isNotEmpty) {
+        final age = int.tryParse(_ageController.text.trim());
+        if (age != null && age >= 1 && age <= 120) {
           await settingsProvider.setUserAge(age);
         }
       }
@@ -91,21 +139,57 @@ class _IntroScreenState extends State<IntroScreen> {
         Navigator.of(context).pushReplacementNamed('/');
       }
     } catch (e) {
-      // Handle error - for now just navigate to home
-      if (mounted) {
-        Navigator.of(context).pushReplacementNamed('/');
-      }
+      setState(() {
+        _isLoading = false;
+      });
+      _showErrorDialog('Something went wrong. Please try again.');
     }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<bool> _onWillPop() async {
+    if (_currentStep > 0) {
+      setState(() {
+        _currentStep--;
+      });
+      await _pageController.previousPage(
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOutCubic,
+      );
+      return false;
+    }
+    return true;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: backgroundLight,
-      body: PageView(
-        controller: _pageController,
-        physics: const NeverScrollableScrollPhysics(),
-        children: [_buildWelcomeScreen(), _buildUserInfoForm()],
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        backgroundColor: backgroundLight,
+        resizeToAvoidBottomInset: false, // Prevent keyboard from resizing the screen
+        body: PageView(
+          controller: _pageController,
+          physics: const NeverScrollableScrollPhysics(),
+          children: [_buildWelcomeScreen(), _buildUserInfoForm()],
+        ),
       ),
     );
   }
@@ -233,28 +317,36 @@ class _IntroScreenState extends State<IntroScreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Action button - only Get Started button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: _nextStep,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryDark,
-                        foregroundColor: white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                  // Action button - only Get Started button with animation
+                  AnimatedBuilder(
+                    animation: _getStartedButtonScale,
+                    builder: (context, child) {
+                      return Transform.scale(
+                        scale: _getStartedButtonScale.value,
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: 56,
+                          child: ElevatedButton(
+                            onPressed: _nextStep,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: primaryDark,
+                              foregroundColor: white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              elevation: 2,
+                            ),
+                            child: const Text(
+                              'Get Started',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
                         ),
-                        elevation: 2,
-                      ),
-                      child: const Text(
-                        'Get Started',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
                   const SizedBox(height: 24),
                 ],
@@ -269,60 +361,72 @@ class _IntroScreenState extends State<IntroScreen> {
   /// User Info Form - Collect basic user information
   Widget _buildUserInfoForm() {
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
-        child: Column(
-          children: [
+      child: Column(
+        children: [
+          // Scrollable content area
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(24, 48, 24, 24),
+              child: Column(
+                children: [
             // Header with skip button and logo
-            Stack(
-              children: [
-                // Centered logo
-                Center(
-                  child: CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Colors.transparent,
-                    child: ClipOval(
-                      child: Image.asset(
-                        'assets/logos/logo_black_bg.png',
-                        width: 60,
-                        height: 60,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            width: 60,
-                            height: 60,
-                            decoration: const BoxDecoration(
-                              color: primaryDark,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.self_improvement,
-                              color: white,
-                              size: 30,
-                            ),
-                          );
-                        },
+            Container(
+              height: 80,
+              child: Stack(
+                children: [
+                  // Skip button positioned at top right within header bounds
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: TextButton(
+                      onPressed: _skipToMain,
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        overlayColor: Colors.transparent, // Remove hover/splash color
+                        splashFactory: NoSplash.splashFactory, // Remove splash effect
+                      ),
+                      child: const Text(
+                        'Skip',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: textPrimary,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                // Skip button positioned at top right
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  child: TextButton(
-                    onPressed: _skipToMain,
-                    child: const Text(
-                      'Skip',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: textPrimary,
+                  // Centered logo
+                  Center(
+                    child: CircleAvatar(
+                      radius: 30,
+                      backgroundColor: Colors.transparent,
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/logos/logo_black_bg.png',
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              width: 60,
+                              height: 60,
+                              decoration: const BoxDecoration(
+                                color: primaryDark,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.self_improvement,
+                                color: white,
+                                size: 30,
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             const SizedBox(height: 40),
 
@@ -339,10 +443,9 @@ class _IntroScreenState extends State<IntroScreen> {
             const SizedBox(height: 48),
 
             // Form fields
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                   const Text(
                     'Name',
                     style: TextStyle(
@@ -530,30 +633,53 @@ class _IntroScreenState extends State<IntroScreen> {
                     ),
                   ),
                 ],
-              ),
             ),
-
-            // Continue button
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                onPressed: _completeSetup,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryDark,
-                  foregroundColor: white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                child: const Text(
-                  'Start my First Habit',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                ),
-              ),
+            const SizedBox(height: 40),
+              ],
             ),
-          ],
+          ),
         ),
+        // Fixed button at bottom
+        Container(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+          child:
+            AnimatedBuilder(
+              animation: _completeButtonScale,
+              builder: (context, child) {
+                return Transform.scale(
+                  scale: _completeButtonScale.value,
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _completeSetup,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _isLoading ? textSecondary : primaryDark,
+                        foregroundColor: white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(white),
+                              ),
+                            )
+                          : const Text(
+                              'Start my First Habit',
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                            ),
+                    ),
+                  ),
+                );
+              },
+            ),
+        ),
+        ],
       ),
     );
   }

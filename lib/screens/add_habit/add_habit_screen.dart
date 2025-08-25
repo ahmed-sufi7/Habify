@@ -69,7 +69,9 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
     return Scaffold(
       backgroundColor: const Color(0xFFFFFFFF), // layout.screen.backgroundColor
       appBar: _buildAppBar(),
-      body: _buildBody(),
+      body: SingleChildScrollView(
+        child: _buildScrollableBody(),
+      ),
     );
   }
 
@@ -88,7 +90,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
                 child: IconButton(
                   icon: const Icon(
                     Icons.arrow_back_ios, // navigation.type: minimal_arrow
-                    size: 24,
+                    size: 18,
                     color: Color(0xFF000000), // primary.text
                   ),
                   onPressed: () => Navigator.of(context).pop(),
@@ -116,7 +118,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
     );
   }
 
-  Widget _buildBody() {
+  Widget _buildScrollableBody() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 20), // Reduced top padding from 20 to 8
       child: Column(
@@ -140,11 +142,11 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
           
           // Description field
           _buildDescriptionField(),
-          const SizedBox(height: 24), // Reduced section gap
+          const SizedBox(height: 24), // Spacing before button
           
           // Create button
           _buildCreateButton(),
-          const SizedBox(height: 14), // Reduced bottom spacing to fix overflow
+          const SizedBox(height: 20), // Bottom spacing for scroll content
         ],
       ),
     );
@@ -157,7 +159,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
         Text(
           'Name',
           style: const TextStyle(
-            fontSize: 18, // typography.hierarchy.sectionLabel.fontSize
+            fontSize: 16, // typography.hierarchy.sectionLabel.fontSize
             fontWeight: FontWeight.w600, // Matched to Category title font weight
             color: Color(0xFF000000), // typography.hierarchy.sectionLabel.color
           ),
@@ -173,27 +175,35 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
               width: 2,
             ),
           ),
-          child: TextFormField(
-            controller: _nameController,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
-              color: Color(0xFF000000),
-            ),
-            decoration: InputDecoration(
-              hintText: 'Enter habit name', // formStructure.sections[0].placeholder
-              hintStyle: const TextStyle(
-                fontSize: 16, // typography.hierarchy.placeholderText.fontSize
-                fontWeight: FontWeight.w400, // typography.hierarchy.placeholderText.fontWeight
-                color: Color(0xFF999999), // typography.hierarchy.placeholderText.color
+          child: Center(
+            child: TextFormField(
+              controller: _nameController,
+              textAlign: TextAlign.start,
+              textAlignVertical: TextAlignVertical.center,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+                color: Color(0xFF000000),
+                height: 1.0, // Set line height to prevent extra spacing
               ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 20, // components.textInput.padding
-                vertical: 16,
+              decoration: InputDecoration(
+                hintText: 'Enter habit name', // formStructure.sections[0].placeholder
+                hintStyle: const TextStyle(
+                  fontSize: 16, // typography.hierarchy.placeholderText.fontSize
+                  fontWeight: FontWeight.w400, // typography.hierarchy.placeholderText.fontWeight
+                  color: Color(0xFF999999), // typography.hierarchy.placeholderText.color
+                  height: 1.0, // Match the text height
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 0, // Let Center widget handle vertical centering
+                ),
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                isDense: true, // Remove default vertical padding
+                floatingLabelBehavior: FloatingLabelBehavior.never,
               ),
-              border: InputBorder.none,
-              enabledBorder: InputBorder.none,
-              focusedBorder: InputBorder.none,
             ),
           ),
         ),
@@ -260,7 +270,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
         Text(
           label,
           style: const TextStyle(
-            fontSize: 18, // typography.hierarchy.sectionLabel.fontSize
+            fontSize: 16, // typography.hierarchy.sectionLabel.fontSize
             fontWeight: FontWeight.w600, // Matched to Category title font weight
             color: Color(0xFF000000), // typography.hierarchy.sectionLabel.color
           ),
@@ -329,7 +339,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
         Text(
           'Duration',
           style: const TextStyle(
-            fontSize: 18, // typography.hierarchy.sectionLabel.fontSize
+            fontSize: 16, // typography.hierarchy.sectionLabel.fontSize
             fontWeight: FontWeight.w600, // Matched to Category title font weight
             color: Color(0xFF000000), // typography.hierarchy.sectionLabel.color
           ),
@@ -481,7 +491,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
         Text(
           'Description',
           style: const TextStyle(
-            fontSize: 18, // typography.hierarchy.sectionLabel.fontSize
+            fontSize: 16, // typography.hierarchy.sectionLabel.fontSize
             fontWeight: FontWeight.w600, // Matched to Category title font weight
             color: Color(0xFF000000), // typography.hierarchy.sectionLabel.color
           ),
@@ -489,7 +499,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
         const SizedBox(height: 6), // Reduced label to field spacing
         Container(
           constraints: const BoxConstraints(
-            minHeight: 120, // components.textArea.minHeight
+            minHeight: 100, // Increased from 80 to make it taller
           ),
           decoration: BoxDecoration(
             color: const Color(0xFFFFFFFF), // components.textArea.backgroundColor
@@ -507,6 +517,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
               fontSize: 16,
               fontWeight: FontWeight.w400,
               color: Color(0xFF000000),
+              height: 1.4, // Better line height for multiline text
             ),
             decoration: InputDecoration(
               hintText: 'Enter your description', // formStructure.sections[4].placeholder
@@ -514,11 +525,16 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
                 fontSize: 16, // typography.hierarchy.placeholderText.fontSize
                 fontWeight: FontWeight.w400, // typography.hierarchy.placeholderText.fontWeight
                 color: Color(0xFF999999), // components.textArea.placeholder.color
+                height: 1.4, // Match text height
               ),
-              contentPadding: const EdgeInsets.all(20), // components.textArea.padding
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 20, // Match the name field horizontal padding
+                vertical: 16, // Proper vertical padding for multiline text
+              ),
               border: InputBorder.none,
               enabledBorder: InputBorder.none,
               focusedBorder: InputBorder.none,
+              isDense: true,
             ),
           ),
         ),

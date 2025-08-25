@@ -7,7 +7,7 @@ import '../../services/first_time_user_service.dart';
 ///
 /// Implements the complete intro flow:
 /// 1. Welcome Screen - App introduction with Get Started button
-/// 2. User Info Form - Name, gender, age collection 
+/// 2. User Info Form - Name, gender, age collection
 ///
 /// Uses local storage to save user data
 class IntroScreen extends StatefulWidget {
@@ -79,7 +79,7 @@ class _IntroScreenState extends State<IntroScreen> {
           await settingsProvider.setUserAge(age);
         }
       }
-      
+
       // Mark onboarding as completed
       await FirstTimeUserService.markOnboardingComplete();
       await FirstTimeUserService.markFirstLaunchComplete();
@@ -105,10 +105,7 @@ class _IntroScreenState extends State<IntroScreen> {
       body: PageView(
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
-        children: [
-          _buildWelcomeScreen(),
-          _buildUserInfoForm(),
-        ],
+        children: [_buildWelcomeScreen(), _buildUserInfoForm()],
       ),
     );
   }
@@ -208,12 +205,12 @@ class _IntroScreenState extends State<IntroScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  
+
                   // Content section with smaller font sizes
                   const Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'Small habits, create big changes with Habify',
+                      'Build small habits, achieve big changes with Habify',
                       style: TextStyle(
                         fontSize: 18, // increase from 16
                         fontWeight: FontWeight.w500,
@@ -225,7 +222,7 @@ class _IntroScreenState extends State<IntroScreen> {
                   const Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'Build a positive routine every day, achieving your life goals in a consistent and enjoyable way.',
+                      'Create positive habits every day, stay consistent, track your progress, and stay motivated with reminders and insights.',
                       style: TextStyle(
                         fontSize: 16, //increase from 14
                         fontWeight: FontWeight.w400,
@@ -235,7 +232,7 @@ class _IntroScreenState extends State<IntroScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  
+
                   // Action button - only Get Started button
                   SizedBox(
                     width: double.infinity,
@@ -331,7 +328,7 @@ class _IntroScreenState extends State<IntroScreen> {
 
             // Progress section
             const Text(
-              'Two steps to get started a Habit!',
+              'Let\'s get started with Habify!',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 20,
@@ -360,7 +357,8 @@ class _IntroScreenState extends State<IntroScreen> {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w400,
-                      color: textPrimary, // Dark text color for contrast with white background
+                      color:
+                          textPrimary, // Dark text color for contrast with white background
                     ),
                     decoration: InputDecoration(
                       hintText: 'Enter your name',
@@ -413,19 +411,21 @@ class _IntroScreenState extends State<IntroScreen> {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w400,
-                      color: textPrimary, // Dark text color for contrast with purple background
+                      color:
+                          textPrimary, // Dark text color for contrast with purple background
                     ),
-                    dropdownColor: backgroundPurple, // Match the field background color
+                    dropdownColor:
+                        backgroundPurple, // Match the field background color
                     icon: Container(
-                      margin: const EdgeInsets.only(right: 8), // Center the arrow better
-                      child: const Icon(
-                        Icons.keyboard_arrow_down,
-                        size: 24,
-                      ),
+                      margin: const EdgeInsets.only(
+                        right: 8,
+                      ), // Center the arrow better
+                      child: const Icon(Icons.keyboard_arrow_down, size: 24),
                     ),
-                    isExpanded: true, // Ensure dropdown fills the container width
+                    isExpanded:
+                        true, // Ensure dropdown fills the container width
                     decoration: InputDecoration(
-                      hintText: 'Enter your gender',
+                      hintText: 'Select your gender',
                       hintStyle: const TextStyle(
                         fontSize: 16,
                         color: textSecondary,
@@ -461,7 +461,8 @@ class _IntroScreenState extends State<IntroScreen> {
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w400,
-                                color: textPrimary, // Dark text in dropdown items
+                                color:
+                                    textPrimary, // Dark text in dropdown items
                               ),
                             ),
                           ),
@@ -490,7 +491,8 @@ class _IntroScreenState extends State<IntroScreen> {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w400,
-                      color: textPrimary, // Dark text color for contrast with white background
+                      color:
+                          textPrimary, // Dark text color for contrast with white background
                     ),
                     decoration: InputDecoration(
                       hintText: 'Enter your age',
@@ -545,7 +547,7 @@ class _IntroScreenState extends State<IntroScreen> {
                   ),
                 ),
                 child: const Text(
-                  'Create First Habit',
+                  'Start my First Habit',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                 ),
               ),

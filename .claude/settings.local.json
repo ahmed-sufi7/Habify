@@ -3,7 +3,9 @@
     "allow": [
       "Bash(task-master:*)",
       "Bash(flutter analyze:*)",
-      "Bash(flutter pub:*)"
+      "Bash(flutter pub:*)",
+      "Read(/d:\\Downloads/**)",
+      "Read(/d:\\Downloads/**)"
     ],
     "deny": [],
     "ask": []

@@ -21,6 +21,9 @@ class AppSettingsProvider extends ChangeNotifier {
   static const String _dataRetentionDaysKey = 'data_retention_days';
   static const String _appVersionKey = 'app_version';
   static const String _lastBackupDateKey = 'last_backup_date';
+  static const String _userNameKey = 'user_name';
+  static const String _userGenderKey = 'user_gender';
+  static const String _userAgeKey = 'user_age';
   
   // Default values
   static const ThemeMode _defaultThemeMode = ThemeMode.system;
@@ -53,6 +56,9 @@ class AppSettingsProvider extends ChangeNotifier {
   int _dataRetentionDays = _defaultDataRetentionDays;
   String? _appVersion;
   DateTime? _lastBackupDate;
+  String? _userName;
+  String? _userGender;
+  int? _userAge;
   
   // Getters
   bool get isInitialized => _isInitialized;
@@ -71,6 +77,9 @@ class AppSettingsProvider extends ChangeNotifier {
   int get dataRetentionDays => _dataRetentionDays;
   String? get appVersion => _appVersion;
   DateTime? get lastBackupDate => _lastBackupDate;
+  String? get userName => _userName;
+  String? get userGender => _userGender;
+  int? get userAge => _userAge;
   
   // Computed properties
   bool get isDarkMode => _themeMode == ThemeMode.dark;
@@ -143,6 +152,11 @@ class AppSettingsProvider extends ChangeNotifier {
     
     final lastBackupMillis = _prefs.getInt(_lastBackupDateKey);
     _lastBackupDate = lastBackupMillis != null ? DateTime.fromMillisecondsSinceEpoch(lastBackupMillis) : null;
+    
+    // Load user data
+    _userName = _prefs.getString(_userNameKey);
+    _userGender = _prefs.getString(_userGenderKey);
+    _userAge = _prefs.getInt(_userAgeKey);
   }
   
   // Theme settings
@@ -490,6 +504,31 @@ class AppSettingsProvider extends ChangeNotifier {
     await _prefs.clear();
     await _loadSettings();
     notifyListeners();
+  }
+  
+  // User data methods
+  Future<void> setUserName(String name) async {
+    if (_userName != name) {
+      _userName = name;
+      await _prefs.setString(_userNameKey, name);
+      notifyListeners();
+    }
+  }
+  
+  Future<void> setUserGender(String gender) async {
+    if (_userGender != gender) {
+      _userGender = gender;
+      await _prefs.setString(_userGenderKey, gender);
+      notifyListeners();
+    }
+  }
+  
+  Future<void> setUserAge(int age) async {
+    if (_userAge != age) {
+      _userAge = age;
+      await _prefs.setInt(_userAgeKey, age);
+      notifyListeners();
+    }
   }
   
   @override

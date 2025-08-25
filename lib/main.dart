@@ -5,7 +5,10 @@ import 'package:firebase_core/firebase_core.dart';
 
 import 'providers/providers.dart';
 import 'database/database_manager.dart';
-import 'utils/provider_initialization_helper.dart';
+import 'screens/launch/splash_screen.dart';
+import 'screens/intro/intro_screen.dart';
+import 'screens/home/home_screen.dart';
+import 'services/first_time_user_service.dart';
 
 void main() async {
   // Ensure Flutter binding is initialized
@@ -25,6 +28,14 @@ void main() async {
   } catch (e) {
     debugPrint('Database initialization failed: $e');
     // Continue with app startup even if database fails
+  }
+  
+  // Initialize first-time user service
+  try {
+    await FirstTimeUserService.initialize();
+  } catch (e) {
+    debugPrint('FirstTimeUserService initialization failed: $e');
+    // Continue with app startup even if service fails
   }
   
   // Set system UI overlay style
@@ -106,20 +117,22 @@ class HabifyApp extends StatelessWidget {
                 ? Locale(settingsProvider.language)
                 : const Locale('en'),
             
-            // Home page with provider initialization wrapper
-            home: ProviderInitializer(
-              child: _getHomePage(settingsProvider),
-              loadingWidget: const SplashScreen(),
-            ),
-            
-            // Global route configuration (for future navigation)
+            // Global route configuration
+            initialRoute: '/splash',
             onGenerateRoute: _onGenerateRoute,
+            routes: {
+              '/': (context) => const HomeScreen(),
+              '/intro': (context) => const IntroScreen(),
+              '/splash': (context) => const SplashScreen(),
+            },
             
             // Error handling
             builder: (context, child) {
               return MediaQuery(
                 // Prevent font scaling for consistent UI
-                data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                data: MediaQuery.of(context).copyWith(
+                  textScaler: const TextScaler.linear(1.0),
+                ),
                 child: child ?? const SizedBox.shrink(),
               );
             },
@@ -129,346 +142,25 @@ class HabifyApp extends StatelessWidget {
     );
   }
   
-  Widget _getHomePage(AppSettingsProvider settingsProvider) {
-    // Show splash screen while initializing
-    if (!settingsProvider.isInitialized) {
-      return const SplashScreen();
-    }
-    
-    // Show intro screen for first time users
-    if (settingsProvider.firstLaunch || !settingsProvider.onboardingCompleted) {
-      return const IntroScreen();
-    }
-    
-    // Show main app
-    return const MainAppScreen();
-  }
+  // This method is no longer needed as navigation is handled by SplashScreen
   
   Route<dynamic>? _onGenerateRoute(RouteSettings settings) {
-    // This will be expanded later when we implement navigation
+    // Handle dynamic routing for app navigation
     switch (settings.name) {
       case '/':
-        return MaterialPageRoute(builder: (_) => const MainAppScreen());
+        return MaterialPageRoute(builder: (_) => const HomeScreen());
       case '/intro':
         return MaterialPageRoute(builder: (_) => const IntroScreen());
+      case '/splash':
+        return MaterialPageRoute(builder: (_) => const SplashScreen());
       default:
         return null;
     }
   }
 }
 
-// Temporary splash screen while providers initialize
-class SplashScreen extends StatelessWidget {
-  const SplashScreen({super.key});
+// The SplashScreen is now imported from screens/launch/splash_screen.dart
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFFF6B35), // Primary orange
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // App logo placeholder
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
-              ),
-              child: const Icon(
-                Icons.check_circle,
-                size: 60,
-                color: Color(0xFFFF6B35),
-              ),
-            ),
-            
-            const SizedBox(height: 32),
-            
-            // App name
-            const Text(
-              'Habify',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            
-            const SizedBox(height: 8),
-            
-            // Tagline
-            const Text(
-              'Build Better Habits',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.white70,
-              ),
-            ),
-            
-            const SizedBox(height: 48),
-            
-            // Loading indicator
-            const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+// The IntroScreen is now imported from screens/intro/intro_screen.dart
 
-// Placeholder intro screen
-class IntroScreen extends StatelessWidget {
-  const IntroScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'Welcome to Habify!',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            
-            const SizedBox(height: 16),
-            
-            const Text(
-              'Your journey to better habits starts here.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
-              ),
-            ),
-            
-            const SizedBox(height: 32),
-            
-            ElevatedButton(
-              onPressed: () {
-                // Mark onboarding as completed
-                context.read<AppSettingsProvider>().markOnboardingComplete();
-                context.read<AppSettingsProvider>().markFirstLaunchComplete();
-              },
-              child: const Text('Get Started'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// Placeholder main app screen
-class MainAppScreen extends StatefulWidget {
-  const MainAppScreen({super.key});
-
-  @override
-  State<MainAppScreen> createState() => _MainAppScreenState();
-}
-
-class _MainAppScreenState extends State<MainAppScreen> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Habify'),
-        actions: [
-          // Theme toggle button
-          Consumer<ThemeProvider>(
-            builder: (context, themeProvider, child) {
-              return IconButton(
-                onPressed: themeProvider.toggleTheme,
-                icon: Icon(
-                  themeProvider.isDarkMode
-                      ? Icons.light_mode
-                      : Icons.dark_mode,
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-      
-      body: Consumer<HabitProvider>(
-        builder: (context, habitProvider, child) {
-          if (habitProvider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          
-          if (habitProvider.error != null) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.error_outline,
-                    size: 64,
-                    color: Colors.grey[400],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Error: ${habitProvider.error}',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey[600]),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: habitProvider.refresh,
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            );
-          }
-          
-          // Show empty state or habit list
-          if (habitProvider.habits.isEmpty) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.check_circle_outline,
-                    size: 64,
-                    color: Colors.grey,
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    'No habits yet!',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    'Create your first habit to get started.',
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                ],
-              ),
-            );
-          }
-          
-          // Show habit list
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: habitProvider.habits.length,
-            itemBuilder: (context, index) {
-              final habit = habitProvider.habits[index];
-              final isCompleted = habitProvider.isHabitCompletedToday(habit.id!);
-              final currentStreak = habitProvider.getCurrentStreak(habit.id!);
-              
-              return Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: isCompleted
-                        ? const Color(0xFF4CAF50)
-                        : Colors.grey,
-                    child: Icon(
-                      isCompleted ? Icons.check : Icons.check_circle_outline,
-                      color: Colors.white,
-                    ),
-                  ),
-                  title: Text(
-                    habit.name,
-                    style: TextStyle(
-                      decoration: isCompleted
-                          ? TextDecoration.lineThrough
-                          : null,
-                    ),
-                  ),
-                  subtitle: Text(
-                    'Streak: $currentStreak days',
-                    style: TextStyle(
-                      color: currentStreak > 0
-                          ? const Color(0xFFFF6B35)
-                          : Colors.grey,
-                    ),
-                  ),
-                  trailing: IconButton(
-                    onPressed: () {
-                      if (isCompleted) {
-                        habitProvider.undoHabitCompletion(habit.id!);
-                      } else {
-                        habitProvider.completeHabit(habit.id!);
-                      }
-                    },
-                    icon: Icon(
-                      isCompleted ? Icons.undo : Icons.check,
-                    ),
-                  ),
-                ),
-              );
-            },
-          );
-        },
-      ),
-      
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // TODO: Navigate to add habit screen
-          _showAddHabitDialog(context);
-        },
-        child: const Icon(Icons.add),
-      ),
-      
-      // Bottom navigation placeholder
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart),
-            label: 'Statistics',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.timer),
-            label: 'Pomodoro',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: 'Notifications',
-          ),
-        ],
-      ),
-    );
-  }
-  
-  void _showAddHabitDialog(BuildContext context) {
-    // Simple add habit dialog for testing
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add New Habit'),
-        content: const Text('This feature will be implemented in the next steps.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
-}
+// The MainAppScreen functionality is now handled by HomeScreen

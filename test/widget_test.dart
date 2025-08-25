@@ -15,10 +15,13 @@ void main() {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const HabifyApp());
     
-    // Let the app initialize
+    // Let the app initialize and wait for timers to complete
     await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
     
-    // Basic test - just ensure app loads without crashing
+    // Basic test - just ensure app loads without crashing and splash screen appears
     expect(find.byType(MaterialApp), findsOneWidget);
+    // Verify simplified splash screen with centered logo
+    expect(find.byType(Image), findsOneWidget);
   });
 }

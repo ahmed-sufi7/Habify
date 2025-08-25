@@ -6,10 +6,6 @@ import '../models/category.dart';
 
 /// Extension methods for BuildContext to make provider access easier
 extension ProviderExtensions on BuildContext {
-  // Theme Provider
-  ThemeProvider get themeProvider => read<ThemeProvider>();
-  ThemeProvider get watchThemeProvider => watch<ThemeProvider>();
-  
   // App Settings Provider
   AppSettingsProvider get appSettings => read<AppSettingsProvider>();
   AppSettingsProvider get watchAppSettings => watch<AppSettingsProvider>();

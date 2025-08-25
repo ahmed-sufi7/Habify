@@ -8,6 +8,7 @@ import 'database/database_manager.dart';
 import 'screens/launch/splash_screen.dart';
 import 'screens/intro/intro_screen.dart';
 import 'screens/home/home_screen.dart';
+import 'screens/add_habit/add_habit_screen.dart';
 import 'services/first_time_user_service.dart';
 
 void main() async {
@@ -64,12 +65,6 @@ class HabifyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        // Theme Provider (initialize first as other providers may depend on it)
-        ChangeNotifierProvider(
-          create: (_) => ThemeProvider(),
-          lazy: false,
-        ),
-        
         // App Settings Provider (initialize early)
         ChangeNotifierProvider(
           create: (_) => AppSettingsProvider()..initialize(),
@@ -99,18 +94,18 @@ class HabifyApp extends StatelessWidget {
           create: (_) => StatisticsProvider(),
         ),
       ],
-      child: Consumer2<ThemeProvider, AppSettingsProvider>(
-        builder: (context, themeProvider, settingsProvider, child) {
+      child: Consumer<AppSettingsProvider>(
+        builder: (context, settingsProvider, child) {
           return MaterialApp(
             title: 'Habify - Habit Tracker',
             debugShowCheckedModeBanner: false,
             
             // Theme configuration
-            theme: themeProvider.lightTheme,
-            darkTheme: themeProvider.darkTheme,
-            themeMode: settingsProvider.isInitialized
-                ? settingsProvider.themeMode
-                : ThemeMode.system,
+            theme: ThemeData(
+              useMaterial3: true,
+              colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+            ),
+            themeMode: ThemeMode.system,
             
             // Localization (if language is set in settings)
             locale: settingsProvider.isInitialized
@@ -124,6 +119,7 @@ class HabifyApp extends StatelessWidget {
               '/': (context) => const HomeScreen(),
               '/intro': (context) => const IntroScreen(),
               '/splash': (context) => const SplashScreen(),
+              '/add-habit': (context) => const AddHabitScreen(),
             },
             
             // Error handling
@@ -153,6 +149,8 @@ class HabifyApp extends StatelessWidget {
         return MaterialPageRoute(builder: (_) => const IntroScreen());
       case '/splash':
         return MaterialPageRoute(builder: (_) => const SplashScreen());
+      case '/add-habit':
+        return MaterialPageRoute(builder: (_) => const AddHabitScreen());
       default:
         return null;
     }

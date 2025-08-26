@@ -260,57 +260,83 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             
         return Container(
           margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
           decoration: BoxDecoration(
-            color: const Color(0xFFFFE5E5),
+            color: const Color(0xFFFFEAE4),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Row(
             children: [
-              // Flame icon
-              const Icon(
-                Icons.local_fire_department,
-                size: 32,
-                color: primaryOrange,
+              // Flame icon with days
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                  Image.asset(
+                    'assets/icons/streak-icon.png',
+                    width: 100,
+                    height: 100,
+                  ),
+                  Transform.translate(
+                    offset: const Offset(0, -25),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              '$maxStreak',
+                              style: const TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.w600,
+                                color: primaryOrange,
+                                letterSpacing: -0.25,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              maxStreak == 1 ? 'Day' : 'Days',
+                              style: const TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.w600,
+                                color: primaryOrange,
+                                letterSpacing: -0.25,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Text(
+                          'Streak Score',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0x80F25D07),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 6),
               
               // Streak info
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const Text(
-                      'Current Streak',
+                      'Keep up your Streak!',
+                      textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 24,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
                         color: neutralBlack,
-                        letterSpacing: -0.5,
+                        letterSpacing: -0.25,
                       ),
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          '$maxStreak',
-                          style: const TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.w800,
-                            color: primaryOrange,
-                            letterSpacing: -1,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          maxStreak == 1 ? 'day' : 'days',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: primaryOrange,
-                            letterSpacing: 0.25,
-                          ),
-                        ),
-                      ],
                     ),
                   ],
                 ),

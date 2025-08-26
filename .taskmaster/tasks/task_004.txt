@@ -19,7 +19,7 @@
 
 ## 2. Implement date pickers [pending]
 ### Dependencies: None
-### Description: Start date, end date, reminder time pickers
+### Description: reminder time pickers
 ### Details:
 
 

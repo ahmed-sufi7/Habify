@@ -96,15 +96,7 @@ class Category {
     final now = DateTime.now();
     return [
       Category(
-        name: 'Knowledge',
-        colorHex: '#2C2C2C',
-        iconName: 'book',
-        isDefault: true,
-        createdAt: now,
-        updatedAt: now,
-      ),
-      Category(
-        name: 'Health',
+        name: 'Health & Fitness',
         colorHex: '#4CAF50',
         iconName: 'fitness_center',
         isDefault: true,
@@ -112,7 +104,23 @@ class Category {
         updatedAt: now,
       ),
       Category(
-        name: 'Professionality',
+        name: 'Learning',
+        colorHex: '#2C2C2C',
+        iconName: 'book',
+        isDefault: true,
+        createdAt: now,
+        updatedAt: now,
+      ),
+      Category(
+        name: 'Social',
+        colorHex: '#E91E63',
+        iconName: 'people',
+        isDefault: true,
+        createdAt: now,
+        updatedAt: now,
+      ),
+      Category(
+        name: 'Productivity',
         colorHex: '#2196F3',
         iconName: 'work',
         isDefault: true,
@@ -120,15 +128,7 @@ class Category {
         updatedAt: now,
       ),
       Category(
-        name: 'Kreatifity', // Note: Keeping the spelling from design file
-        colorHex: '#9C27B0',
-        iconName: 'palette',
-        isDefault: true,
-        createdAt: now,
-        updatedAt: now,
-      ),
-      Category(
-        name: 'Relaxation',
+        name: 'Mindfulness',
         colorHex: '#FF9800',
         iconName: 'spa',
         isDefault: true,

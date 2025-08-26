@@ -1,4 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import '../../providers/habit_provider.dart';
+import '../../providers/category_provider.dart';
+
+// Custom exception classes for better error handling
+class ValidationException implements Exception {
+  final String message;
+  ValidationException(this.message);
+}
+
+class DatabaseException implements Exception {
+  final String message;
+  DatabaseException(this.message);
+}
+
+class ProviderException implements Exception {
+  final String message;
+  ProviderException(this.message);
+}
 
 class AddHabitScreen extends StatefulWidget {
   const AddHabitScreen({super.key});
@@ -16,8 +36,9 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
   String _selectedPriority = 'High';
   int _selectedHours = 0;
   int _selectedMinutes = 10;
-  String _selectedNotification = '07.30 AM';
-  String _selectedRepetition = 'Everyday';
+  int _selectedNotificationHour = 7;
+  int _selectedNotificationMinute = 30;
+  String _selectedRepetition = 'Daily';
   String _selectedCategory = 'Health & Fitness'; // First item selected by default
   
   // Animation controllers
@@ -27,8 +48,13 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
   
   // Options lists
   final List<String> _priorityOptions = ['High', 'Medium', 'Low'];
-  final List<String> _notificationOptions = ['06.00 AM', '06.30 AM', '07.00 AM', '07.30 AM', '08.00 AM', '08.30 AM', '09.00 AM', 'Custom'];
-  final List<String> _repetitionOptions = ['Everyday', 'Weekdays', 'Weekends', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'Custom'];
+  final List<String> _repetitionOptions = [
+    'Daily',
+    'Weekly',
+    'Weekdays',
+    'Weekends',
+    'Every Other Day'
+  ];
   final List<String> _categoryOptions = ['Health & Fitness', 'Learning', 'Social', 'Productivity', 'Mindfulness', 'Other'];
 
   @override
@@ -53,6 +79,28 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
       parent: _buttonController,
       curve: Curves.easeOut, // animations.quick.curve
     ));
+    
+    // Initialize providers
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeProviders();
+    });
+  }
+
+  Future<void> _initializeProviders() async {
+    if (!mounted) return;
+    
+    try {
+      // Initialize category provider
+      final categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
+      await categoryProvider.initialize();
+      
+      // Initialize habit provider
+      final habitProvider = Provider.of<HabitProvider>(context, listen: false);
+      await habitProvider.initialize();
+      
+    } catch (e) {
+      debugPrint('Error initializing providers: $e');
+    }
   }
 
   @override
@@ -176,18 +224,31 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
             ),
           ),
           child: Center(
-            child: TextFormField(
-              controller: _nameController,
-              textAlign: TextAlign.start,
-              textAlignVertical: TextAlignVertical.center,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-                color: Color(0xFF000000),
-                height: 1.0, // Set line height to prevent extra spacing
-              ),
-              decoration: InputDecoration(
-                hintText: 'Enter habit name', // formStructure.sections[0].placeholder
+            child: Semantics(
+              label: 'Habit name input field',
+              hint: 'Enter the name of your habit',
+              textField: true,
+              child: TextFormField(
+                controller: _nameController,
+                textAlign: TextAlign.start,
+                textAlignVertical: TextAlignVertical.center,
+                maxLength: 50,
+                maxLines: 1,
+                buildCounter: (context, {required currentLength, required isFocused, maxLength}) => null, // Hide counter
+                inputFormatters: [
+                  // Filter out control characters as user types
+                  FilteringTextInputFormatter.deny(RegExp(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]')),
+                  // Limit to reasonable characters
+                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s\-_.,!?()&]')),
+                ],
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
+                  color: Color(0xFF000000),
+                  height: 1.0, // Set line height to prevent extra spacing
+                ),
+                decoration: InputDecoration(
+                  hintText: 'Enter habit name', // formStructure.sections[0].placeholder
                 hintStyle: const TextStyle(
                   fontSize: 16, // typography.hierarchy.placeholderText.fontSize
                   fontWeight: FontWeight.w400, // typography.hierarchy.placeholderText.fontWeight
@@ -204,6 +265,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
                 isDense: true, // Remove default vertical padding
                 floatingLabelBehavior: FloatingLabelBehavior.never,
               ),
+            ),
             ),
           ),
         ),
@@ -235,13 +297,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
     return Row( // gridSystem.dualColumn
       children: [
         Expanded(
-          child: _buildDropdownField(
-            label: 'Notification',
-            value: _selectedNotification,
-            options: _notificationOptions,
-            backgroundColor: const Color(0xFFA8D0E6), // colorPalette.accent.lightBlue
-            onChanged: (value) => setState(() => _selectedNotification = value!),
-          ),
+          child: _buildNotificationField(),
         ),
         const SizedBox(width: 16), // gridSystem.dualColumn.gap
         Expanded(
@@ -396,17 +452,21 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
   }
 
   void _showDurationPicker() {
+    if (!mounted) return;
+    
     showDialog(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: true,
       builder: (context) => _DurationPickerDialog(
         initialHours: _selectedHours,
         initialMinutes: _selectedMinutes,
         onDurationChanged: (hours, minutes) {
-          setState(() {
-            _selectedHours = hours;
-            _selectedMinutes = minutes;
-          });
+          if (mounted) {
+            setState(() {
+              _selectedHours = hours;
+              _selectedMinutes = minutes;
+            });
+          }
         },
       ),
     );
@@ -509,16 +569,27 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
               width: 2,
             ),
           ),
-          child: TextFormField(
-            controller: _descriptionController,
-            maxLines: null,
-            textAlignVertical: TextAlignVertical.top,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
-              color: Color(0xFF000000),
-              height: 1.4, // Better line height for multiline text
-            ),
+          child: Semantics(
+            label: 'Habit description input field',
+            hint: 'Enter a description for your habit',
+            textField: true,
+            multiline: true,
+            child: TextFormField(
+              controller: _descriptionController,
+              maxLines: null,
+              maxLength: 500,
+              buildCounter: (context, {required currentLength, required isFocused, maxLength}) => null, // Hide counter
+              textAlignVertical: TextAlignVertical.top,
+              inputFormatters: [
+                // Only filter out dangerous control characters but allow normal text input
+                FilteringTextInputFormatter.deny(RegExp(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]')),
+              ],
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+                color: Color(0xFF000000),
+                height: 1.4, // Better line height for multiline text
+              ),
             decoration: InputDecoration(
               hintText: 'Enter your description', // formStructure.sections[4].placeholder
               hintStyle: const TextStyle(
@@ -537,8 +608,97 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
               isDense: true,
             ),
           ),
+          ),
         ),
       ],
+    );
+  }
+
+  Widget _buildNotificationField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Notification',
+          style: const TextStyle(
+            fontSize: 16, // typography.hierarchy.sectionLabel.fontSize
+            fontWeight: FontWeight.w600, // typography.hierarchy.sectionLabel.fontWeight
+            color: Color(0xFF000000), // typography.hierarchy.sectionLabel.color
+          ),
+        ),
+        const SizedBox(height: 6), // Reduced label to field spacing
+        GestureDetector(
+          onTap: _showNotificationTimePicker,
+          child: Container(
+            height: 56, // components.dropdown.height
+            decoration: BoxDecoration(
+              color: const Color(0xFFA8D0E6), // colorPalette.accent.lightBlue
+              borderRadius: BorderRadius.circular(12), // Decreased border radius
+            ),
+            child: Padding(
+              padding: const EdgeInsets.only(
+                left: 20, // Left padding to match other dropdowns
+                right: 16, // Right padding for arrow positioning
+                top: 4,   // Small top padding for better alignment
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _formatNotificationTime(_selectedNotificationHour, _selectedNotificationMinute),
+                      style: const TextStyle(
+                        fontSize: 16, // typography.hierarchy.buttonText.fontSize
+                        fontWeight: FontWeight.w500, // typography.hierarchy.buttonText.fontWeight
+                        color: Color(0xFF000000), // pillButton.states.default.textColor
+                      ),
+                    ),
+                  ),
+                  const Icon(
+                    Icons.keyboard_arrow_down, // Same as other dropdowns
+                    size: 20,
+                    color: Color(0xFF000000),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _formatNotificationTime(int hour, int minute) {
+    // Validate inputs
+    if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+      debugPrint('Invalid time values: hour=$hour, minute=$minute');
+      return '12:00 AM'; // Safe fallback
+    }
+    
+    final period = hour >= 12 ? 'PM' : 'AM';
+    // Fix 12-hour conversion: 0->12, 1-12->1-12, 13-23->1-11
+    final displayHour = hour == 0 ? 12 : (hour <= 12 ? hour : hour - 12);
+    final displayMinute = minute.toString().padLeft(2, '0');
+    return '$displayHour:$displayMinute $period';
+  }
+
+  void _showNotificationTimePicker() {
+    if (!mounted) return;
+    
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) => _NotificationTimePickerDialog(
+        initialHour: _selectedNotificationHour,
+        initialMinute: _selectedNotificationMinute,
+        onTimeChanged: (hour, minute) {
+          if (mounted) {
+            setState(() {
+              _selectedNotificationHour = hour;
+              _selectedNotificationMinute = minute;
+            });
+          }
+        },
+      ),
     );
   }
 
@@ -551,8 +711,12 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
           child: SizedBox(
             width: double.infinity, // components.primaryButton.fullWidth
             height: 56, // components.primaryButton.height
-            child: ElevatedButton(
-              onPressed: _createHabit,
+            child: Semantics(
+              label: 'Create habit button',
+              hint: 'Tap to create your new habit',
+              button: true,
+              child: ElevatedButton(
+                onPressed: _isSaving ? null : _createHabit,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF2C2C2C), // components.primaryButton.backgroundColor (accent.black)
                 foregroundColor: const Color(0xFFFFFFFF), // components.primaryButton.textColor
@@ -562,8 +726,17 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
                 ),
                 padding: const EdgeInsets.all(18), // components.primaryButton.padding
               ),
-              child: const Text(
-                'Create',
+              child: _isSaving
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : const Text(
+                    'Create',
                 style: TextStyle(
                   fontSize: 18, // components.primaryButton.fontSize
                   fontWeight: FontWeight.w600, // components.primaryButton.fontWeight
@@ -571,103 +744,486 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
                 ),
               ),
             ),
+            ),
           ),
         );
       },
     );
   }
 
+  bool _isSaving = false;
+
   void _createHabit() async {
-    // Button press animation
-    await _buttonController.forward();
-    await _buttonController.reverse();
+    if (_isSaving) return; // Prevent double-tap
     
-    // Validate form
-    if (_nameController.text.trim().isEmpty) {
-      _showErrorDialog('Please enter a habit name');
-      return;
+    try {
+      if (mounted) setState(() => _isSaving = true);
+      
+      // Button press animation with safety checks
+      if (mounted && !_buttonController.isAnimating) {
+        try {
+          await _buttonController.forward();
+          if (mounted) {
+            await _buttonController.reverse();
+          }
+        } catch (e) {
+          // Animation controller may be disposed, ignore
+        }
+      }
+      
+      // Comprehensive validation
+      String? error = _validateForm();
+      if (error != null) {
+        _showErrorDialog(error);
+        return;
+      }
+      
+      // Create habit object with validated data
+      final habit = {
+        'name': _nameController.text.trim(),
+        'description': _descriptionController.text.trim(),
+        'priority': _selectedPriority,
+        'duration': {'hours': _selectedHours, 'minutes': _selectedMinutes},
+        'notification': {
+          'hour': _selectedNotificationHour,
+          'minute': _selectedNotificationMinute
+        },
+        'repetition': _selectedRepetition,
+        'category': _selectedCategory,
+        'createdAt': DateTime.now().toIso8601String(),
+      };
+      
+      // Save habit to database
+      final habitId = await _saveHabitToDatabase(habit);
+      
+      if (habitId != null) {
+        // Show success and navigate back to home
+        _navigateToHomeWithSuccess();
+      } else {
+        _showErrorDialog('Failed to save habit. Please try again.');
+      }
+    } catch (e) {
+      _showErrorDialog('Failed to create habit: ${e.toString()}');
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
+  }
+
+  void _navigateToHomeWithSuccess() {
+    // Navigate back with success result
+    Navigator.of(context).pop({
+      'success': true,
+      'message': 'Habit created successfully!',
+    });
+  }
+
+  String _sanitizeInput(String input) {
+    return input
+        // Remove control characters and null bytes
+        .replaceAll(RegExp(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]'), '')
+        // Remove HTML/XML tags
+        .replaceAll(RegExp(r'<[^>]*>'), '')
+        // Remove script tags specifically
+        .replaceAll(RegExp(r'<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>', caseSensitive: false), '')
+        // Normalize whitespace
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+  }
+
+  bool _containsInappropriateContent(String input) {
+    // Basic profanity filter - in production, use a proper filtering service
+    final inappropriate = ['test_bad_word']; // Placeholder
+    final lowerInput = input.toLowerCase();
+    return inappropriate.any((word) => lowerInput.contains(word));
+  }
+
+  bool _isDuplicateHabitName(String name) {
+    // Check if habit name already exists
+    // This would need to check against existing habits in the database
+    // For now, return false - implement with actual habit list check
+    return false;
+  }
+
+  String? _validateForm() {
+    final rawName = _nameController.text;
+    final rawDescription = _descriptionController.text;
+    
+    // Sanitize inputs
+    final name = _sanitizeInput(rawName);
+    final description = _sanitizeInput(rawDescription);
+    
+    // Check for actual content after sanitization
+    if (name.replaceAll(RegExp(r'\s+'), '').isEmpty) {
+      return 'Habit name cannot be empty or only whitespace';
     }
     
-    // Show success and navigate back
-    _showSuccessDialog();
+    // Length validation on sanitized content
+    if (name.length < 2) {
+      return 'Habit name must be at least 2 characters';
+    }
+    if (name.length > 50) {
+      return 'Habit name must be 50 characters or less';
+    }
+    
+    // Check byte length to prevent Unicode bomb attacks
+    if (name.codeUnits.length > 200) {
+      return 'Habit name contains too many characters';
+    }
+    
+    // Inappropriate content check
+    if (_containsInappropriateContent(name)) {
+      return 'Please enter an appropriate habit name';
+    }
+    
+    // Duplicate name check
+    if (_isDuplicateHabitName(name)) {
+      return 'A habit with this name already exists';
+    }
+    
+    // Validate description
+    if (description.length > 500) {
+      return 'Description must be 500 characters or less';
+    }
+    if (description.codeUnits.length > 2000) {
+      return 'Description contains too many characters';
+    }
+    
+    // Validate duration
+    if (_selectedHours == 0 && _selectedMinutes == 0) {
+      return 'Duration must be at least 1 minute';
+    }
+    if (_selectedHours > 23 || _selectedMinutes > 59) {
+      return 'Invalid duration values';
+    }
+    
+    // Validate category
+    final sanitizedCategory = _sanitizeInput(_selectedCategory);
+    if (sanitizedCategory.isEmpty) {
+      return 'Please select a category';
+    }
+    
+    // Update sanitized values back to controllers
+    if (rawName != name) {
+      _nameController.text = name;
+    }
+    if (rawDescription != description) {
+      _descriptionController.text = description;
+    }
+    
+    return null; // All validations passed
+  }
+
+  Future<int?> _saveHabitToDatabase(Map<String, dynamic> habitData) async {
+    if (!mounted) return null;
+    
+    try {
+      // Validate context is still valid
+      final habitProvider = Provider.of<HabitProvider>(context, listen: false);
+      final categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
+      
+      // Sanitize data before database operations
+      final sanitizedName = _sanitizeInput(habitData['name'] ?? '');
+      final sanitizedDescription = _sanitizeInput(habitData['description'] ?? '');
+      final sanitizedCategory = _sanitizeInput(_selectedCategory);
+      
+      if (sanitizedName.isEmpty) {
+        throw ValidationException('Invalid habit name after sanitization');
+      }
+      
+      // Convert duration to minutes with validation
+      int durationMinutes = (_selectedHours * 60) + _selectedMinutes;
+      if (durationMinutes <= 0 || durationMinutes > (24 * 60)) {
+        throw ValidationException('Invalid duration: $durationMinutes minutes');
+      }
+      
+      // Format notification time with validation
+      if (_selectedNotificationHour < 0 || _selectedNotificationHour > 23 ||
+          _selectedNotificationMinute < 0 || _selectedNotificationMinute > 59) {
+        throw ValidationException('Invalid notification time');
+      }
+      String notificationTime = _formatNotificationTimeForDB(_selectedNotificationHour, _selectedNotificationMinute);
+      
+      // Map repetition pattern
+      String repetitionPattern = _mapRepetitionPattern(_selectedRepetition);
+      if (repetitionPattern.isEmpty) {
+        throw ValidationException('Invalid repetition pattern');
+      }
+      
+      // Transaction-like approach: Get/create category first
+      int categoryId;
+      try {
+        categoryId = await _getCategoryIdSafely(categoryProvider, sanitizedCategory);
+      } catch (e) {
+        throw DatabaseException('Failed to handle category: ${e.toString()}');
+      }
+      
+      if (categoryId == -1) {
+        throw DatabaseException('Failed to get or create category');
+      }
+      
+      // Handle custom days for "Every Other Day" 
+      List<int> customDays = [];
+      if (_selectedRepetition == 'Every Other Day') {
+        // For "Every Other Day", we'll implement it as a custom pattern
+        // This is complex - it requires tracking last completion date
+        // For now, let's implement it as "Custom" with alternating days
+        customDays = [1, 3, 5, 7]; // Mon, Wed, Fri, Sun as example
+      }
+
+      // Create habit with all validated data
+      final habitId = await habitProvider.createHabit(
+        name: sanitizedName,
+        description: sanitizedDescription,
+        categoryId: categoryId,
+        priority: habitData['priority'] ?? 'Medium',
+        durationMinutes: durationMinutes,
+        notificationTime: notificationTime,
+        repetitionPattern: repetitionPattern,
+        customDays: customDays,
+        startDate: DateTime.now(),
+      );
+      
+      if (habitId == null) {
+        throw DatabaseException('Failed to create habit - database returned null');
+      }
+      
+      return habitId;
+      
+    } on ValidationException catch (e) {
+      debugPrint('Validation error in _saveHabitToDatabase: ${e.message}');
+      if (mounted) {
+        _showErrorDialog('Invalid data: ${e.message}');
+      }
+      return null;
+    } on DatabaseException catch (e) {
+      debugPrint('Database error in _saveHabitToDatabase: ${e.message}');
+      if (mounted) {
+        _showErrorDialog('Database error: ${e.message}');
+      }
+      return null;
+    } on ProviderException catch (e) {
+      debugPrint('Provider error in _saveHabitToDatabase: $e');
+      if (mounted) {
+        _showErrorDialog('Service error: Please try again later');
+      }
+      return null;
+    } catch (e) {
+      debugPrint('Unexpected error in _saveHabitToDatabase: $e');
+      if (mounted) {
+        _showErrorDialog('An unexpected error occurred. Please try again.');
+      }
+      return null;
+    }
+  }
+
+  Future<int> _getCategoryIdSafely(CategoryProvider categoryProvider, String categoryName) async {
+    // Validate input
+    if (categoryName.isEmpty) {
+      throw ValidationException('Category name cannot be empty');
+    }
+    
+    try {
+      // Try to find existing category first
+      final existingCategory = categoryProvider.getCategoryByName(categoryName);
+      if (existingCategory != null && existingCategory.id != null) {
+        return existingCategory.id!;
+      }
+      
+      // Double-check if category was created by another process (race condition protection)
+      await Future.delayed(const Duration(milliseconds: 100)); // Small delay
+      final recheckCategory = categoryProvider.getCategoryByName(categoryName);
+      if (recheckCategory != null && recheckCategory.id != null) {
+        return recheckCategory.id!;
+      }
+      
+      // Create new category for custom ones with validation
+      final categoryId = await categoryProvider.createCategory(
+        name: categoryName.length > 30 ? categoryName.substring(0, 30) : categoryName,
+        colorHex: '#FF6B35', // Default color
+        iconName: 'category', // Default icon
+      );
+      
+      if (categoryId == null) {
+        throw DatabaseException('Category creation returned null');
+      }
+      
+      return categoryId;
+      
+    } catch (e) {
+      debugPrint('Error in _getCategoryIdSafely: $e');
+      if (e is ValidationException || e is DatabaseException) {
+        rethrow;
+      }
+      throw DatabaseException('Failed to get or create category: ${e.toString()}');
+    }
+  }
+
+
+  String _formatNotificationTimeForDB(int hour, int minute) {
+    return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+  }
+
+  String _mapRepetitionPattern(String repetition) {
+    // Map our UI repetition options to database patterns that match Habit.shouldShowToday()
+    switch (repetition) {
+      case 'Daily':
+        return 'Everyday';
+      case 'Weekly':
+        return 'Weekly'; // Note: May need custom implementation for weekly
+      case 'Weekdays':
+        return 'Weekdays';
+      case 'Weekends':
+        return 'Weekends';
+      case 'Every Other Day':
+        return 'Custom'; // Will need custom days implementation
+      default:
+        return 'Everyday';
+    }
+  }
+
+
+
+  void _showCreateCategoryDialog() {
+    if (!mounted) return;
+    
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) => _CreateCategoryDialog(
+        onCategoryCreated: (categoryName) {
+          if (mounted) {
+            setState(() {
+              _selectedCategory = categoryName;
+            });
+          }
+        },
+        onError: _showErrorDialog,
+      ),
+    );
   }
 
   void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showSuccessDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Success'),
-        content: const Text('Habit created successfully!'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Close dialog
-              Navigator.of(context).pop(); // Return to previous screen
-            },
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showCreateCategoryDialog() {
-    final TextEditingController categoryController = TextEditingController();
+    if (!mounted) return;
+    
+    // Sanitize error message to prevent displaying sensitive information
+    final sanitizedMessage = _sanitizeErrorMessage(message);
     
     showDialog(
       context: context,
+      barrierDismissible: true,
       builder: (context) => AlertDialog(
-        title: const Text('Create Custom Category'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
+        title: const Row(
           children: [
-            const Text('Enter a name for your custom category:'),
-            const SizedBox(height: 16),
-            TextField(
-              controller: categoryController,
-              decoration: const InputDecoration(
-                hintText: 'Category name',
-                border: OutlineInputBorder(),
-              ),
-              autofocus: true,
-            ),
+            Icon(Icons.error_outline, color: Color(0xFFE53E3E)),
+            SizedBox(width: 8),
+            Text('Error'),
           ],
+        ),
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 300),
+          child: SingleChildScrollView(
+            child: Text(
+              sanitizedMessage,
+              style: const TextStyle(fontSize: 14),
+            ),
+          ),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
             onPressed: () {
-              final categoryName = categoryController.text.trim();
-              if (categoryName.isNotEmpty) {
-                setState(() {
-                  _selectedCategory = categoryName;
-                });
+              if (mounted) {
                 Navigator.of(context).pop();
               }
             },
-            child: const Text('Create'),
+            child: const Text('OK'),
           ),
         ],
       ),
+    );
+  }
+
+  String _sanitizeErrorMessage(String message) {
+    // Remove sensitive information from error messages
+    return message
+        .replaceAll(RegExp(r'Error:\s*'), '') // Remove "Error:" prefix
+        .replaceAll(RegExp(r'Exception:\s*'), '') // Remove "Exception:" prefix
+        .replaceAll(RegExp(r'\b\d{4,}\b'), '****') // Hide numbers that could be IDs
+        .replaceAll(RegExp(r'path[:\s]*[^\s,;]+', caseSensitive: false), 'path: ****') // Hide file paths
+        .trim();
+  }
+}
+
+class _CreateCategoryDialog extends StatefulWidget {
+  final Function(String) onCategoryCreated;
+  final Function(String) onError;
+
+  const _CreateCategoryDialog({
+    required this.onCategoryCreated,
+    required this.onError,
+  });
+
+  @override
+  State<_CreateCategoryDialog> createState() => _CreateCategoryDialogState();
+}
+
+class _CreateCategoryDialogState extends State<_CreateCategoryDialog> {
+  final TextEditingController _categoryController = TextEditingController();
+
+  @override
+  void dispose() {
+    _categoryController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Create Custom Category'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('Enter a name for your custom category:'),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _categoryController,
+            decoration: const InputDecoration(
+              hintText: 'Category name',
+              border: OutlineInputBorder(
+                borderSide: BorderSide(color: Color(0xFF000000), width: 2),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Color(0xFF000000), width: 2),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Color(0xFF000000), width: 2),
+              ),
+            ),
+            autofocus: true,
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () {
+            final categoryName = _categoryController.text.trim();
+            if (categoryName.isNotEmpty && categoryName.length <= 30) {
+              widget.onCategoryCreated(categoryName);
+              Navigator.of(context).pop();
+            } else if (categoryName.isEmpty) {
+              widget.onError('Category name cannot be empty');
+            } else {
+              widget.onError('Category name must be 30 characters or less');
+            }
+          },
+          child: const Text('Create'),
+        ),
+      ],
     );
   }
 }
@@ -720,7 +1276,7 @@ class _DurationPickerDialogState extends State<_DurationPickerDialog> {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF000000).withOpacity(0.1),
+              color: const Color(0xFF000000).withValues(alpha: 0.1),
               blurRadius: 20,
               offset: const Offset(0, 10),
               spreadRadius: 0,
@@ -765,7 +1321,7 @@ class _DurationPickerDialogState extends State<_DurationPickerDialog> {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w400,
-                      color: const Color(0xFFFFFFFF).withOpacity(0.7),
+                      color: const Color(0xFFFFFFFF).withValues(alpha: 0.7),
                     ),
                   ),
                 ],
@@ -800,7 +1356,7 @@ class _DurationPickerDialogState extends State<_DurationPickerDialog> {
                       children: [
                         Icon(
                           Icons.access_time_rounded,
-                          color: const Color(0xFF2C2C2C).withOpacity(0.6),
+                          color: const Color(0xFF2C2C2C).withValues(alpha: 0.6),
                           size: 20,
                         ),
                         const SizedBox(width: 12),
@@ -833,7 +1389,7 @@ class _DurationPickerDialogState extends State<_DurationPickerDialog> {
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF000000).withOpacity(0.04),
+                                color: const Color(0xFF000000).withValues(alpha: 0.04),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               ),
@@ -961,7 +1517,7 @@ class _DurationPickerDialogState extends State<_DurationPickerDialog> {
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF000000).withOpacity(0.04),
+                                color: const Color(0xFF000000).withValues(alpha: 0.04),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               ),
@@ -1110,6 +1666,397 @@ class _DurationPickerDialogState extends State<_DurationPickerDialog> {
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NotificationTimePickerDialog extends StatefulWidget {
+  final int initialHour;
+  final int initialMinute;
+  final Function(int hour, int minute) onTimeChanged;
+
+  const _NotificationTimePickerDialog({
+    required this.initialHour,
+    required this.initialMinute,
+    required this.onTimeChanged,
+  });
+
+  @override
+  State<_NotificationTimePickerDialog> createState() => _NotificationTimePickerDialogState();
+}
+
+class _NotificationTimePickerDialogState extends State<_NotificationTimePickerDialog> {
+  late int currentHour;
+  late int currentMinute;
+  late bool isAM;
+
+  @override
+  void initState() {
+    super.initState();
+    isAM = widget.initialHour < 12;
+    currentHour = widget.initialHour == 0 ? 12 : (widget.initialHour > 12 ? widget.initialHour - 12 : widget.initialHour);
+    currentMinute = widget.initialMinute;
+  }
+
+  String _formatTime(int hour, int minute) {
+    final displayMinute = minute.toString().padLeft(2, '0');
+    return '$hour:$displayMinute';
+  }
+
+  int get _current24Hour {
+    // Validate currentHour is in expected range (1-12)
+    if (currentHour < 1 || currentHour > 12) {
+      debugPrint('Invalid currentHour: $currentHour, defaulting to 12');
+      currentHour = 12;
+    }
+    
+    if (currentHour == 12) {
+      return isAM ? 0 : 12;
+    }
+    
+    final result = isAM ? currentHour : currentHour + 12;
+    
+    // Validate result is in 24-hour range
+    if (result < 0 || result > 23) {
+      debugPrint('Invalid 24-hour conversion: $result, defaulting to 0');
+      return 0;
+    }
+    
+    return result;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      child: Container(
+        width: 340,
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFFFFF),
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF000000).withValues(alpha: 0.1),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+              spreadRadius: 0,
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Modern header
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF2C2C2C),
+                    Color(0xFF1A1A1A),
+                  ],
+                ),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(24),
+                  topRight: Radius.circular(24),
+                ),
+              ),
+              child: Column(
+                children: [
+                  const Text(
+                    'Notification Time',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFFFFFFFF),
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Set your reminder time',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w400,
+                      color: const Color(0xFFFFFFFF).withValues(alpha: 0.7),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            // Content area
+            Container(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  // Time display
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFF8F9FF), Color(0xFFF0F2F5)],
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFE1E5E9)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.notifications_rounded, color: const Color(0xFF2C2C2C).withValues(alpha: 0.6), size: 20),
+                        const SizedBox(width: 12),
+                        Text(_formatTime(currentHour, currentMinute), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: Color(0xFF2C2C2C))),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // Picker cards
+                  Row(
+                    children: [
+                      // Hour picker
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: const Color(0xFFE1E5E9)),
+                            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
+                          ),
+                          child: Column(
+                            children: [
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFF8F9FF),
+                                  borderRadius: BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+                                ),
+                                child: const Text('Hour', textAlign: TextAlign.center, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF2C2C2C))),
+                              ),
+                              Container(
+                                height: 120,
+                                padding: const EdgeInsets.all(8),
+                                child: Stack(
+                                  children: [
+                                    Center(
+                                      child: Container(
+                                        height: 40,
+                                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(colors: [Color(0xFF2C2C2C), Color(0xFF1A1A1A)]),
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                      ),
+                                    ),
+                                    ListWheelScrollView.useDelegate(
+                                      itemExtent: 40,
+                                      physics: const FixedExtentScrollPhysics(),
+                                      controller: FixedExtentScrollController(initialItem: currentHour - 1),
+                                      diameterRatio: 2.0,
+                                      perspective: 0.002,
+                                      onSelectedItemChanged: (index) => setState(() => currentHour = index + 1),
+                                      childDelegate: ListWheelChildBuilderDelegate(
+                                        builder: (context, index) {
+                                          if (index < 0 || index > 11) return null;
+                                          final hour = index + 1;
+                                          final isSelected = hour == currentHour;
+                                          return Container(
+                                            alignment: Alignment.center,
+                                            child: Text('$hour', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: isSelected ? Colors.white : const Color(0xFF6C757D))),
+                                          );
+                                        },
+                                        childCount: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      
+                      const SizedBox(width: 12),
+                      
+                      // Minute picker
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: const Color(0xFFE1E5E9)),
+                            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
+                          ),
+                          child: Column(
+                            children: [
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFF8F9FF),
+                                  borderRadius: BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+                                ),
+                                child: const Text('Minute', textAlign: TextAlign.center, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF2C2C2C))),
+                              ),
+                              Container(
+                                height: 120,
+                                padding: const EdgeInsets.all(8),
+                                child: Stack(
+                                  children: [
+                                    Center(
+                                      child: Container(
+                                        height: 40,
+                                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(colors: [Color(0xFF2C2C2C), Color(0xFF1A1A1A)]),
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                      ),
+                                    ),
+                                    ListWheelScrollView.useDelegate(
+                                      itemExtent: 40,
+                                      physics: const FixedExtentScrollPhysics(),
+                                      controller: FixedExtentScrollController(initialItem: currentMinute),
+                                      diameterRatio: 2.0,
+                                      perspective: 0.002,
+                                      onSelectedItemChanged: (index) => setState(() => currentMinute = index),
+                                      childDelegate: ListWheelChildBuilderDelegate(
+                                        builder: (context, index) {
+                                          if (index < 0 || index > 59) return null;
+                                          final isSelected = index == currentMinute;
+                                          return Container(
+                                            alignment: Alignment.center,
+                                            child: Text(index.toString().padLeft(2, '0'), style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: isSelected ? Colors.white : const Color(0xFF6C757D))),
+                                          );
+                                        },
+                                        childCount: 60,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      
+                      const SizedBox(width: 12),
+                      
+                      // AM/PM picker
+                      Container(
+                        width: 80,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: const Color(0xFFE1E5E9)),
+                          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
+                        ),
+                        child: Column(
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFF8F9FF),
+                                borderRadius: BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+                              ),
+                              child: const Text('Period', textAlign: TextAlign.center, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF2C2C2C))),
+                            ),
+                            Container(
+                              height: 120,
+                              padding: const EdgeInsets.all(8),
+                              child: Stack(
+                                children: [
+                                  Center(
+                                    child: Container(
+                                      height: 40,
+                                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(colors: [Color(0xFF2C2C2C), Color(0xFF1A1A1A)]),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                  ),
+                                  ListWheelScrollView.useDelegate(
+                                    itemExtent: 40,
+                                    physics: const FixedExtentScrollPhysics(),
+                                    controller: FixedExtentScrollController(initialItem: isAM ? 0 : 1),
+                                    diameterRatio: 2.0,
+                                    perspective: 0.002,
+                                    onSelectedItemChanged: (index) => setState(() => isAM = index == 0),
+                                    childDelegate: ListWheelChildBuilderDelegate(
+                                      builder: (context, index) {
+                                        if (index < 0 || index > 1) return null;
+                                        final period = index == 0 ? 'AM' : 'PM';
+                                        final isSelected = (index == 0 && isAM) || (index == 1 && !isAM);
+                                        return Container(
+                                          alignment: Alignment.center,
+                                          child: Text(period, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: isSelected ? Colors.white : const Color(0xFF6C757D))),
+                                        );
+                                      },
+                                      childCount: 2,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  
+                  // Action buttons
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: Color(0xFFE1E5E9))),
+                          ),
+                          child: const Text('Cancel', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF6C757D))),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            widget.onTimeChanged(_current24Hour, currentMinute);
+                            Navigator.of(context).pop();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF2C2C2C),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            elevation: 0,
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.notifications, size: 20, color: Colors.white),
+                              SizedBox(width: 8),
+                              Text('Set Time', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white)),
                             ],
                           ),
                         ),

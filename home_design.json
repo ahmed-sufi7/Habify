@@ -1,532 +1,372 @@
 {
   "designSystem": {
-    "appName": "Habit Tracker Home Screen Design System",
-    "platform": "Flutter",
-    "version": "1.0.0",
+    "appName": "Habit Tracker App",
+    "version": "1.0",
+    "designLanguage": "Modern Minimalist with Gamification Elements",
     
     "colorPalette": {
       "primary": {
         "orange": "#FF6B35",
-        "orangeLight": "#FFB399",
-        "green": "#4CAF50",
-        "greenLight": "#66BB6A"
+        "orangeLight": "#FF8A65",
+        "orangeDark": "#E65100"
       },
       "neutral": {
+        "white": "#FFFFFF",
         "black": "#000000",
         "darkGray": "#2C2C2C",
-        "mediumGray": "#757575",
+        "mediumGray": "#666666",
         "lightGray": "#E0E0E0",
-        "paleGray": "#F5F5F5",
-        "white": "#FFFFFF"
+        "backgroundGray": "#F5F5F5"
       },
-      "background": {
-        "primary": "#FFFFFF",
-        "habitCardBlue": "#E3F2FD",
-        "habitCardTeal": "#B2DFDB",
-        "habitCardYellow": "#FFF9C4",
-        "streakCard": "#FFE8E0",
-        "completedHabit": "#E8F5E8"
+      "accent": {
+        "green": "#4CAF50",
+        "greenLight": "#C8E6C9",
+        "blue": "#E3F2FD",
+        "purple": "#E1BEE7",
+        "yellow": "#FFF9C4"
       },
       "status": {
         "completed": "#4CAF50",
-        "uncompleted": "#757575",
+        "uncompleted": "#666666",
         "streak": "#FF6B35"
       }
     },
 
     "typography": {
-      "header": {
+      "fontFamily": "System Default (San Francisco/Roboto)",
+      "hierarchy": {
         "greeting": {
           "fontSize": 16,
-          "fontWeight": "w400",
-          "color": "#757575",
-          "letterSpacing": 0.5
+          "fontWeight": "400",
+          "color": "#666666",
+          "letterSpacing": 0
         },
-        "userName": {
-          "fontSize": 24,
-          "fontWeight": "w600",
-          "color": "#000000",
-          "letterSpacing": 0.3
-        }
-      },
-      "streakCard": {
-        "title": {
+        "username": {
           "fontSize": 20,
-          "fontWeight": "w600",
-          "color": "#000000"
+          "fontWeight": "600",
+          "color": "#000000",
+          "letterSpacing": -0.5
         },
-        "subtitle": {
-          "fontSize": 14,
-          "fontWeight": "w400",
-          "color": "#FF6B35"
+        "streakTitle": {
+          "fontSize": 24,
+          "fontWeight": "700",
+          "color": "#000000",
+          "letterSpacing": -0.5
         },
         "streakNumber": {
-          "fontSize": 48,
-          "fontWeight": "w700",
-          "color": "#FF6B35"
-        }
-      },
-      "habitCard": {
-        "title": {
+          "fontSize": 32,
+          "fontWeight": "800",
+          "color": "#FF6B35",
+          "letterSpacing": -1
+        },
+        "streakSubtext": {
+          "fontSize": 14,
+          "fontWeight": "400",
+          "color": "#FF6B35",
+          "letterSpacing": 0.25
+        },
+        "habitTitle": {
           "fontSize": 18,
-          "fontWeight": "w600",
-          "color": "#000000"
+          "fontWeight": "600",
+          "color": "#000000",
+          "letterSpacing": -0.25
+        },
+        "habitStreak": {
+          "fontSize": 16,
+          "fontWeight": "700",
+          "color": "#FF6B35",
+          "letterSpacing": 0
         },
         "timeIndicator": {
+          "fontSize": 14,
+          "fontWeight": "500",
+          "color": "#FF6B35",
+          "letterSpacing": 0
+        },
+        "dayNumber": {
+          "fontSize": 18,
+          "fontWeight": "600",
+          "color": "#FFFFFF",
+          "letterSpacing": 0
+        },
+        "dayLabel": {
           "fontSize": 12,
-          "fontWeight": "w500",
-          "color": "#FF6B35"
+          "fontWeight": "500",
+          "color": "#FFFFFF",
+          "letterSpacing": 0.5
         },
-        "streakCount": {
-          "fontSize": 16,
-          "fontWeight": "w600",
-          "color": "#FF6B35"
-        }
-      },
-      "dateTimeline": {
-        "dateNumber": {
-          "fontSize": 16,
-          "fontWeight": "w600",
-          "color": "#FFFFFF"
-        },
-        "dayName": {
+        "completionStatus": {
           "fontSize": 12,
-          "fontWeight": "w400",
-          "color": "#FFFFFF"
-        },
-        "inactiveDateNumber": {
-          "fontSize": 16,
-          "fontWeight": "w600",
-          "color": "#000000"
-        },
-        "inactiveDayName": {
-          "fontSize": 12,
-          "fontWeight": "w400",
-          "color": "#757575"
+          "fontWeight": "600",
+          "color": "#FFFFFF",
+          "letterSpacing": 0.5
         }
       }
     },
 
     "spacing": {
-      "xxs": 2,
-      "xs": 4,
-      "sm": 8,
-      "md": 12,
-      "lg": 16,
-      "xl": 20,
-      "xxl": 24,
-      "xxxl": 32
+      "micro": 4,
+      "small": 8,
+      "medium": 16,
+      "large": 24,
+      "xlarge": 32,
+      "xxlarge": 48
     },
 
     "borderRadius": {
-      "xs": 4,
-      "sm": 8,
-      "md": 12,
-      "lg": 16,
-      "xl": 20,
-      "xxl": 24,
+      "small": 8,
+      "medium": 12,
+      "large": 16,
+      "xlarge": 20,
       "circle": 50
-    },
-
-    "layout": {
-      "screen": {
-        "paddingHorizontal": 16,
-        "paddingVertical": 20,
-        "backgroundColor": "#FFFFFF"
-      },
-      "header": {
-        "paddingHorizontal": 16,
-        "paddingVertical": 20,
-        "flexDirection": "row",
-        "justifyContent": "space-between",
-        "alignItems": "center"
-      },
-      "streakSection": {
-        "marginVertical": 16,
-        "height": 120
-      },
-      "dateTimeline": {
-        "marginVertical": 16,
-        "height": 80,
-        "paddingHorizontal": 8
-      },
-      "habitCardsSection": {
-        "flex": 1,
-        "paddingHorizontal": 16,
-        "marginBottom": 100
-      },
-      "bottomNavigation": {
-        "position": "absolute",
-        "bottom": 0,
-        "left": 0,
-        "right": 0,
-        "height": 80,
-        "backgroundColor": "#2C2C2C",
-        "flexDirection": "row",
-        "justifyContent": "center",
-        "alignItems": "center",
-        "borderRadius": 24
-      }
-    },
-
-    "components": {
-      "userAvatar": {
-        "width": 48,
-        "height": 48,
-        "borderRadius": 24,
-        "backgroundColor": "#E0E0E0"
-      },
-      
-      "notificationButton": {
-        "width": 40,
-        "height": 40,
-        "borderRadius": 20,
-        "backgroundColor": "transparent",
-        "borderWidth": 1,
-        "borderColor": "#E0E0E0",
-        "justifyContent": "center",
-        "alignItems": "center"
-      },
-
-      "streakCard": {
-        "width": 280,
-        "height": 100,
-        "backgroundColor": "#FFE8E0",
-        "borderRadius": 16,
-        "padding": 20,
-        "marginHorizontal": 8,
-        "flexDirection": "row",
-        "alignItems": "center",
-        "justifyContent": "space-between"
-      },
-
-      "habitCompleteCard": {
-        "width": 200,
-        "height": 80,
-        "backgroundColor": "#E8F5E8",
-        "borderRadius": 16,
-        "padding": 16,
-        "marginHorizontal": 8,
-        "flexDirection": "row",
-        "alignItems": "center",
-        "justifyContent": "space-between"
-      },
-
-      "dateTimelineItem": {
-        "active": {
-          "width": 60,
-          "height": 60,
-          "backgroundColor": "#000000",
-          "borderRadius": 30,
-          "justifyContent": "center",
-          "alignItems": "center",
-          "marginHorizontal": 4
-        },
-        "inactive": {
-          "width": 60,
-          "height": 60,
-          "backgroundColor": "transparent",
-          "borderWidth": 1,
-          "borderColor": "#E0E0E0",
-          "borderRadius": 30,
-          "justifyContent": "center",
-          "alignItems": "center",
-          "marginHorizontal": 4
-        },
-        "completed": {
-          "width": 60,
-          "height": 60,
-          "backgroundColor": "#FF6B35",
-          "borderRadius": 30,
-          "justifyContent": "center",
-          "alignItems": "center",
-          "marginHorizontal": 4
-        }
-      },
-
-      "habitCard": {
-        "container": {
-          "width": "100%",
-          "minHeight": 280,
-          "borderRadius": 20,
-          "padding": 20,
-          "marginVertical": 8,
-          "position": "relative"
-        },
-        "variants": {
-          "blue": {
-            "backgroundColor": "#E3F2FD"
-          },
-          "teal": {
-            "backgroundColor": "#B2DFDB"
-          },
-          "yellow": {
-            "backgroundColor": "#FFF9C4"
-          }
-        },
-        "header": {
-          "flexDirection": "row",
-          "alignItems": "center",
-          "marginBottom": 16
-        },
-        "icon": {
-          "width": 32,
-          "height": 32,
-          "backgroundColor": "#000000",
-          "borderRadius": 16,
-          "marginRight": 12,
-          "justifyContent": "center",
-          "alignItems": "center"
-        },
-        "streakIndicator": {
-          "flexDirection": "row",
-          "alignItems": "center",
-          "position": "absolute",
-          "top": 20,
-          "right": 20
-        },
-        "flameIcon": {
-          "width": 16,
-          "height": 16,
-          "marginLeft": 4
-        }
-      },
-
-      "progressGrid": {
-        "container": {
-          "marginVertical": 16,
-          "flexDirection": "row",
-          "flexWrap": "wrap",
-          "justifyContent": "space-between"
-        },
-        "dot": {
-          "width": 12,
-          "height": 12,
-          "borderRadius": 6,
-          "marginBottom": 4,
-          "marginHorizontal": 2
-        },
-        "dotStates": {
-          "completed": {
-            "backgroundColor": "#000000"
-          },
-          "missed": {
-            "backgroundColor": "#757575"
-          },
-          "future": {
-            "backgroundColor": "#E0E0E0"
-          }
-        }
-      },
-
-      "timeIndicator": {
-        "container": {
-          "flexDirection": "row",
-          "alignItems": "center",
-          "marginTop": 8,
-          "marginBottom": 16
-        },
-        "text": {
-          "marginRight": 8
-        }
-      },
-
-      "toggleButton": {
-        "completed": {
-          "width": 100,
-          "height": 32,
-          "backgroundColor": "#4CAF50",
-          "borderRadius": 16,
-          "flexDirection": "row",
-          "alignItems": "center",
-          "justifyContent": "center",
-          "position": "absolute",
-          "bottom": 20,
-          "right": 20
-        },
-        "uncompleted": {
-          "width": 100,
-          "height": 32,
-          "backgroundColor": "#757575",
-          "borderRadius": 16,
-          "flexDirection": "row",
-          "alignItems": "center",
-          "justifyContent": "center",
-          "position": "absolute",
-          "bottom": 20,
-          "right": 20
-        },
-        "text": {
-          "fontSize": 12,
-          "fontWeight": "w600",
-          "color": "#FFFFFF",
-          "marginLeft": 4
-        }
-      },
-
-      "bottomNavigation": {
-        "container": {
-          "position": "absolute",
-          "bottom": 34,
-          "left": 16,
-          "right": 16,
-          "height": 60,
-          "backgroundColor": "#2C2C2C",
-          "borderRadius": 30,
-          "flexDirection": "row",
-          "justifyContent": "space-around",
-          "alignItems": "center",
-          "paddingHorizontal": 20
-        },
-        "homeButton": {
-          "width": 32,
-          "height": 32,
-          "justifyContent": "center",
-          "alignItems": "center"
-        },
-        "addButton": {
-          "width": 48,
-          "height": 48,
-          "backgroundColor": "#FFFFFF",
-          "borderRadius": 24,
-          "justifyContent": "center",
-          "alignItems": "center"
-        },
-        "statsButton": {
-          "width": 32,
-          "height": 32,
-          "justifyContent": "center",
-          "alignItems": "center"
-        }
-      }
-    },
-
-    "icons": {
-      "sizes": {
-        "xs": 12,
-        "sm": 16,
-        "md": 20,
-        "lg": 24,
-        "xl": 32
-      },
-      "types": {
-        "notification": "bell",
-        "book": "book-open",
-        "code": "code",
-        "flame": "flame",
-        "checkmark": "check",
-        "home": "home",
-        "plus": "plus",
-        "bar-chart": "bar-chart-2"
-      }
-    },
-
-    "animations": {
-      "cardEntry": {
-        "type": "fadeInUp",
-        "duration": 300,
-        "delay": 100
-      },
-      "toggleButton": {
-        "type": "scale",
-        "duration": 200
-      },
-      "streakCelebration": {
-        "type": "bounceIn",
-        "duration": 500
-      },
-      "habitComplete": {
-        "type": "pulse",
-        "duration": 300
-      }
     },
 
     "shadows": {
       "card": {
-        "shadowColor": "#000000",
-        "shadowOffset": {
-          "width": 0,
-          "height": 2
-        },
-        "shadowOpacity": 0.1,
-        "shadowRadius": 8,
-        "elevation": 4
+        "elevation": 2,
+        "color": "rgba(0, 0, 0, 0.1)",
+        "offset": { "x": 0, "y": 2 },
+        "blur": 8,
+        "spread": 0
       },
-      "bottomNav": {
-        "shadowColor": "#000000",
-        "shadowOffset": {
-          "width": 0,
-          "height": -2
-        },
-        "shadowOpacity": 0.15,
-        "shadowRadius": 12,
-        "elevation": 8
+      "button": {
+        "elevation": 1,
+        "color": "rgba(0, 0, 0, 0.05)",
+        "offset": { "x": 0, "y": 1 },
+        "blur": 3,
+        "spread": 0
       }
     },
 
-    "states": {
+    "components": {
+      "header": {
+        "structure": "User avatar + greeting text + notification bell",
+        "layout": "horizontal flex with space-between alignment",
+        "padding": { "horizontal": 24, "vertical": 16 },
+        "backgroundColor": "#FFFFFF",
+        "avatar": {
+          "size": 48,
+          "borderRadius": 24,
+          "borderWidth": 0
+        },
+        "notificationBell": {
+          "size": 40,
+          "backgroundColor": "#FFFFFF",
+          "borderRadius": 20,
+          "borderWidth": 1,
+          "borderColor": "#E0E0E0",
+          "iconSize": 20,
+          "iconColor": "#000000"
+        }
+      },
+
+      "streakCard": {
+        "structure": "Flame icon + streak number + motivational text",
+        "backgroundColor": "#FFE5E5",
+        "borderRadius": 20,
+        "padding": { "horizontal": 24, "vertical": 20 },
+        "margin": { "horizontal": 24, "vertical": 16 },
+        "flameIcon": {
+          "size": 32,
+          "color": "#FF6B35"
+        },
+        "layout": "horizontal flex with center alignment"
+      },
+
+      "dateTimeline": {
+        "structure": "Horizontal scrollable date pills",
+        "layout": "horizontal scroll view",
+        "padding": { "horizontal": 24, "vertical": 8 },
+        "datePill": {
+          "width": 60,
+          "height": 80,
+          "borderRadius": 30,
+          "margin": { "horizontal": 6 },
+          "states": {
+            "today": {
+              "backgroundColor": "#000000",
+              "textColor": "#FFFFFF"
+            },
+            "completed": {
+              "backgroundColor": "#FF6B35",
+              "borderWidth": 2,
+              "borderColor": "#FF6B35",
+              "textColor": "#FFFFFF"
+            },
+            "default": {
+              "backgroundColor": "#FFFFFF",
+              "borderWidth": 1,
+              "borderColor": "#E0E0E0",
+              "textColor": "#000000"
+            }
+          }
+        }
+      },
+
       "habitCard": {
-        "default": {
-          "opacity": 1,
-          "transform": "scale(1)"
+        "structure": "Icon + Title + Streak + Progress Grid + Time + Toggle Button",
+        "borderRadius": 20,
+        "padding": { "horizontal": 20, "vertical": 16 },
+        "margin": { "horizontal": 24, "vertical": 8 },
+        "minHeight": 200,
+        "backgroundColors": {
+          "readBook": "#E3F2FD",
+          "programming": "#E0F2F1",
+          "exercise": "#FFF9C4",
+          "default": "#F5F5F5"
         },
-        "pressed": {
-          "opacity": 0.8,
-          "transform": "scale(0.98)"
+        
+        "habitIcon": {
+          "size": 40,
+          "backgroundColor": "#000000",
+          "borderRadius": 20,
+          "iconSize": 20,
+          "iconColor": "#FFFFFF"
         },
-        "completed": {
-          "opacity": 1,
-          "transform": "scale(1)",
-          "overlayVisible": true
+
+        "progressGrid": {
+          "structure": "7x10 dot matrix (70 dots total)",
+          "dotSize": 12,
+          "dotSpacing": 4,
+          "rows": 10,
+          "columns": 7,
+          "dotStates": {
+            "completed": {
+              "backgroundColor": "#000000",
+              "borderRadius": 6
+            },
+            "missed": {
+              "backgroundColor": "#666666",
+              "borderRadius": 6
+            },
+            "future": {
+              "backgroundColor": "rgba(255, 255, 255, 0.7)",
+              "borderRadius": 6
+            }
+          }
+        },
+
+        "toggleButton": {
+          "size": 48,
+          "borderRadius": 24,
+          "states": {
+            "completed": {
+              "backgroundColor": "#000000",
+              "iconColor": "#FFFFFF",
+              "icon": "checkmark"
+            },
+            "uncompleted": {
+              "backgroundColor": "#666666",
+              "iconColor": "#FFFFFF",
+              "icon": "checkmark"
+            }
+          }
+        },
+
+        "celebrationOverlay": {
+          "trigger": "habit completion toggle",
+          "animation": "fade in with scale",
+          "duration": 1500,
+          "content": "Confetti or success animation",
+          "backgroundColor": "rgba(76, 175, 80, 0.1)"
         }
       },
-      "toggleButton": {
-        "completed": {
-          "backgroundColor": "#4CAF50",
-          "icon": "check"
-        },
-        "uncompleted": {
-          "backgroundColor": "#757575",
-          "icon": "check"
+
+      "bottomNavigation": {
+        "structure": "Home + Add + Statistics buttons",
+        "backgroundColor": "#000000",
+        "borderRadius": 25,
+        "height": 70,
+        "margin": { "horizontal": 24, "bottom": 24 },
+        "padding": { "horizontal": 20, "vertical": 10 },
+        
+        "buttons": {
+          "home": {
+            "icon": "house",
+            "size": 24,
+            "color": "#FFFFFF"
+          },
+          "add": {
+            "icon": "plus",
+            "size": 28,
+            "color": "#000000",
+            "backgroundColor": "#FFFFFF",
+            "borderRadius": 20,
+            "padding": 12
+          },
+          "stats": {
+            "icon": "chart",
+            "size": 24,
+            "color": "#FFFFFF"
+          }
         }
       }
     },
 
-    "responsive": {
-      "breakpoints": {
-        "small": 360,
-        "medium": 390,
-        "large": 414,
-        "xlarge": 428
+    "animations": {
+      "habitCompletion": {
+        "type": "celebration",
+        "duration": 1500,
+        "easing": "easeOutBack",
+        "properties": ["scale", "opacity", "rotation"]
       },
-      "adaptiveSpacing": {
-        "small": {
-          "cardPadding": 16,
-          "sectionMargin": 12
-        },
-        "medium": {
-          "cardPadding": 20,
-          "sectionMargin": 16
-        },
-        "large": {
-          "cardPadding": 24,
-          "sectionMargin": 20
-        }
+      "cardAppear": {
+        "type": "slideUp",
+        "duration": 300,
+        "easing": "easeOut",
+        "stagger": 100
+      },
+      "streakUpdate": {
+        "type": "bounce",
+        "duration": 600,
+        "easing": "easeOutBounce"
       }
     },
 
-    "accessibility": {
-      "minimumTapTargetSize": 44,
-      "colorContrast": {
-        "text": 4.5,
-        "largeText": 3.0
+    "interactions": {
+      "habitToggle": {
+        "feedback": "haptic + visual animation",
+        "stateChange": "immediate",
+        "celebration": "conditional on completion"
       },
-      "semanticLabels": {
-        "habitCompleteButton": "Mark habit as complete",
-        "addHabitButton": "Add new habit",
-        "streakCounter": "Current streak count",
-        "progressGrid": "Habit completion progress"
+      "cardTap": {
+        "feedback": "subtle scale animation",
+        "ripple": false
+      },
+      "scrolling": {
+        "physics": "bouncing",
+        "indicators": false
       }
+    },
+
+    "layoutPrinciples": {
+      "spacing": "Consistent 24px horizontal margins throughout",
+      "cardLayout": "Full-width cards with rounded corners",
+      "verticalRhythm": "8px base unit for all vertical spacing",
+      "hierarchy": "Clear visual hierarchy with size, weight, and color",
+      "colorCoding": "Each habit type has distinct background color",
+      "progressVisualization": "Dot matrix for long-term progress tracking"
+    },
+
+    "designPatterns": {
+      "gamification": {
+        "streakTracking": "Prominent flame icon with day counter",
+        "progressVisualization": "Visual dot matrix calendar",
+        "celebration": "Completion animations and overlays",
+        "motivationalMessaging": "Encouraging text and progress indicators"
+      },
+      "accessibility": {
+        "colorContrast": "High contrast for text and interactive elements",
+        "touchTargets": "Minimum 44px touch targets",
+        "hapticFeedback": "Tactile feedback for important actions"
+      }
+    },
+
+    "contentGuidelines": {
+      "habitNames": "Clear, action-oriented titles",
+      "timeIndicators": "Format: 'HH.MM Unit Coming!' or completion status",
+      "streakCounting": "Positive reinforcement language",
+      "celebrations": "Contextual success messaging"
     }
   }
 }

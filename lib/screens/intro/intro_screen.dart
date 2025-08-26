@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../providers/app_settings_provider.dart';
 import '../../services/first_time_user_service.dart';
@@ -18,7 +19,7 @@ class IntroScreen extends StatefulWidget {
 }
 
 class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin {
-  PageController _pageController = PageController();
+  final PageController _pageController = PageController();
   int _currentStep = 0;
   bool _isLoading = false;
 
@@ -38,11 +39,9 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
   static const Color primaryBlue = Color(0xFF4A5FBD);
   static const Color accentBlue = Color(0xFFC8D4F0);
   static const Color backgroundLight = Color(0xFFF8F9FA);
-  static const Color backgroundPurple = Color(0xFFD4CFED);
   static const Color textPrimary = Color(0xFF2D2D2D);
   static const Color textSecondary = Color(0xFF6B7280);
   static const Color white = Color(0xFFFFFFFF);
-  static const Color borderLight = Color(0xFFE5E7EB);
 
   @override
   void initState() {
@@ -99,9 +98,24 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
     await _completeButtonController.forward();
     await _completeButtonController.reverse();
     
+    // Validate inputs
+    final name = _nameController.text.trim();
+    final ageText = _ageController.text.trim();
+    
+    // Validate name (optional but if provided should be reasonable)
+    if (name.isNotEmpty && name.length < 2) {
+      _showErrorDialog('Name must be at least 2 characters long');
+      return;
+    }
+    
+    if (name.length > 50) {
+      _showErrorDialog('Name must be less than 50 characters');
+      return;
+    }
+    
     // Validate age input
-    if (_ageController.text.isNotEmpty) {
-      final age = int.tryParse(_ageController.text.trim());
+    if (ageText.isNotEmpty) {
+      final age = int.tryParse(ageText);
       if (age == null || age < 1 || age > 120) {
         _showErrorDialog('Please enter a valid age between 1 and 120');
         return;
@@ -115,14 +129,14 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
     try {
       // Save user data
       final settingsProvider = context.read<AppSettingsProvider>();
-      if (_nameController.text.trim().isNotEmpty) {
-        await settingsProvider.setUserName(_nameController.text.trim());
+      if (name.isNotEmpty) {
+        await settingsProvider.setUserName(name);
       }
       if (_selectedGender != null) {
         await settingsProvider.setUserGender(_selectedGender!);
       }
-      if (_ageController.text.trim().isNotEmpty) {
-        final age = int.tryParse(_ageController.text.trim());
+      if (ageText.isNotEmpty) {
+        final age = int.tryParse(ageText);
         if (age != null && age >= 1 && age <= 120) {
           await settingsProvider.setUserAge(age);
         }
@@ -134,9 +148,9 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
       await settingsProvider.markOnboardingComplete();
       await settingsProvider.markFirstLaunchComplete();
 
-      // Navigate to main app
+      // Navigate to add habit screen
       if (mounted) {
-        Navigator.of(context).pushReplacementNamed('/');
+        Navigator.of(context).pushReplacementNamed('/add-habit');
       }
     } catch (e) {
       setState(() {
@@ -144,6 +158,82 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
       });
       _showErrorDialog('Something went wrong. Please try again.');
     }
+  }
+
+  void _showGenderPicker() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text(
+                  'Select Gender',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: textPrimary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                ...['Male', 'Female', 'Other', 'Prefer not to say'].map(
+                  (gender) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _selectedGender = gender;
+                        });
+                        Navigator.of(context).pop();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _selectedGender == gender ? primaryDark : white,
+                        foregroundColor: _selectedGender == gender ? white : textPrimary,
+                        elevation: 0,
+                        side: BorderSide(
+                          color: _selectedGender == gender ? primaryDark : const Color(0xFFE5E7EB),
+                          width: 1,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: Text(
+                        gender,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: textSecondary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void _showErrorDialog(String message) {
@@ -180,8 +270,15 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final shouldPop = await _onWillPop();
+        if (shouldPop && mounted) {
+          Navigator.of(context).pop();
+        }
+      },
       child: Scaffold(
         backgroundColor: backgroundLight,
         resizeToAvoidBottomInset: false, // Prevent keyboard from resizing the screen
@@ -365,12 +462,13 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
         children: [
           // Scrollable content area
           Expanded(
-            child: SingleChildScrollView(
+            child: Padding(
               padding: const EdgeInsets.fromLTRB(24, 48, 24, 24),
-              child: Column(
-                children: [
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
             // Header with skip button and logo
-            Container(
+            SizedBox(
               height: 80,
               child: Stack(
                 children: [
@@ -443,9 +541,11 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
             const SizedBox(height: 48),
 
             // Form fields
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: double.infinity),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   const Text(
                     'Name',
                     style: TextStyle(
@@ -457,6 +557,11 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: _nameController,
+                    maxLength: 50,
+                    textCapitalization: TextCapitalization.words,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+                    ],
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w400,
@@ -464,6 +569,7 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                           textPrimary, // Dark text color for contrast with white background
                     ),
                     decoration: InputDecoration(
+                      counterText: '', // Hide character counter
                       hintText: 'Enter your name',
                       hintStyle: const TextStyle(
                         fontSize: 16,
@@ -474,14 +580,14 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: const BorderSide(
-                          color: borderLight,
+                          color: Color(0xFF000000),
                           width: 2,
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: const BorderSide(
-                          color: borderLight,
+                          color: Color(0xFF000000),
                           width: 2,
                         ),
                       ),
@@ -509,73 +615,41 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                     ),
                   ),
                   const SizedBox(height: 8),
-                  DropdownButtonFormField<String>(
-                    value: _selectedGender,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                      color:
-                          textPrimary, // Dark text color for contrast with purple background
-                    ),
-                    dropdownColor:
-                        backgroundPurple, // Match the field background color
-                    icon: Container(
-                      margin: const EdgeInsets.only(
-                        right: 8,
-                      ), // Center the arrow better
-                      child: const Icon(Icons.keyboard_arrow_down, size: 24),
-                    ),
-                    isExpanded:
-                        true, // Ensure dropdown fills the container width
-                    decoration: InputDecoration(
-                      hintText: 'Select your gender',
-                      hintStyle: const TextStyle(
-                        fontSize: 16,
-                        color: textSecondary,
-                      ),
-                      filled: true,
-                      fillColor: backgroundPurple,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide.none,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(
-                          color: primaryBlue,
-                          width: 2,
-                        ),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
+                  GestureDetector(
+                    onTap: _showGenderPicker,
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
                         horizontal: 20,
                         vertical: 16,
                       ),
-                    ),
-                    items: ['Male', 'Female', 'Other', 'Prefer not to say']
-                        .map(
-                          (gender) => DropdownMenuItem(
-                            value: gender,
-                            child: Text(
-                              gender,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w400,
-                                color:
-                                    textPrimary, // Dark text in dropdown items
-                              ),
+                      decoration: BoxDecoration(
+                        color: white,
+                        border: Border.all(
+                          color: const Color(0xFF000000),
+                          width: 2,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            _selectedGender ?? 'Select your gender',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                              color: _selectedGender != null ? textPrimary : textSecondary,
                             ),
                           ),
-                        )
-                        .toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedGender = value;
-                      });
-                    },
+                          const Icon(
+                            Icons.keyboard_arrow_down,
+                            size: 20,
+                            color: textPrimary,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 24),
 
@@ -591,6 +665,11 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                   TextFormField(
                     controller: _ageController,
                     keyboardType: TextInputType.number,
+                    maxLength: 3,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(3),
+                    ],
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w400,
@@ -598,6 +677,7 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                           textPrimary, // Dark text color for contrast with white background
                     ),
                     decoration: InputDecoration(
+                      counterText: '', // Hide character counter
                       hintText: 'Enter your age',
                       hintStyle: const TextStyle(
                         fontSize: 16,
@@ -608,14 +688,14 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: const BorderSide(
-                          color: borderLight,
+                          color: Color(0xFF000000),
                           width: 2,
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: const BorderSide(
-                          color: borderLight,
+                          color: Color(0xFF000000),
                           width: 2,
                         ),
                       ),
@@ -633,12 +713,14 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                     ),
                   ),
                 ],
+              ),
             ),
             const SizedBox(height: 40),
-              ],
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
         // Fixed button at bottom
         Container(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),

@@ -269,7 +269,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             children: [
               // Flame icon with days
               Padding(
-                padding: const EdgeInsets.only(left: 8.0),
+                padding: const EdgeInsets.only(left: 6.0),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -312,7 +312,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: Color(0x80F25D07),
+                            color: Color(0x99F25D07),
                           ),
                         ),
                       ],

@@ -410,7 +410,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                 ],
                               ),
                               const Text(
-                                'Today\'s Progress',
+                                'Completed',
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
@@ -456,7 +456,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget _buildDateTimeline() {
     return Container(
       height: 88,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      padding: const EdgeInsets.only(top: 8, bottom: 8),
       child: Consumer<HabitProvider>(
         builder: (context, habitProvider, child) {
           final now = DateTime.now();
@@ -467,25 +467,28 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           return ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: dates.length,
+            controller: ScrollController(
+              initialScrollOffset: (6 * 67.0) - (MediaQuery.of(context).size.width / 2) + 33.5, // Center today
+            ),
             itemBuilder: (context, index) {
               final date = dates[index];
               final isToday = _isSameDay(date, now);
               final isCompleted = _isDateCompleted(date, habitProvider);
               
               return Container(
-                width: 60,
-                height: 80,
-                margin: const EdgeInsets.symmetric(horizontal: 6),
+                width: 55,
+                height: 85,
+                margin: const EdgeInsets.only(right: 12),
                 decoration: BoxDecoration(
                   color: isToday 
                       ? neutralBlack
                       : isCompleted 
                           ? primaryOrange
                           : neutralWhite,
-                  borderRadius: BorderRadius.circular(30),
+                  borderRadius: BorderRadius.circular(20),
                   border: isToday || isCompleted 
                       ? null 
-                      : Border.all(color: neutralLightGray),
+                      : Border.all(color: neutralBlack, width: 1.5),
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,

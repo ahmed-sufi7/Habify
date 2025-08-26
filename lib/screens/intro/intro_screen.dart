@@ -165,6 +165,7 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
       context: context,
       builder: (BuildContext context) {
         return Dialog(
+          backgroundColor: backgroundLight,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),

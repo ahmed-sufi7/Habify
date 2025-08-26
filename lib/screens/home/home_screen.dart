@@ -86,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: neutralWhite,
+      backgroundColor: const Color(0xFFFAFAFA),
       body: SafeArea(
         child: Column(
           children: [
@@ -251,100 +251,205 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildStreakCard() {
-    return Consumer<HabitProvider>(
-      builder: (context, habitProvider, child) {
-        final currentStreaks = habitProvider.currentStreaks;
-        final maxStreak = currentStreaks.values.isNotEmpty 
-            ? currentStreaks.values.reduce((a, b) => a > b ? a : b) 
-            : 0;
-            
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
-          decoration: BoxDecoration(
-            color: const Color(0xFFFFEAE4),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Row(
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.only(left: 24),
+      child: Consumer<HabitProvider>(
+        builder: (context, habitProvider, child) {
+          final currentStreaks = habitProvider.currentStreaks;
+          final maxStreak = currentStreaks.values.isNotEmpty 
+              ? currentStreaks.values.reduce((a, b) => a > b ? a : b) 
+              : 0;
+          final totalHabits = habitProvider.habits.length;
+          final completedToday = habitProvider.habits.where((habit) {
+            final today = DateTime.now();
+            final completions = habitProvider.todayCompletionStatus;
+            return completions[habit.id] == true;
+          }).length;
+              
+          return Row(
             children: [
-              // Flame icon with days
-              Padding(
-                padding: const EdgeInsets.only(left: 6.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+              // Streak Card
+              Container(
+                width: 320,
+                margin: const EdgeInsets.only(right: 16, top: 16, bottom: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFEAE4),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
                   children: [
-                  Image.asset(
-                    'assets/icons/streak-icon.png',
-                    width: 100,
-                    height: 100,
-                  ),
-                  Transform.translate(
-                    offset: const Offset(0, -25),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              '$maxStreak',
-                              style: const TextStyle(
-                                fontSize: 26,
-                                fontWeight: FontWeight.w600,
-                                color: primaryOrange,
-                                letterSpacing: -0.25,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              maxStreak == 1 ? 'Day' : 'Days',
-                              style: const TextStyle(
-                                fontSize: 26,
-                                fontWeight: FontWeight.w600,
-                                color: primaryOrange,
-                                letterSpacing: -0.25,
-                              ),
-                            ),
-                          ],
+                    // Flame icon with days
+                    Padding(
+                      padding: const EdgeInsets.only(left: 6.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                        Image.asset(
+                          'assets/icons/streak-icon.png',
+                          width: 100,
+                          height: 100,
                         ),
-                        const Text(
-                          'Streak Score',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: Color(0x99F25D07),
+                        Transform.translate(
+                          offset: const Offset(0, -25),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    '$maxStreak',
+                                    style: const TextStyle(
+                                      fontSize: 26,
+                                      fontWeight: FontWeight.w600,
+                                      color: primaryOrange,
+                                      letterSpacing: -0.25,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    maxStreak == 1 ? 'Day' : 'Days',
+                                    style: const TextStyle(
+                                      fontSize: 26,
+                                      fontWeight: FontWeight.w600,
+                                      color: primaryOrange,
+                                      letterSpacing: -0.25,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const Text(
+                                'Streak Score',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0x99F25D07),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 6),
+                    
+                    // Streak info
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'Keep up your Streak!',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w600,
+                              color: neutralBlack,
+                              letterSpacing: -0.25,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(width: 6),
               
-              // Streak info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+              // Habit Card
+              Container(
+                width: 320,
+                margin: const EdgeInsets.only(right: 24, top: 16, bottom: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE8F5EA),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
                   children: [
-                    const Text(
-                      'Keep up your Streak!',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w600,
-                        color: neutralBlack,
-                        letterSpacing: -0.25,
+                    // Habit icon with count
+                    Padding(
+                      padding: const EdgeInsets.only(left: 6.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                        Image.asset(
+                          'assets/icons/Habit-icon.png',
+                          width: 100,
+                          height: 100,
+                        ),
+                        Transform.translate(
+                          offset: const Offset(0, -20),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    '$completedToday/$totalHabits',
+                                    style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF63C271),
+                                      letterSpacing: -0.25,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  const Text(
+                                    'Habit',
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF63C271),
+                                      letterSpacing: -0.25,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const Text(
+                                'Today\'s Progress',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0x9963C271),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    
+                    // Habit info
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'Build Great Habits!',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w600,
+                              color: neutralBlack,
+                              letterSpacing: -0.25,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
             ],
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 

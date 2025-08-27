@@ -253,7 +253,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget _buildStreakCard() {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.only(left: 24),
+      padding: const EdgeInsets.only(left: 16),
       child: Consumer<HabitProvider>(
         builder: (context, habitProvider, child) {
           final currentStreaks = habitProvider.currentStreaks;
@@ -271,8 +271,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             children: [
               // Streak Card
               Container(
-                width: 320,
-                margin: const EdgeInsets.only(right: 16, top: 16, bottom: 16),
+                width: MediaQuery.of(context).size.width - 32,
+                margin: const EdgeInsets.only(right: 8, top: 16, bottom: 16),
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFEAE4),
@@ -360,8 +360,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               
               // Habit Card
               Container(
-                width: 320,
-                margin: const EdgeInsets.only(right: 24, top: 16, bottom: 16),
+                width: MediaQuery.of(context).size.width - 32,
+                margin: const EdgeInsets.only(right: 16, top: 16, bottom: 16),
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                 decoration: BoxDecoration(
                   color: const Color(0xFFE8F5EA),
@@ -571,35 +571,31 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         }
         
         return Column(
-          children: todayHabits.map((habit) => _buildHabitCard(habit, habitProvider)).toList(),
+          children: todayHabits.asMap().entries.map((entry) {
+            int index = entry.key;
+            Habit habit = entry.value;
+            return _buildHabitCard(habit, habitProvider, index);
+          }).toList(),
         );
       },
     );
   }
 
-  Widget _buildHabitCard(Habit habit, HabitProvider habitProvider) {
+  Widget _buildHabitCard(Habit habit, HabitProvider habitProvider, int index) {
     final isCompleted = habitProvider.isHabitCompletedToday(habit.id!);
     final currentStreak = habitProvider.getCurrentStreak(habit.id!);
     final isCelebrating = _celebratingHabitId == habit.id;
     
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: _getHabitBackgroundColor(habit),
+        color: _getHabitBackgroundColor(index),
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            offset: const Offset(0, 2),
-            blurRadius: 8,
-            spreadRadius: 0,
-          ),
-        ],
       ),
       child: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -614,18 +610,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         color: neutralBlack,
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Icon(
-                        Icons.fitness_center,
-                        size: 20,
-                        color: neutralWhite,
-                      ),
+                      child: _getHabitIcon(habit),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 8),
                     
                     // Title and streak
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
                             habit.name,
@@ -633,56 +626,67 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
                               color: neutralBlack,
-                              letterSpacing: -0.25,
-                            ),
-                          ),
-                          Text(
-                            '$currentStreak day streak',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              color: primaryOrange,
+                              letterSpacing: 0,
+                              height: 1.2,
                             ),
                           ),
                         ],
                       ),
                     ),
                     
-                    // Toggle button
-                    GestureDetector(
-                      onTap: () => _onHabitToggle(habit.id!, !isCompleted),
-                      child: Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: isCompleted ? neutralBlack : neutralMediumGray,
-                          shape: BoxShape.circle,
+                    // Streak display
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Transform.translate(
+                          offset: const Offset(24, 0),
+                          child: Text(
+                            '$currentStreak',
+                            style: const TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.w700,
+                              color: primaryOrange,
+                            ),
+                          ),
                         ),
-                        child: const Icon(
-                          Icons.check,
-                          color: neutralWhite,
-                          size: 24,
+                        Transform.translate(
+                          offset: const Offset(14, 0),
+                          child: Image.asset(
+                            'assets/icons/streak-icon.png',
+                            width: 60,
+                            height: 60,
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
                 
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
                 
                 // Progress grid (7x10 dots)
                 _buildProgressGrid(habit, habitProvider),
                 
-                const SizedBox(height: 12),
+                const SizedBox(height: 18),
                 
-                // Time indicator
-                Text(
-                  '${habit.notificationTime} Coming!',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: primaryOrange,
-                  ),
+                // Bottom row with time and toggle
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Time indicator
+                    Text(
+                      '${_formatTime12Hour(habit.notificationTime)} reminder',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: primaryOrange,
+                      ),
+                    ),
+                    
+                    // Dynamic sliding toggle button
+                    _buildDynamicToggle(habit.id!, isCompleted, index),
+                  ],
                 ),
               ],
             ),
@@ -720,43 +724,55 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildProgressGrid(Habit habit, HabitProvider habitProvider) {
-    return SizedBox(
-      height: 120, // 10 rows * 12px dots
-      child: GridView.builder(
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 7,
-          childAspectRatio: 1,
-          crossAxisSpacing: 4,
-          mainAxisSpacing: 4,
-        ),
-        itemCount: 70, // 7x10 grid
-        itemBuilder: (context, index) {
-          // Calculate which day this dot represents
-          final now = DateTime.now();
-          final dayOffset = index - 69; // Most recent dot is at index 69
-          final dotDate = now.add(Duration(days: dayOffset));
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 16,
+        childAspectRatio: 1,
+        crossAxisSpacing: 5,
+        mainAxisSpacing: 5,
+      ),
+      itemCount: 64, // 16x4 grid
+      itemBuilder: (context, index) {
+        // Calculate which day this dot represents
+        final now = DateTime.now();
+        final dayOffset = index - 63; // Most recent dot is at index 63
+        final dotDate = now.add(Duration(days: dayOffset));
+        
+        Color dotColor;
+        if (dotDate.isAfter(now)) {
+          // Future dates
+          dotColor = const Color(0xFFFAFAFA);
+        } else {
+          // Check if this specific habit was completed on this date
+          bool isHabitCompleted = false;
           
-          Color dotColor;
-          if (dotDate.isAfter(now)) {
-            // Future dates
-            dotColor = neutralWhite.withValues(alpha: 0.7);
-          } else if (_isDateCompleted(dotDate, habitProvider)) {
-            // Completed dates
-            dotColor = neutralBlack;
+          if (_isSameDay(dotDate, now)) {
+            // For today, check the actual completion status
+            isHabitCompleted = habitProvider.isHabitCompletedToday(habit.id!);
           } else {
-            // Missed dates
-            dotColor = neutralMediumGray;
+            // For past dates, we don't have completion history yet
+            // This would need to be implemented with proper data storage
+            isHabitCompleted = false; // Placeholder
           }
           
-          return Container(
-            decoration: BoxDecoration(
-              color: dotColor,
-              borderRadius: BorderRadius.circular(6),
-            ),
-          );
-        },
-      ),
+          if (isHabitCompleted) {
+            // This habit was completed on this date
+            dotColor = neutralBlack;
+          } else {
+            // This habit was not completed on this date
+            dotColor = const Color(0xFFFAFAFA);
+          }
+        }
+        
+        return Container(
+          decoration: BoxDecoration(
+            color: dotColor,
+            borderRadius: BorderRadius.circular(3),
+          ),
+        );
+      },
     );
   }
 
@@ -818,21 +834,118 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Color _getHabitBackgroundColor(Habit habit) {
-    // Map categories to colors from design
+  Color _getHabitBackgroundColor(int index) {
+    // Cycle through the three specified colors
+    const colors = [
+      Color(0xFFD0D7F9), // Light purple-blue
+      Color(0xFFC4DBE6), // Light blue
+      Color(0xFFFFFBC5), // Light yellow
+    ];
+    
+    return colors[index % 3];
+  }
+
+  Widget _buildDynamicToggle(int habitId, bool isCompleted, int index) {
+    return GestureDetector(
+      onTap: () => _onHabitToggle(habitId, !isCompleted),
+      onPanUpdate: (details) {
+        // Handle horizontal drag to toggle
+        if (details.delta.dx > 5 && !isCompleted) {
+          _onHabitToggle(habitId, true);
+        } else if (details.delta.dx < -5 && isCompleted) {
+          _onHabitToggle(habitId, false);
+        }
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOutCubic,
+        width: 120,
+        height: 36,
+        decoration: BoxDecoration(
+          color: isCompleted ? neutralBlack : _getHabitBackgroundColor(index),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: neutralBlack,
+            width: 1.5,
+          ),
+        ),
+        child: Stack(
+          children: [
+            // Text positioned opposite to scroller
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOutCubic,
+              left: isCompleted ? 8 : 31,
+              right: isCompleted ? 36 : 8,
+              top: 0,
+              bottom: 0,
+              child: Center(
+                child: AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 200),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: isCompleted ? neutralWhite : neutralBlack,
+                    letterSpacing: 0,
+                  ),
+                  child: Text(
+                    isCompleted ? 'Completed' : 'Complete',
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ),
+            // Sliding circle with correct positioning
+            AnimatedAlign(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOutCubic,
+              alignment: isCompleted ? Alignment.centerRight : Alignment.centerLeft,
+              child: Container(
+                width: 28,
+                height: 28,
+                margin: const EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  color: isCompleted ? neutralWhite : neutralBlack,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: neutralBlack.withValues(alpha: 0.2),
+                      blurRadius: 2,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  isCompleted ? Icons.check : Icons.close,
+                  size: 16,
+                  color: isCompleted ? neutralBlack : neutralWhite,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _getHabitIcon(Habit habit) {
     switch (habit.categoryId) {
       case 1: // Health & Fitness
-        return accentYellow;
+        return const Icon(
+          Icons.fitness_center,
+          size: 20,
+          color: neutralWhite,
+        );
       case 2: // Learning
-        return accentBlue;
+        return const Icon(Icons.school, size: 20, color: neutralWhite);
       case 3: // Social
-        return accentPurple;
+        return const Icon(Icons.people, size: 20, color: neutralWhite);
       case 4: // Productivity
-        return accentGreenLight;
+        return const Icon(Icons.work, size: 20, color: neutralWhite);
       case 5: // Mindfulness
-        return const Color(0xFFFFE5E5);
-      default:
-        return neutralBackgroundGray;
+        return const Icon(Icons.self_improvement, size: 20, color: neutralWhite);
+      default: // Other
+        return const Icon(Icons.star, size: 20, color: neutralWhite);
     }
   }
 
@@ -851,6 +964,26 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   String _getWeekdayName(int weekday) {
     const weekdays = ['', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
     return weekdays[weekday];
+  }
+
+  String _formatTime12Hour(String timeString) {
+    try {
+      // Parse the time string (assuming format "HH:mm")
+      final timeParts = timeString.split(':');
+      if (timeParts.length != 2) return timeString;
+      
+      final hour = int.parse(timeParts[0]);
+      final minute = int.parse(timeParts[1]);
+      
+      // Convert to 12-hour format
+      final period = hour >= 12 ? 'PM' : 'AM';
+      final displayHour = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour);
+      final displayMinute = minute.toString().padLeft(2, '0');
+      
+      return '$displayHour:$displayMinute $period';
+    } catch (e) {
+      return timeString; // Return original if parsing fails
+    }
   }
 
   String _getTimeBasedGreeting() {

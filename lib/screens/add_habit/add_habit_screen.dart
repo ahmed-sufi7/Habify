@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../providers/habit_provider.dart';
 import '../../providers/category_provider.dart';
+import '../../database/database_manager.dart';
 
 // Custom exception classes for better error handling
 class ValidationException implements Exception {
@@ -1025,30 +1026,55 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
     }
     
     try {
+      // Ensure category provider is initialized with a retry mechanism
+      if (categoryProvider.categories.isEmpty) {
+        debugPrint('Categories not loaded, initializing...');
+        await categoryProvider.initialize();
+        
+        // If still empty after initialization, there's a serious problem
+        if (categoryProvider.categories.isEmpty) {
+          debugPrint('No categories after initialization. Resetting database...');
+          // Try to reset to default categories
+          final dbManager = DatabaseManager();
+          await dbManager.dbHelper.resetDatabase();
+          await categoryProvider.loadCategories();
+        }
+      }
+      
       // Try to find existing category first
       final existingCategory = categoryProvider.getCategoryByName(categoryName);
       if (existingCategory != null && existingCategory.id != null) {
+        debugPrint('Found existing category: ${existingCategory.name} with id: ${existingCategory.id}');
         return existingCategory.id!;
       }
       
-      // Double-check if category was created by another process (race condition protection)
-      await Future.delayed(const Duration(milliseconds: 100)); // Small delay
-      final recheckCategory = categoryProvider.getCategoryByName(categoryName);
-      if (recheckCategory != null && recheckCategory.id != null) {
-        return recheckCategory.id!;
+      // For default categories, they should exist, so this is an error
+      final defaultCategoryNames = ['Health & Fitness', 'Learning', 'Social', 'Productivity', 'Mindfulness', 'Other'];
+      if (defaultCategoryNames.contains(categoryName)) {
+        // Try to reload categories once more
+        await categoryProvider.loadCategories();
+        final retryCategory = categoryProvider.getCategoryByName(categoryName);
+        if (retryCategory != null && retryCategory.id != null) {
+          return retryCategory.id!;
+        }
+        
+        // This should never happen - default category missing
+        throw DatabaseException('Default category "$categoryName" not found in database. Please restart the app.');
       }
       
       // Create new category for custom ones with validation
+      debugPrint('Creating new custom category: $categoryName');
       final categoryId = await categoryProvider.createCategory(
         name: categoryName.length > 30 ? categoryName.substring(0, 30) : categoryName,
         colorHex: '#FF6B35', // Default color
-        iconName: 'category', // Default icon
+        iconName: 'more_horiz', // Default icon for custom categories
       );
       
       if (categoryId == null) {
         throw DatabaseException('Category creation returned null');
       }
       
+      debugPrint('Successfully created category with ID: $categoryId');
       return categoryId;
       
     } catch (e) {

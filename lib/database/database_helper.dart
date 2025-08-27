@@ -1,9 +1,14 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
-import 'dart:io';
+import 'package:flutter/foundation.dart';
+import '../models/category.dart' as category_model;
 
-import '../models/category.dart';
+// Platform-specific imports
+import 'dart:io' show Directory, File;
+import 'package:path_provider/path_provider.dart';
+
+// Web support - only import when needed
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
 class DatabaseHelper {
   static const String _databaseName = 'habify.db';
@@ -23,16 +28,46 @@ class DatabaseHelper {
   }
 
   Future<Database> _initDatabase() async {
-    Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentsDirectory.path, _databaseName);
+    if (kIsWeb) {
+      // Web platform - use sqflite_common_ffi_web
+      try {
+        debugPrint('Initializing database for web platform');
+        databaseFactory = databaseFactoryFfiWeb;
+        final db = await openDatabase(
+          _databaseName,
+          version: _databaseVersion,
+          onCreate: _onCreate,
+          onUpgrade: _onUpgrade,
+          onDowngrade: _onDowngrade,
+        );
+        debugPrint('Web database initialized successfully');
+        return db;
+      } catch (e) {
+        debugPrint('Web database initialization failed: $e');
+        throw Exception('Web database initialization failed: $e');
+      }
+    } else {
+      // Mobile platform - use regular sqflite
+      try {
+        debugPrint('Initializing database for mobile platform');
+        final Directory documentsDirectory = await getApplicationDocumentsDirectory();
+        String path = join(documentsDirectory.path, _databaseName);
+        debugPrint('Mobile database path: $path');
 
-    return await openDatabase(
-      path,
-      version: _databaseVersion,
-      onCreate: _onCreate,
-      onUpgrade: _onUpgrade,
-      onDowngrade: _onDowngrade,
-    );
+        final db = await openDatabase(
+          path,
+          version: _databaseVersion,
+          onCreate: _onCreate,
+          onUpgrade: _onUpgrade,
+          onDowngrade: _onDowngrade,
+        );
+        debugPrint('Mobile database initialized successfully');
+        return db;
+      } catch (e) {
+        debugPrint('Mobile database initialization failed: $e');
+        throw Exception('Mobile database initialization failed: $e');
+      }
+    }
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -194,7 +229,7 @@ class DatabaseHelper {
 
   Future<void> _insertDefaultData(Database db) async {
     // Insert default categories
-    final defaultCategories = Category.getDefaultCategories();
+    final defaultCategories = category_model.Category.getDefaultCategories();
     for (final category in defaultCategories) {
       await db.insert('categories', category.toMap());
     }
@@ -209,17 +244,25 @@ class DatabaseHelper {
   }
 
   Future<void> deleteDatabase() async {
-    Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentsDirectory.path, _databaseName);
-    
     if (_database != null) {
       await _database!.close();
       _database = null;
     }
     
-    final file = File(path);
-    if (await file.exists()) {
-      await file.delete();
+    if (!kIsWeb) {
+      try {
+        Directory documentsDirectory = await getApplicationDocumentsDirectory();
+        String path = join(documentsDirectory.path, _databaseName);
+        final file = File(path);
+        if (await file.exists()) {
+          await file.delete();
+        }
+        debugPrint('Mobile database file deleted: $path');
+      } catch (e) {
+        debugPrint('Error deleting mobile database file: $e');
+      }
+    } else {
+      debugPrint('Web database cleared by browser');
     }
   }
 
@@ -304,8 +347,12 @@ class DatabaseHelper {
 
   // Database info methods
   Future<String> getDatabasePath() async {
-    Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    return join(documentsDirectory.path, _databaseName);
+    if (kIsWeb) {
+      return 'web-database://$_databaseName'; // Virtual path for web
+    } else {
+      Directory documentsDirectory = await getApplicationDocumentsDirectory();
+      return join(documentsDirectory.path, _databaseName);
+    }
   }
 
   Future<int> getDatabaseVersion() async {

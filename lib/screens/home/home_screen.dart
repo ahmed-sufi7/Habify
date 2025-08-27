@@ -21,9 +21,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
-  late AnimationController _celebrationController;
-  int? _celebratingHabitId;
+class _HomeScreenState extends State<HomeScreen> {
   
   // Design colors from home_design.json
   static const Color primaryOrange = Color(0xFFFF6B35);
@@ -41,10 +39,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _celebrationController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
-      vsync: this,
-    );
     
     // Initialize providers
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -59,7 +53,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    _celebrationController.dispose();
     super.dispose();
   }
 
@@ -68,16 +61,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     
     if (isCompleted) {
       await habitProvider.completeHabit(habitId);
-      // Trigger celebration
-      setState(() {
-        _celebratingHabitId = habitId;
-      });
-      _celebrationController.forward().then((_) {
-        _celebrationController.reset();
-        setState(() {
-          _celebratingHabitId = null;
-        });
-      });
     } else {
       await habitProvider.undoHabitCompletion(habitId);
     }
@@ -584,7 +567,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget _buildHabitCard(Habit habit, HabitProvider habitProvider, int index) {
     final isCompleted = habitProvider.isHabitCompletedToday(habit.id!);
     final currentStreak = habitProvider.getCurrentStreak(habit.id!);
-    final isCelebrating = _celebratingHabitId == habit.id;
     
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -592,133 +574,102 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         color: _getHabitBackgroundColor(index),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header row
+            Row(
               children: [
-                // Header row
-                Row(
-                  children: [
-                    // Habit icon
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: neutralBlack,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: _getHabitIcon(habit),
-                    ),
-                    const SizedBox(width: 8),
-                    
-                    // Title and streak
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            habit.name,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: neutralBlack,
-                              letterSpacing: 0,
-                              height: 1.2,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    
-                    // Streak display
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Transform.translate(
-                          offset: const Offset(24, 0),
-                          child: Text(
-                            '$currentStreak',
-                            style: const TextStyle(
-                              fontSize: 26,
-                              fontWeight: FontWeight.w700,
-                              color: primaryOrange,
-                            ),
-                          ),
+                // Habit icon
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: neutralBlack,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: _getHabitIcon(habit),
+                ),
+                const SizedBox(width: 8),
+                
+                // Title and streak
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        habit.name,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: neutralBlack,
+                          letterSpacing: 0,
+                          height: 1.2,
                         ),
-                        Transform.translate(
-                          offset: const Offset(14, 0),
-                          child: Image.asset(
-                            'assets/icons/streak-icon.png',
-                            width: 60,
-                            height: 60,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
                 
-                const SizedBox(height: 8),
-                
-                // Progress grid (7x10 dots)
-                _buildProgressGrid(habit, habitProvider),
-                
-                const SizedBox(height: 18),
-                
-                // Bottom row with time and toggle
+                // Streak display
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Time indicator
-                    Text(
-                      '${_formatTime12Hour(habit.notificationTime)} reminder',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: primaryOrange,
+                    Transform.translate(
+                      offset: const Offset(24, 0),
+                      child: Text(
+                        '$currentStreak',
+                        style: const TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w700,
+                          color: primaryOrange,
+                        ),
                       ),
                     ),
-                    
-                    // Dynamic sliding toggle button
-                    _buildDynamicToggle(habit.id!, isCompleted, index),
+                    Transform.translate(
+                      offset: const Offset(14, 0),
+                      child: Image.asset(
+                        'assets/icons/streak-icon.png',
+                        width: 60,
+                        height: 60,
+                      ),
+                    ),
                   ],
                 ),
               ],
             ),
-          ),
-          
-          // Celebration overlay
-          if (isCelebrating)
-            AnimatedBuilder(
-              animation: _celebrationController,
-              builder: (context, child) {
-                return Container(
-                  decoration: BoxDecoration(
-                    color: accentGreen.withValues(alpha: 0.1 * _celebrationController.value),
-                    borderRadius: BorderRadius.circular(20),
+            
+            const SizedBox(height: 8),
+            
+            // Progress grid (7x10 dots)
+            _buildProgressGrid(habit, habitProvider),
+            
+            const SizedBox(height: 18),
+            
+            // Bottom row with time and toggle
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Time indicator
+                Text(
+                  '${_formatTime12Hour(habit.notificationTime)} reminder',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: primaryOrange,
                   ),
-                  child: Center(
-                    child: Transform.scale(
-                      scale: 1.0 + (0.2 * _celebrationController.value),
-                      child: Opacity(
-                        opacity: _celebrationController.value,
-                        child: const Icon(
-                          Icons.celebration,
-                          size: 80,
-                          color: accentGreen,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
+                ),
+                
+                // Dynamic sliding toggle button
+                _buildDynamicToggle(habit.id!, isCompleted, index),
+              ],
             ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -687,34 +687,30 @@ class _HomeScreenState extends State<HomeScreen> {
       itemCount: 64, // 16x4 grid
       itemBuilder: (context, index) {
         // Calculate which day this dot represents
+        // Index 0 = today, Index 1 = yesterday, etc.
         final now = DateTime.now();
-        final dayOffset = index - 63; // Most recent dot is at index 63
-        final dotDate = now.add(Duration(days: dayOffset));
+        final dotDate = now.subtract(Duration(days: index));
         
         Color dotColor;
-        if (dotDate.isAfter(now)) {
-          // Future dates
-          dotColor = const Color(0xFFFAFAFA);
+        
+        // Check if this specific habit was completed on this date
+        bool isHabitCompleted = false;
+        
+        if (_isSameDay(dotDate, now)) {
+          // For today, check the actual completion status
+          isHabitCompleted = habitProvider.isHabitCompletedToday(habit.id!);
         } else {
-          // Check if this specific habit was completed on this date
-          bool isHabitCompleted = false;
-          
-          if (_isSameDay(dotDate, now)) {
-            // For today, check the actual completion status
-            isHabitCompleted = habitProvider.isHabitCompletedToday(habit.id!);
-          } else {
-            // For past dates, we don't have completion history yet
-            // This would need to be implemented with proper data storage
-            isHabitCompleted = false; // Placeholder
-          }
-          
-          if (isHabitCompleted) {
-            // This habit was completed on this date
-            dotColor = neutralBlack;
-          } else {
-            // This habit was not completed on this date
-            dotColor = const Color(0xFFFAFAFA);
-          }
+          // For past dates, we don't have completion history yet
+          // This would need to be implemented with proper data storage
+          isHabitCompleted = false; // Placeholder
+        }
+        
+        if (isHabitCompleted) {
+          // This habit was completed on this date
+          dotColor = neutralBlack;
+        } else {
+          // This habit was not completed on this date
+          dotColor = const Color(0xFFFAFAFA);
         }
         
         return Container(

@@ -175,8 +175,9 @@ class Habit {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     
-    // Check if habit has started
-    if (today.isBefore(DateTime(startDate.year, startDate.month, startDate.day))) {
+    // Check if habit has started - normalize start date to day only for comparison
+    final startDay = DateTime(startDate.year, startDate.month, startDate.day);
+    if (today.isBefore(startDay)) {
       return false;
     }
     
@@ -222,8 +223,9 @@ class Habit {
   bool shouldShowOnDate(DateTime date) {
     final targetDay = DateTime(date.year, date.month, date.day);
     
-    // Check if habit has started
-    if (targetDay.isBefore(DateTime(startDate.year, startDate.month, startDate.day))) {
+    // Check if habit has started - normalize start date to day only for comparison
+    final startDay = DateTime(startDate.year, startDate.month, startDate.day);
+    if (targetDay.isBefore(startDay)) {
       return false;
     }
     

@@ -153,6 +153,29 @@ class HabitCompletion {
     );
   }
 
+  // Factory method to create a completion for a specific date
+  factory HabitCompletion.forDate({
+    required int habitId,
+    required DateTime date,
+    String status = 'completed',
+    String? notes,
+    int streakCount = 0,
+  }) {
+    final now = DateTime.now();
+    final completionDate = DateTime(date.year, date.month, date.day);
+    
+    return HabitCompletion(
+      habitId: habitId,
+      completionDate: completionDate,
+      completedAt: status == 'completed' ? now : null,
+      status: status,
+      notes: notes,
+      streakCount: streakCount,
+      createdAt: now,
+      updatedAt: now,
+    );
+  }
+
   // Factory method to create a missed completion
   factory HabitCompletion.missed({
     required int habitId,

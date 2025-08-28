@@ -167,8 +167,9 @@ class HabitCompletionDao {
     } else {
       // Create new completion
       final streakCount = await calculateCurrentStreak(habitId, date);
-      final completion = HabitCompletion.forToday(
+      final completion = HabitCompletion.forDate(
         habitId: habitId,
+        date: date,
         status: 'completed',
         notes: notes,
         streakCount: streakCount,

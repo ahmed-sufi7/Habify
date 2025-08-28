@@ -103,11 +103,12 @@ class HabitDao {
   Future<List<Habit>> getTodayHabits() async {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
+    final endOfToday = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
     
     final List<Map<String, dynamic>> maps = await _dbHelper.query(
       _tableName,
       where: 'is_active = ? AND start_date <= ? AND (end_date IS NULL OR end_date >= ?)',
-      whereArgs: [1, today.toIso8601String(), today.toIso8601String()],
+      whereArgs: [1, endOfToday.toIso8601String(), today.toIso8601String()],
       orderBy: 'notification_time ASC',
     );
     

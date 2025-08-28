@@ -70,36 +70,46 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFAFAFA),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Header
-            _buildHeader(),
-            
-            // Main content
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    // Streak card
-                    _buildStreakCard(),
-                    
-                    // Date timeline
-                    _buildDateTimeline(),
-                    
-                    // Habit cards section
-                    _buildHabitCards(),
-                    
-                    const SizedBox(height: 100), // Space for bottom nav
-                  ],
+      body: Stack(
+        children: [
+          // Main content
+          SafeArea(
+            child: Column(
+              children: [
+                // Header
+                _buildHeader(),
+                
+                // Main content
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        // Streak card
+                        _buildStreakCard(),
+                        
+                        // Date timeline
+                        _buildDateTimeline(),
+                        
+                        // Habit cards section
+                        _buildHabitCards(),
+                        
+                        const SizedBox(height: 100), // Space for floating bottom nav
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
-            
-            // Bottom navigation
-            _buildBottomNavigation(),
-          ],
-        ),
+          ),
+          
+          // Floating bottom navigation (positioned absolutely)
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 20,
+            child: _buildBottomNavigation(),
+          ),
+        ],
       ),
     );
   }
@@ -724,55 +734,98 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBottomNavigation() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-      height: 70,
-      decoration: BoxDecoration(
-        color: neutralBlack,
-        borderRadius: BorderRadius.circular(25),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+    return Center(
+      child: SizedBox(
+        width: 230,
+        height: 85, // Increased to accommodate protruding button
+        child: Stack(
+          alignment: Alignment.bottomCenter,
           children: [
-            // Home button
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(
-                Icons.home,
-                size: 24,
-                color: neutralWhite,
-              ),
-            ),
-            
-            // Add button
+            // Navigation bar container
             Container(
-              width: 44,
-              height: 44,
+              width: 230,
+              height: 65,
               decoration: BoxDecoration(
-                color: neutralWhite,
-                borderRadius: BorderRadius.circular(22),
+                color: neutralBlack,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  topRight: Radius.circular(30),
+                  bottomLeft: Radius.circular(15),
+                  bottomRight: Radius.circular(15),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: neutralBlack.withValues(alpha: 0.15),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
               ),
-              child: IconButton(
-                onPressed: () => Navigator.of(context).pushNamed('/add-habit'),
-                icon: const Icon(
-                  Icons.add,
-                  size: 28,
-                  color: neutralBlack,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    // Home button
+                    IconButton(
+                      onPressed: () {},
+                      icon: Image.asset(
+                        'assets/icons/home-active.png',
+                        width: 24,
+                        height: 24,
+                        color: neutralWhite,
+                      ),
+                    ),
+                    
+                    // Empty space for the protruding add button
+                    const SizedBox(width: 44),
+                    
+                    // Statistics button
+                    IconButton(
+                      onPressed: () {
+                        // Navigate to statistics screen when implemented
+                      },
+                      icon: Image.asset(
+                        'assets/icons/stats-inacative.png',
+                        width: 24,
+                        height: 24,
+                        color: neutralWhite,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
             
-            // Statistics button
-            IconButton(
-              onPressed: () {
-                // Navigate to statistics screen when implemented
-              },
-              icon: const Icon(
-                Icons.bar_chart,
-                size: 24,
-                color: neutralWhite,
+            // Add button protruding above the navbar
+            Positioned(
+              top: 0, // Position at top of the SizedBox (protruding above navbar)
+              child: Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: neutralWhite,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: neutralBlack,
+                    width: 2.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: neutralBlack.withValues(alpha: 0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: IconButton(
+                  onPressed: () => Navigator.of(context).pushNamed('/add-habit'),
+                  icon: const Icon(
+                    Icons.add,
+                    size: 26,
+                    color: neutralBlack,
+                  ),
+                ),
               ),
             ),
           ],

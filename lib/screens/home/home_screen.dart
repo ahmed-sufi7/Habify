@@ -39,16 +39,32 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    
-    // Initialize providers
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final habitProvider = Provider.of<HabitProvider>(context, listen: false);
-      final categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
-      final appSettingsProvider = Provider.of<AppSettingsProvider>(context, listen: false);
-      habitProvider.initialize();
-      categoryProvider.initialize();
-      appSettingsProvider.initialize();
-    });
+    _initializeProviders();
+  }
+
+  Future<void> _initializeProviders() async {
+    try {
+      // Wait for first frame to ensure context is available
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) return;
+        
+        final habitProvider = Provider.of<HabitProvider>(context, listen: false);
+        final categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
+        final appSettingsProvider = Provider.of<AppSettingsProvider>(context, listen: false);
+        
+        // Initialize providers sequentially to avoid conflicts
+        await habitProvider.initialize();
+        if (!mounted) return;
+        
+        await categoryProvider.initialize();
+        if (!mounted) return;
+        
+        await appSettingsProvider.initialize();
+      });
+    } catch (e) {
+      // Handle initialization errors gracefully
+      debugPrint('Provider initialization failed: $e');
+    }
   }
 
   @override
@@ -56,13 +72,59 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  void _onHabitToggle(int habitId, bool isCompleted) async {
-    final habitProvider = Provider.of<HabitProvider>(context, listen: false);
+  bool _isToggling = false;
+  
+  // Cache for expensive calculations to avoid rebuilds
+  final Map<String, dynamic> _cache = {};
+  DateTime? _lastCacheUpdate;
+  
+
+  Future<void> _onHabitToggle(int habitId, bool isCompleted) async {
+    // Prevent multiple simultaneous toggles
+    if (_isToggling || !mounted) return;
     
-    if (isCompleted) {
-      await habitProvider.completeHabit(habitId);
-    } else {
-      await habitProvider.undoHabitCompletion(habitId);
+    _isToggling = true;
+    
+    try {
+      final habitProvider = Provider.of<HabitProvider>(context, listen: false);
+      
+      // Validate habitId exists
+      final habit = habitProvider.todayHabits.cast<Habit?>().firstWhere(
+        (h) => h?.id == habitId,
+        orElse: () => null,
+      );
+      
+      if (habit == null) {
+        debugPrint('Habit with ID $habitId not found');
+        return;
+      }
+      
+      if (isCompleted) {
+        final success = await habitProvider.completeHabit(habitId);
+        if (!success && mounted) {
+          // Show error feedback
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to complete habit')),
+          );
+        }
+      } else {
+        final success = await habitProvider.undoHabitCompletion(habitId);
+        if (!success && mounted) {
+          // Show error feedback
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to undo habit completion')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+      }
+      debugPrint('Habit toggle error: $e');
+    } finally {
+      _isToggling = false;
     }
   }
 
@@ -106,8 +168,10 @@ class _HomeScreenState extends State<HomeScreen> {
           Positioned(
             left: 0,
             right: 0,
-            bottom: 20,
-            child: _buildBottomNavigation(),
+            bottom: MediaQuery.of(context).padding.bottom + 12,
+            child: SafeArea(
+              child: _buildBottomNavigation(),
+            ),
           ),
         ],
       ),
@@ -254,11 +318,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ? currentStreaks.values.reduce((a, b) => a > b ? a : b) 
               : 0;
           final totalHabits = habitProvider.habits.length;
-          final completedToday = habitProvider.habits.where((habit) {
-            final today = DateTime.now();
-            final completions = habitProvider.todayCompletionStatus;
-            return completions[habit.id] == true;
-          }).length;
+          final completedToday = habitProvider.todayCompletedCount;
               
           return Row(
             children: [
@@ -452,9 +512,11 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.only(top: 8, bottom: 8),
       child: Consumer<HabitProvider>(
         builder: (context, habitProvider, child) {
-          final now = DateTime.now();
+          // Pre-calculate base date and normalize to avoid timezone issues
+          final baseDate = DateTime.now();
+          final today = DateTime(baseDate.year, baseDate.month, baseDate.day);
           final dates = List.generate(14, (index) {
-            return now.subtract(Duration(days: 6 - index));
+            return today.subtract(Duration(days: 6 - index));
           });
           
           return ListView.builder(
@@ -465,7 +527,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             itemBuilder: (context, index) {
               final date = dates[index];
-              final isToday = _isSameDay(date, now);
+              final isToday = date.isAtSameMomentAs(today);
               final isCompleted = _isDateCompleted(date, habitProvider);
               
               return Container(
@@ -516,6 +578,71 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildHabitCards() {
     return Consumer<HabitProvider>(
       builder: (context, habitProvider, child) {
+        // Show loading state
+        if (habitProvider.isLoading) {
+          return Container(
+            margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+            child: const Center(
+              child: Column(
+                children: [
+                  CircularProgressIndicator(color: primaryOrange),
+                  SizedBox(height: 16),
+                  Text(
+                    'Loading habits...',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: neutralMediumGray,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+        
+        // Show error state
+        if (habitProvider.error != null) {
+          return Container(
+            margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+            child: Column(
+              children: [
+                const Icon(
+                  Icons.error_outline,
+                  size: 64,
+                  color: Colors.red,
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Failed to load habits',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.red,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  habitProvider.error!,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: neutralMediumGray,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () => habitProvider.loadHabits(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryOrange,
+                    foregroundColor: neutralWhite,
+                  ),
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          );
+        }
+        
         final todayHabits = habitProvider.todayHabits;
         
         if (todayHabits.isEmpty) {
@@ -523,7 +650,7 @@ class _HomeScreenState extends State<HomeScreen> {
             margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
             child: Column(
               children: [
-                Icon(
+                const Icon(
                   Icons.add_circle_outline,
                   size: 64,
                   color: neutralMediumGray,
@@ -685,6 +812,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildProgressGrid(Habit habit, HabitProvider habitProvider) {
+    // Pre-calculate base date to avoid repeated DateTime.now() calls
+    final baseDate = DateTime.now();
+    final today = DateTime(baseDate.year, baseDate.month, baseDate.day);
+    
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -696,23 +827,35 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       itemCount: 64, // 16x4 grid
       itemBuilder: (context, index) {
-        // Calculate which day this dot represents
+        // Calculate which day this dot represents (normalized date)
         // Index 0 = today, Index 1 = yesterday, etc.
-        final now = DateTime.now();
-        final dotDate = now.subtract(Duration(days: index));
+        final dotDate = today.subtract(Duration(days: index));
         
         Color dotColor;
         
         // Check if this specific habit was completed on this date
         bool isHabitCompleted = false;
         
-        if (_isSameDay(dotDate, now)) {
-          // For today, check the actual completion status
+        if (index == 0) {
+          // For today (index 0), check the actual completion status
           isHabitCompleted = habitProvider.isHabitCompletedToday(habit.id!);
         } else {
-          // For past dates, we don't have completion history yet
-          // This would need to be implemented with proper data storage
-          isHabitCompleted = false; // Placeholder
+          // For past dates, check if the habit should show on that date
+          // and if it was within the habit's active period
+          if (habit.shouldShowOnDate(dotDate)) {
+            // TODO: Implement historical completion data retrieval
+            // For now, use a mock pattern for demonstration
+            isHabitCompleted = false;
+          } else {
+            // Habit wasn't active on this date - use neutral color
+            dotColor = const Color(0xFFF5F5F5);
+            return Container(
+              decoration: BoxDecoration(
+                color: dotColor,
+                borderRadius: BorderRadius.circular(3),
+              ),
+            );
+          }
         }
         
         if (isHabitCompleted) {
@@ -734,16 +877,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBottomNavigation() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final navWidth = (screenWidth * 0.65).clamp(200.0, 280.0);
+    
     return Center(
       child: SizedBox(
-        width: 230,
+        width: navWidth,
         height: 85, // Increased to accommodate protruding button
         child: Stack(
           alignment: Alignment.bottomCenter,
           children: [
             // Navigation bar container
             Container(
-              width: 230,
+              width: navWidth,
               height: 65,
               decoration: BoxDecoration(
                 color: neutralBlack,
@@ -774,6 +920,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         width: 24,
                         height: 24,
                         color: neutralWhite,
+                        errorBuilder: (context, error, stackTrace) => const Icon(
+                          Icons.home,
+                          size: 24,
+                          color: neutralWhite,
+                        ),
                       ),
                     ),
                     
@@ -790,6 +941,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         width: 24,
                         height: 24,
                         color: neutralWhite,
+                        errorBuilder: (context, error, stackTrace) => const Icon(
+                          Icons.bar_chart_outlined,
+                          size: 24,
+                          color: neutralWhite,
+                        ),
                       ),
                     ),
                   ],
@@ -950,9 +1106,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   bool _isSameDay(DateTime date1, DateTime date2) {
-    return date1.year == date2.year &&
-           date1.month == date2.month &&
-           date1.day == date2.day;
+    // Normalize both dates to compare only the date part
+    final d1 = DateTime(date1.year, date1.month, date1.day);
+    final d2 = DateTime(date2.year, date2.month, date2.day);
+    return d1.isAtSameMomentAs(d2);
   }
 
   bool _isDateCompleted(DateTime date, HabitProvider habitProvider) {
@@ -1000,4 +1157,5 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 }
+
 

@@ -466,6 +466,26 @@ class HabitProvider extends ChangeNotifier {
     return _todayCompletionStatus[habitId] ?? false;
   }
   
+  // Check if habit was completed on a specific date
+  Future<bool> isHabitCompletedOnDate(int habitId, DateTime date) async {
+    try {
+      // Normalize date to avoid timezone issues
+      final normalizedDate = DateTime(date.year, date.month, date.day);
+      final today = DateTime.now();
+      final normalizedToday = DateTime(today.year, today.month, today.day);
+      
+      // If it's today, use the cached status
+      if (normalizedDate.isAtSameMomentAs(normalizedToday)) {
+        return _todayCompletionStatus[habitId] ?? false;
+      }
+      
+      // For past dates, query the database
+      return await _habitService.isHabitCompletedOnDate(habitId, normalizedDate);
+    } catch (e) {
+      return false;
+    }
+  }
+  
   int getCurrentStreak(int habitId) {
     return _currentStreaks[habitId] ?? 0;
   }

@@ -827,50 +827,57 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       itemCount: 64, // 16x4 grid
       itemBuilder: (context, index) {
-        // Calculate which day this dot represents (normalized date)
-        // Index 0 = today, Index 1 = yesterday, etc.
-        final dotDate = today.subtract(Duration(days: index));
+        // Calculate how many days since habit creation
+        final daysSinceHabitCreation = today.difference(DateTime(habit.startDate.year, habit.startDate.month, habit.startDate.day)).inDays;
         
-        Color dotColor;
+        // Only show dots for days that have passed since habit creation
+        if (index > daysSinceHabitCreation) {
+          // Future date - show empty/inactive dot
+          return Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFFF5F5F5),
+              borderRadius: BorderRadius.circular(3),
+            ),
+          );
+        }
         
-        // Check if this specific habit was completed on this date
-        bool isHabitCompleted = false;
+        // Calculate which date this dot represents (progressive from habit start)
+        final dotDate = DateTime(habit.startDate.year, habit.startDate.month, habit.startDate.day).add(Duration(days: index));
         
-        if (index == 0) {
-          // For today (index 0), check the actual completion status
-          isHabitCompleted = habitProvider.isHabitCompletedToday(habit.id!);
-        } else {
-          // For past dates, check if the habit should show on that date
-          // and if it was within the habit's active period
-          if (habit.shouldShowOnDate(dotDate)) {
-            // TODO: Implement historical completion data retrieval
-            // For now, use a mock pattern for demonstration
-            isHabitCompleted = false;
-          } else {
-            // Habit wasn't active on this date - use neutral color
-            dotColor = const Color(0xFFF5F5F5);
+        // Check if habit should show on this date
+        if (!habit.shouldShowOnDate(dotDate)) {
+          // Habit wasn't scheduled for this date - use neutral color
+          return Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFFF5F5F5),
+              borderRadius: BorderRadius.circular(3),
+            ),
+          );
+        }
+        
+        // For active dates, use FutureBuilder to check completion status
+        return FutureBuilder<bool>(
+          future: index == daysSinceHabitCreation 
+              ? Future.value(habitProvider.isHabitCompletedToday(habit.id!))
+              : habitProvider.isHabitCompletedOnDate(habit.id!, dotDate),
+          builder: (context, snapshot) {
+            Color dotColor;
+            
+            if (snapshot.hasData && snapshot.data!) {
+              // Habit was completed on this date
+              dotColor = neutralBlack;
+            } else {
+              // Habit was not completed on this date (or loading)
+              dotColor = const Color(0xFFFAFAFA);
+            }
+            
             return Container(
               decoration: BoxDecoration(
                 color: dotColor,
                 borderRadius: BorderRadius.circular(3),
               ),
             );
-          }
-        }
-        
-        if (isHabitCompleted) {
-          // This habit was completed on this date
-          dotColor = neutralBlack;
-        } else {
-          // This habit was not completed on this date
-          dotColor = const Color(0xFFFAFAFA);
-        }
-        
-        return Container(
-          decoration: BoxDecoration(
-            color: dotColor,
-            borderRadius: BorderRadius.circular(3),
-          ),
+          },
         );
       },
     );

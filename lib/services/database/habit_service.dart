@@ -163,6 +163,11 @@ class HabitService {
     }
   }
 
+  // Check if habit was completed on a specific date
+  Future<bool> isHabitCompletedOnDate(int habitId, DateTime date) async {
+    return await _completionDao.isHabitCompletedForDate(habitId, date);
+  }
+
   // Habit queries
   Future<List<Habit>> getTodayHabits() async {
     return await _habitDao.getTodayHabits();

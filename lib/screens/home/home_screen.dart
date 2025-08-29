@@ -5,6 +5,103 @@ import '../../providers/category_provider.dart';
 import '../../providers/app_settings_provider.dart';
 import '../../models/habit.dart';
 
+// Separate stateful widget for progress grid that doesn't rebuild with parent
+class HabitProgressGrid extends StatefulWidget {
+  final int habitId;
+  final HabitProvider habitProvider;
+
+  const HabitProgressGrid({
+    Key? key,
+    required this.habitId,
+    required this.habitProvider,
+  }) : super(key: key);
+
+  @override
+  State<HabitProgressGrid> createState() => _HabitProgressGridState();
+}
+
+class _HabitProgressGridState extends State<HabitProgressGrid> {
+  List<bool>? _cachedSequence;
+  int _cachedDisplayedCompletions = 0;
+  bool _isLoading = true;
+  bool? _lastCompletionStatus;
+
+  @override
+  void initState() {
+    super.initState();
+    _lastCompletionStatus = widget.habitProvider.isHabitCompletedToday(widget.habitId);
+    _loadProgressData();
+  }
+
+  @override
+  void didUpdateWidget(HabitProgressGrid oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    
+    // Check if the completion status for this specific habit changed
+    final currentStatus = widget.habitProvider.isHabitCompletedToday(widget.habitId);
+    if (_lastCompletionStatus != currentStatus) {
+      _lastCompletionStatus = currentStatus;
+      // Refresh the progress data when this habit's completion status changes
+      _loadProgressData();
+    }
+  }
+
+  Future<void> _loadProgressData() async {
+    try {
+      final data = await widget.habitProvider.getHabitCompletionData(widget.habitId, days: 64);
+      if (mounted) {
+        setState(() {
+          _cachedSequence = (data['sequence'] as List<bool>?) ?? List.filled(64, false);
+          _cachedDisplayedCompletions = (data['displayedCompletions'] as int?) ?? 0;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _cachedSequence = List.filled(64, false);
+          _cachedDisplayedCompletions = 0;
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Widget _buildGridView(List<bool> completionSequence, int displayedCompletions) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 16,
+        childAspectRatio: 1,
+        crossAxisSpacing: 5,
+        mainAxisSpacing: 5,
+      ),
+      itemCount: 64,
+      itemBuilder: (context, index) {
+        final isCompleted = completionSequence[index];
+        final dotColor = isCompleted ? const Color(0xFF000000) : const Color(0xFFFAFAFA);
+        
+        return Container(
+          decoration: BoxDecoration(
+            color: dotColor,
+            borderRadius: BorderRadius.circular(3),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading || _cachedSequence == null) {
+      return _buildGridView(List.filled(64, false), 0);
+    }
+    
+    return _buildGridView(_cachedSequence!, _cachedDisplayedCompletions);
+  }
+}
+
 /// Home Screen - Main dashboard following home_design.json specifications
 /// 
 /// Features:
@@ -77,6 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // Cache for expensive calculations to avoid rebuilds
   final Map<String, dynamic> _cache = {};
   DateTime? _lastCacheUpdate;
+  
   
 
   Future<void> _onHabitToggle(int habitId, bool isCompleted) async {
@@ -812,10 +910,20 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildProgressGrid(Habit habit, HabitProvider habitProvider) {
-    // Pre-calculate base date to avoid repeated DateTime.now() calls
-    final baseDate = DateTime.now();
-    final today = DateTime(baseDate.year, baseDate.month, baseDate.day);
-    
+    // Add null safety check
+    if (habit.id == null) {
+      return _buildGridView(List.filled(64, false), 0);
+    }
+
+    // Use a separate stateful widget that doesn't rebuild with parent
+    return HabitProgressGrid(
+      key: ValueKey('progress_grid_${habit.id}'),
+      habitId: habit.id!,
+      habitProvider: habitProvider,
+    );
+  }
+
+  Widget _buildGridView(List<bool> completionSequence, int displayedCompletions) {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -827,44 +935,9 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       itemCount: 64, // 16x4 grid
       itemBuilder: (context, index) {
-        // Calculate which day this dot represents (normalized date)
-        // Index 0 = today, Index 1 = yesterday, etc.
-        final dotDate = today.subtract(Duration(days: index));
-        
-        Color dotColor;
-        
-        // Check if this specific habit was completed on this date
-        bool isHabitCompleted = false;
-        
-        if (index == 0) {
-          // For today (index 0), check the actual completion status
-          isHabitCompleted = habitProvider.isHabitCompletedToday(habit.id!);
-        } else {
-          // For past dates, check if the habit should show on that date
-          // and if it was within the habit's active period
-          if (habit.shouldShowOnDate(dotDate)) {
-            // TODO: Implement historical completion data retrieval
-            // For now, use a mock pattern for demonstration
-            isHabitCompleted = false;
-          } else {
-            // Habit wasn't active on this date - use neutral color
-            dotColor = const Color(0xFFF5F5F5);
-            return Container(
-              decoration: BoxDecoration(
-                color: dotColor,
-                borderRadius: BorderRadius.circular(3),
-              ),
-            );
-          }
-        }
-        
-        if (isHabitCompleted) {
-          // This habit was completed on this date
-          dotColor = neutralBlack;
-        } else {
-          // This habit was not completed on this date
-          dotColor = const Color(0xFFFAFAFA);
-        }
+        // Sequential filling: Index 0 = first completion, Index 1 = second completion, etc.
+        final isCompleted = completionSequence[index];
+        final dotColor = isCompleted ? neutralBlack : const Color(0xFFFAFAFA);
         
         return Container(
           decoration: BoxDecoration(
@@ -875,6 +948,7 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
   }
+
 
   Widget _buildBottomNavigation() {
     final screenWidth = MediaQuery.of(context).size.width;

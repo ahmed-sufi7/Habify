@@ -255,6 +255,25 @@ class HabitService {
     return await _completionDao.getMonthlyStats(habitId, monthsBack);
   }
 
+  // Check if habit was completed on a specific date
+  Future<bool> isHabitCompletedForDate(int habitId, DateTime date) async {
+    return await _completionDao.isHabitCompletedForDate(habitId, date);
+  }
+
+  // Get completion dates for a habit within a date range (batch query for performance)
+  Future<List<DateTime>> getHabitCompletionDateRange(int habitId, DateTime startDate, DateTime endDate) async {
+    try {
+      final completions = await _completionDao.getCompletionsByDateRange(habitId, startDate, endDate);
+      return completions
+          .where((completion) => completion.isCompleted)
+          .map((completion) => completion.completionDate)
+          .toList();
+    } catch (e) {
+      // On error, return empty list
+      return [];
+    }
+  }
+
   // Category management
   Future<List<Category>> getAllCategories() async {
     return await _categoryDao.getAllCategories();

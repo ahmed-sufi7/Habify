@@ -15,6 +15,10 @@ class HabitProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
   
+  // Cache for grid data to prevent unnecessary reloads
+  Map<int, Map<String, dynamic>> _gridDataCache = {};
+  Map<int, DateTime> _gridCacheTimestamp = {};
+  
   // Getters
   List<Habit> get habits => _habits;
   List<Category> get categories => _categories;
@@ -270,6 +274,10 @@ class HabitProvider extends ChangeNotifier {
   // Load today's completion status and streaks
   Future<void> loadTodayStatus() async {
     try {
+      // Clear grid cache when loading new day data
+      _gridDataCache.clear();
+      _gridCacheTimestamp.clear();
+      
       final habitsWithStatus = await _habitService.getTodayHabitsWithStatus();
       
       _todayCompletionStatus.clear();
@@ -468,6 +476,171 @@ class HabitProvider extends ChangeNotifier {
   
   int getCurrentStreak(int habitId) {
     return _currentStreaks[habitId] ?? 0;
+  }
+  
+  // Get historical completion status for a specific date
+  Future<bool> isHabitCompletedForDate(int habitId, DateTime date) async {
+    try {
+      // If it's today, use the cached status
+      final today = DateTime.now();
+      final todayNormalized = DateTime(today.year, today.month, today.day);
+      final dateNormalized = DateTime(date.year, date.month, date.day);
+      
+      if (dateNormalized.isAtSameMomentAs(todayNormalized)) {
+        return isHabitCompletedToday(habitId);
+      }
+      
+      // For historical dates, query the database
+      return await _habitService.isHabitCompletedForDate(habitId, date);
+    } catch (e) {
+      // If there's an error, assume not completed
+      return false;
+    }
+  }
+
+  // Sliding window approach for habit completion sequence with caching
+  Future<Map<String, dynamic>> getHabitCompletionData(int habitId, {int days = 64}) async {
+    try {
+      final today = DateTime.now();
+      final todayNormalized = DateTime(today.year, today.month, today.day);
+      
+      // Check if we have valid cached data
+      final cacheKey = habitId;
+      final cachedData = _gridDataCache[cacheKey];
+      final cacheTime = _gridCacheTimestamp[cacheKey];
+      
+      // Use cache if:
+      // 1. Cache exists
+      // 2. Cache is from today
+      // 3. Today's completion status hasn't changed since cache
+      if (cachedData != null && 
+          cacheTime != null && 
+          _isSameDay(cacheTime, todayNormalized)) {
+        
+        // Check if today's completion status changed - if so, update just the count
+        final cachedTodayStatus = cachedData['todayWasCompleted'] as bool? ?? false;
+        final currentTodayStatus = isHabitCompletedToday(habitId);
+        
+        if (cachedTodayStatus == currentTodayStatus) {
+          // Cache is still valid, return it
+          return cachedData;
+        } else {
+          // Today's status changed, update the cached data
+          final sequence = List<bool>.from(cachedData['sequence'] as List<bool>);
+          int totalCompletions = cachedData['totalCompletions'] as int;
+          int displayedCompletions = cachedData['displayedCompletions'] as int;
+          
+          if (currentTodayStatus && !cachedTodayStatus) {
+            // Today was just completed
+            totalCompletions++;
+            if (displayedCompletions < days) {
+              sequence[displayedCompletions] = true;
+              displayedCompletions++;
+            }
+          } else if (!currentTodayStatus && cachedTodayStatus) {
+            // Today was just uncompleted
+            totalCompletions--;
+            if (displayedCompletions > 0) {
+              sequence[displayedCompletions - 1] = false;
+              displayedCompletions--;
+            }
+          }
+          
+          final updatedData = {
+            'sequence': sequence,
+            'totalCompletions': totalCompletions,
+            'displayedCompletions': displayedCompletions,
+            'windowStart': cachedData['windowStart'],
+            'windowEnd': cachedData['windowEnd'],
+            'todayWasCompleted': currentTodayStatus,
+          };
+          
+          // Update cache
+          _gridDataCache[cacheKey] = updatedData;
+          _gridCacheTimestamp[cacheKey] = todayNormalized;
+          
+          return updatedData;
+        }
+      }
+      
+      // No valid cache, fetch fresh data
+      final habit = _habits.firstWhere((h) => h.id == habitId, 
+          orElse: () => throw ArgumentError('Habit not found'));
+      
+      final startDate = todayNormalized.subtract(Duration(days: days - 1));
+      final completions = await _habitService.getHabitCompletionDateRange(
+          habitId, startDate, todayNormalized);
+      
+      final completionDatesSet = completions.map((date) => 
+          DateTime(date.year, date.month, date.day)).toSet();
+      
+      List<bool> sequence = List.filled(days, false);
+      int totalCompletions = 0;
+      int displayedCompletions = 0;
+      List<DateTime> completedDatesInWindow = [];
+      
+      for (int daysBack = days - 1; daysBack >= 0; daysBack--) {
+        final checkDate = todayNormalized.subtract(Duration(days: daysBack));
+        
+        if (!habit.shouldShowOnDate(checkDate) || 
+            checkDate.isBefore(DateTime(habit.createdAt.year, habit.createdAt.month, habit.createdAt.day))) {
+          continue;
+        }
+        
+        bool isCompleted;
+        if (daysBack == 0) {
+          isCompleted = isHabitCompletedToday(habitId);
+        } else {
+          isCompleted = completionDatesSet.contains(checkDate);
+        }
+        
+        if (isCompleted) {
+          completedDatesInWindow.add(checkDate);
+          totalCompletions++;
+        }
+      }
+      
+      for (int i = 0; i < completedDatesInWindow.length && i < days; i++) {
+        sequence[i] = true;
+        displayedCompletions++;
+      }
+      
+      final result = {
+        'sequence': sequence,
+        'totalCompletions': totalCompletions,
+        'displayedCompletions': displayedCompletions,
+        'windowStart': startDate,
+        'windowEnd': todayNormalized,
+        'todayWasCompleted': isHabitCompletedToday(habitId),
+      };
+      
+      // Cache the result
+      _gridDataCache[cacheKey] = result;
+      _gridCacheTimestamp[cacheKey] = todayNormalized;
+      
+      return result;
+    } catch (e) {
+      return {
+        'sequence': List.filled(days, false),
+        'totalCompletions': 0,
+        'displayedCompletions': 0,
+        'windowStart': DateTime.now().subtract(Duration(days: days - 1)),
+        'windowEnd': DateTime.now(),
+        'todayWasCompleted': false,
+      };
+    }
+  }
+  
+  bool _isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year && 
+           date1.month == date2.month && 
+           date1.day == date2.day;
+  }
+
+  // Legacy method for backward compatibility
+  Future<List<bool>> getHabitCompletionSequence(int habitId, {int days = 64}) async {
+    final data = await getHabitCompletionData(habitId, days: days);
+    return data['sequence'] as List<bool>;
   }
   
   // Refresh all data

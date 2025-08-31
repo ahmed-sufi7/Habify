@@ -75,6 +75,34 @@ class StatisticsProvider extends ChangeNotifier {
     if (_overallHabitStats == null) return 0;
     return _overallHabitStats!['completion_stats']?['total_completed'] ?? 0;
   }
+
+  int get totalMissedHabits {
+    if (_overallHabitStats == null) return 0;
+    return _overallHabitStats!['completion_stats']?['total_missed'] ?? 0;
+  }
+
+  Map<String, int> get weeklyCompletionData {
+    if (_pomodoroWeeklyStats == null) return {};
+    
+    final Map<String, int> weeklyData = {};
+    final days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    
+    // Initialize with 0 values
+    for (String day in days) {
+      weeklyData[day] = 0;
+    }
+    
+    // Fill with actual data if available
+    for (final dayData in _pomodoroWeeklyStats!) {
+      final dayName = dayData['day_name'] as String?;
+      final completions = dayData['completions'] as int? ?? 0;
+      if (dayName != null && days.contains(dayName)) {
+        weeklyData[dayName] = completions;
+      }
+    }
+    
+    return weeklyData;
+  }
   
   int get totalPomodoroSessions {
     if (_overallPomodoroStats == null) return 0;

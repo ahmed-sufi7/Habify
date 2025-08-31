@@ -940,9 +940,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     
                     // Statistics button
                     IconButton(
-                      onPressed: () {
-                        // Navigate to statistics screen when implemented
-                      },
+                      onPressed: () => Navigator.of(context).pushNamed('/statistics'),
                       icon: Image.asset(
                         'assets/icons/stats-inacative.png',
                         width: 24,

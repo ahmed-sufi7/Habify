@@ -489,6 +489,169 @@ class HabitProvider extends ChangeNotifier {
   int getCurrentStreak(int habitId) {
     return _currentStreaks[habitId] ?? 0;
   }
+
+  // Calculate habit completion rate (placeholder implementation)
+  double getHabitCompletionRate(int habitId) {
+    // This is a simplified calculation - in a real app you'd query the database
+    // for historical completion data
+    final habit = getHabitById(habitId);
+    if (habit == null) return 0.0;
+    
+    final daysSinceStart = DateTime.now().difference(habit.startDate).inDays + 1;
+    final currentStreak = getCurrentStreak(habitId);
+    
+    // Simple estimation: current streak / days since start
+    if (daysSinceStart <= 0) return 0.0;
+    return (currentStreak / daysSinceStart).clamp(0.0, 1.0);
+  }
+
+  // Get habits by category
+  Map<String, List<Habit>> get habitsByCategory {
+    final Map<String, List<Habit>> categorizedHabits = {};
+    
+    for (final habit in _habits) {
+      final category = _categories.firstWhere(
+        (cat) => cat.id == habit.categoryId,
+        orElse: () => Category(
+          name: 'Other',
+          colorHex: '#607D8B',
+          iconName: 'more_horiz',
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+      );
+      
+      if (!categorizedHabits.containsKey(category.name)) {
+        categorizedHabits[category.name] = [];
+      }
+      categorizedHabits[category.name]!.add(habit);
+    }
+    
+    return categorizedHabits;
+  }
+
+  // Get longest streak across all habits
+  int get longestStreak {
+    if (_currentStreaks.isEmpty) return 0;
+    return _currentStreaks.values.reduce((a, b) => a > b ? a : b);
+  }
+
+  // Get average streak length
+  double get averageStreak {
+    if (_currentStreaks.isEmpty) return 0.0;
+    final total = _currentStreaks.values.reduce((a, b) => a + b);
+    return total / _currentStreaks.length;
+  }
+
+  // Get habits by priority
+  Map<String, List<Habit>> get habitsByPriority {
+    final Map<String, List<Habit>> prioritizedHabits = {};
+    
+    for (final habit in _habits) {
+      if (!prioritizedHabits.containsKey(habit.priority)) {
+        prioritizedHabits[habit.priority] = [];
+      }
+      prioritizedHabits[habit.priority]!.add(habit);
+    }
+    
+    return prioritizedHabits;
+  }
+
+  // Get most consistent habit (highest completion rate)
+  Habit? get mostConsistentHabit {
+    if (_habits.isEmpty) return null;
+    
+    Habit? bestHabit;
+    double bestRate = 0.0;
+    
+    for (final habit in _habits) {
+      final rate = getHabitCompletionRate(habit.id!);
+      if (rate > bestRate) {
+        bestRate = rate;
+        bestHabit = habit;
+      }
+    }
+    
+    return bestHabit;
+  }
+
+  // Get total time committed to habits today (in minutes)
+  int get totalDailyTimeCommitment {
+    return todayHabits.fold(0, (total, habit) => total + habit.durationMinutes);
+  }
+
+  // Get completion percentage for each day of the week
+  Map<String, double> get weeklyCompletionPattern {
+    // This would normally query the database for the last 7 days of completion data
+    // For now, return sample data that varies based on current habits and streaks
+    final Map<String, double> pattern = {};
+    final days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    
+    // Calculate pattern based on current habit performance
+    final avgStreak = averageStreak;
+    final baseRate = (avgStreak / 10).clamp(0.3, 0.9); // Base rate between 30-90%
+    
+    for (int i = 0; i < days.length; i++) {
+      // Add some variation (+/- 20%)
+      final variation = (i * 0.05) - 0.15; // Creates pattern variation
+      final rate = (baseRate + variation).clamp(0.2, 1.0);
+      pattern[days[i]] = rate;
+    }
+    
+    return pattern;
+  }
+
+  // Calculate total missed habits (estimated based on streaks vs time since creation)
+  int get totalMissedHabits {
+    int totalMissed = 0;
+    
+    for (final habit in _habits) {
+      final daysSinceStart = DateTime.now().difference(habit.startDate).inDays + 1;
+      final currentStreak = getCurrentStreak(habit.id!);
+      
+      // Estimate missed days as (days since start - current streak)
+      // This is a simplified calculation - in real app would query completion history
+      final estimatedMissed = (daysSinceStart - currentStreak).clamp(0, daysSinceStart);
+      totalMissed += estimatedMissed;
+    }
+    
+    return totalMissed;
+  }
+
+  // Calculate total completed habits across all time
+  int get totalCompletedHabits {
+    // Sum up all current streaks as a proxy for total completions
+    // In a real app, this would sum all completion records from the database
+    return _currentStreaks.values.fold(0, (sum, streak) => sum + streak);
+  }
+
+  // Calculate overall consistency score (0-100)
+  double get overallConsistencyScore {
+    if (_habits.isEmpty) return 0.0;
+    
+    double totalConsistency = 0.0;
+    int validHabits = 0;
+    
+    for (final habit in _habits) {
+      final daysSinceStart = DateTime.now().difference(habit.startDate).inDays + 1;
+      if (daysSinceStart > 0) {
+        final currentStreak = getCurrentStreak(habit.id!);
+        final consistency = (currentStreak / daysSinceStart).clamp(0.0, 1.0);
+        totalConsistency += consistency;
+        validHabits++;
+      }
+    }
+    
+    if (validHabits == 0) return 0.0;
+    
+    // Convert to percentage and add some momentum bonus based on recent performance
+    final baseScore = (totalConsistency / validHabits) * 100;
+    
+    // Add momentum bonus based on today's completion rate (max +10 points)
+    final momentumBonus = (todayCompletionRate / 100) * 10;
+    
+    return (baseScore + momentumBonus).clamp(0.0, 100.0);
+  }
   
   // Refresh all data
   Future<void> refresh() async {

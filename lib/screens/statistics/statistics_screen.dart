@@ -1,0 +1,1058 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/habit_provider.dart';
+import '../../providers/statistics_provider.dart';
+
+class StatisticsScreen extends StatefulWidget {
+  const StatisticsScreen({super.key});
+
+  @override
+  State<StatisticsScreen> createState() => _StatisticsScreenState();
+}
+
+class _StatisticsScreenState extends State<StatisticsScreen> {
+  // Design colors from home_design.json for consistency
+  static const Color primaryOrange = Color(0xFFFF6B35);
+  static const Color neutralWhite = Color(0xFFFFFFFF);
+  static const Color neutralBlack = Color(0xFF000000);
+  static const Color neutralMediumGray = Color(0xFF666666);
+  static const Color neutralLightGray = Color(0xFFE0E0E0);
+  static const Color neutralBackgroundGray = Color(0xFFF5F5F5);
+  static const Color accentGreen = Color(0xFF4CAF50);
+  static const Color accentGreenLight = Color(0xFFC8E6C9);
+  static const Color accentBlue = Color(0xFFE3F2FD);
+  static const Color accentPurple = Color(0xFFE1BEE7);
+  static const Color accentYellow = Color(0xFFF9F9C4);
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeProviders();
+  }
+
+  Future<void> _initializeProviders() async {
+    try {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) return;
+        
+        final statisticsProvider = Provider.of<StatisticsProvider>(context, listen: false);
+        await statisticsProvider.initialize();
+      });
+    } catch (e) {
+      debugPrint('Statistics provider initialization failed: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFFAFAFA),
+      body: Stack(
+        children: [
+          SafeArea(
+            child: Column(
+              children: [
+                // Header
+                _buildHeader(),
+                
+                // Main content
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        // Statistics cards
+                        _buildStatisticsCards(),
+                        
+                        // Statistics chart
+                        _buildStatisticsChart(),
+                        
+                        // Category breakdown
+                        _buildCategoryBreakdown(),
+                        
+                        // Habit breakdown
+                        _buildHabitBreakdown(),
+                        
+                        const SizedBox(height: 100), // Space for floating bottom nav
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          // Floating bottom navigation (positioned absolutely)
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: MediaQuery.of(context).padding.bottom + 12,
+            child: SafeArea(
+              child: _buildBottomNavigation(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Menu and title
+          Row(
+            children: [
+              // Habify logo
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.asset(
+                    'assets/logos/logo_black_bg.png',
+                    width: 38,
+                    height: 38,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: neutralBlack,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.bar_chart,
+                          color: neutralWhite,
+                          size: 18,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              // Title
+              const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Statistics',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: neutralBlack,
+                      letterSpacing: 0.3,
+                      height: 1.0,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          
+          // Action buttons
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Calendar button
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: neutralWhite,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: neutralBlack, width: 1.5),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(6.0),
+                  child: Image.asset(
+                    'assets/icons/calendder.png',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+              
+              const SizedBox(width: 10),
+              
+              // Notification bell
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: neutralWhite,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: neutralBlack, width: 1.5),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(6.0),
+                  child: Image.asset(
+                    'assets/icons/notification-bing.png',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatisticsCards() {
+    return Consumer<HabitProvider>(
+      builder: (context, habitProvider, child) {
+        final totalHabits = habitProvider.habits.length;
+        final completedToday = habitProvider.todayCompletedCount;
+        final longestStreak = habitProvider.longestStreak;
+        final averageStreak = habitProvider.averageStreak;
+        final completionRate = habitProvider.todayCompletionRate;
+        final totalMissed = habitProvider.totalMissedHabits;
+        final totalCompleted = habitProvider.totalCompletedHabits;
+        final consistencyScore = habitProvider.overallConsistencyScore;
+        
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          child: Column(
+            children: [
+              // Top row - Total habits and Completed today
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildStatCard(
+                      title: 'Total Habits',
+                      value: '$totalHabits',
+                      backgroundColor: const Color(0xFFFFEAE4),
+                      valueColor: primaryOrange,
+                      icon: Icons.star,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildStatCard(
+                      title: 'Completed Today',
+                      value: '$completedToday/$totalHabits',
+                      backgroundColor: const Color(0xFFE8F5EA),
+                      valueColor: accentGreen,
+                      icon: Icons.check_circle,
+                    ),
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 12),
+              
+              // Second row - Longest streak and Average streak
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildStatCard(
+                      title: 'Longest Streak',
+                      value: '$longestStreak days',
+                      backgroundColor: const Color(0xFFFFE0E6),
+                      valueColor: const Color(0xFFE91E63),
+                      icon: Icons.local_fire_department,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildStatCard(
+                      title: 'Average Streak',
+                      value: '${averageStreak.toStringAsFixed(1)} days',
+                      backgroundColor: accentBlue,
+                      valueColor: const Color(0xFF1976D2),
+                      icon: Icons.trending_up,
+                    ),
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 12),
+              
+              // Third row - Habits completed and Habits missed
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildStatCard(
+                      title: 'Habits Completed',
+                      value: '$totalCompleted',
+                      backgroundColor: const Color(0xFFE8F5EA),
+                      valueColor: accentGreen,
+                      icon: Icons.check_circle,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildStatCard(
+                      title: 'Habits Missed',
+                      value: '$totalMissed',
+                      backgroundColor: const Color(0xFFFFEBEE),
+                      valueColor: const Color(0xFFD32F2F),
+                      icon: Icons.cancel_outlined,
+                    ),
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 12),
+              
+              // Fourth row - Completion rate and Consistency score
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildStatCard(
+                      title: 'Today\'s Rate',
+                      value: '${completionRate.toStringAsFixed(0)}%',
+                      backgroundColor: const Color(0xFFF3E5F5),
+                      valueColor: const Color(0xFF9C27B0),
+                      icon: Icons.today,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildStatCard(
+                      title: 'Consistency Score',
+                      value: '${consistencyScore.toStringAsFixed(0)}',
+                      backgroundColor: _getConsistencyScoreColor(consistencyScore),
+                      valueColor: _getConsistencyScoreValueColor(consistencyScore),
+                      icon: Icons.psychology,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildStatCard({
+    required String title,
+    required String value,
+    required Color backgroundColor,
+    required Color valueColor,
+    required IconData icon,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Icon and title in one line
+          Row(
+            children: [
+              Icon(
+                icon,
+                color: valueColor,
+                size: 20,
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: neutralBlack,
+                    letterSpacing: -0.25,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          // Value below
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.w700,
+              color: valueColor,
+              letterSpacing: -0.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatisticsChart() {
+    return Consumer<HabitProvider>(
+      builder: (context, habitProvider, child) {
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: neutralWhite,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: neutralBlack.withValues(alpha: 0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Weekly Completion Pattern',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: neutralBlack,
+                  letterSpacing: 0.3,
+                ),
+              ),
+              const SizedBox(height: 24),
+              
+              // Weekly completion pattern chart
+              _buildWeeklyChart(habitProvider),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+
+  Widget _buildWeeklyChart(HabitProvider habitProvider) {
+    final weeklyData = habitProvider.weeklyCompletionPattern;
+    final maxValue = weeklyData.isEmpty ? 1.0 : weeklyData.values.reduce((a, b) => a > b ? a : b);
+    
+    return Container(
+      height: 240,
+      width: double.infinity,
+      child: Column(
+        children: [
+          // Y-axis labels
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                // Y-axis percentage labels
+                Container(
+                  width: 28,
+                  height: 180,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        '100%',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                          color: neutralMediumGray,
+                        ),
+                      ),
+                      Text(
+                        '75%',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                          color: neutralMediumGray,
+                        ),
+                      ),
+                      Text(
+                        '50%',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                          color: neutralMediumGray,
+                        ),
+                      ),
+                      Text(
+                        '25%',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                          color: neutralMediumGray,
+                        ),
+                      ),
+                      Text(
+                        '0%',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                          color: neutralMediumGray,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 4),
+                // Chart bars
+                Expanded(
+                  child: Container(
+                    height: 180,
+                    child: Stack(
+                      children: [
+                        // Grid lines
+                        Positioned.fill(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: List.generate(5, (index) => Container(
+                              height: 1,
+                              color: neutralLightGray.withValues(alpha: 0.5),
+                            )),
+                          ),
+                        ),
+                        // Bars
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) {
+                            final value = weeklyData[day] ?? 0.0;
+                            final barHeight = (value / maxValue) * 160; // Max 160px for the bar area
+                            final shortDay = day.substring(0, 3);
+                            
+                            Color barColor;
+                            if (value >= 0.8) {
+                              barColor = const Color(0xFF4CAF50); // Green for excellent
+                            } else if (value >= 0.6) {
+                              barColor = primaryOrange; // Orange for good
+                            } else if (value >= 0.4) {
+                              barColor = const Color(0xFFFFA726); // Light orange for fair
+                            } else if (value >= 0.2) {
+                              barColor = const Color(0xFFFFCC80); // Very light orange for poor
+                            } else {
+                              barColor = neutralLightGray; // Gray for very poor
+                            }
+                            
+                            return Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 2),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    // Percentage label above bar
+                                    if (value > 0)
+                                      Padding(
+                                        padding: const EdgeInsets.only(bottom: 4),
+                                        child: Text(
+                                          '${(value * 100).toInt()}%',
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w600,
+                                            color: barColor,
+                                          ),
+                                        ),
+                                      ),
+                                    // Bar
+                                    AnimatedContainer(
+                                      duration: const Duration(milliseconds: 800),
+                                      curve: Curves.easeOutCubic,
+                                      width: double.infinity,
+                                      height: barHeight.clamp(4.0, 160.0), // Minimum 4px height
+                                      decoration: BoxDecoration(
+                                        color: barColor,
+                                        borderRadius: const BorderRadius.only(
+                                          topLeft: Radius.circular(6),
+                                          topRight: Radius.circular(6),
+                                        ),
+                                        boxShadow: value > 0 ? [
+                                          BoxShadow(
+                                            color: barColor.withValues(alpha: 0.3),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ] : null,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          // Day labels
+          Row(
+            children: [
+              const SizedBox(width: 32), // Offset for Y-axis labels
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) {
+                    return Expanded(
+                      child: Text(
+                        day,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: neutralBlack,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryBreakdown() {
+    return Consumer<HabitProvider>(
+      builder: (context, habitProvider, child) {
+        final habitsByCategory = habitProvider.habitsByCategory;
+        
+        if (habitsByCategory.isEmpty) {
+          return const SizedBox.shrink();
+        }
+        
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: neutralWhite,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: neutralBlack.withValues(alpha: 0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Habits by Category',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: neutralBlack,
+                  letterSpacing: 0.3,
+                ),
+              ),
+              const SizedBox(height: 20),
+              
+              ...habitsByCategory.entries.map((entry) => _buildCategoryItem(
+                entry.key, 
+                entry.value.length,
+                _getCategoryColor(entry.key),
+              )),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCategoryItem(String categoryName, int habitCount, Color color) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Icon(
+              _getCategoryIcon(categoryName),
+              color: color,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              categoryName,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: neutralBlack,
+              ),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              '$habitCount',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _getCategoryColor(String categoryName) {
+    switch (categoryName) {
+      case 'Health & Fitness':
+        return const Color(0xFF4CAF50);
+      case 'Learning':
+        return const Color(0xFF2C2C2C);
+      case 'Social':
+        return const Color(0xFFE91E63);
+      case 'Productivity':
+        return const Color(0xFF2196F3);
+      case 'Mindfulness':
+        return const Color(0xFFFF9800);
+      case 'Other':
+        return const Color(0xFF607D8B);
+      default:
+        return neutralMediumGray;
+    }
+  }
+
+  IconData _getCategoryIcon(String categoryName) {
+    switch (categoryName) {
+      case 'Health & Fitness':
+        return Icons.fitness_center;
+      case 'Learning':
+        return Icons.school;
+      case 'Social':
+        return Icons.people;
+      case 'Productivity':
+        return Icons.work;
+      case 'Mindfulness':
+        return Icons.self_improvement;
+      case 'Other':
+        return Icons.more_horiz;
+      default:
+        return Icons.star;
+    }
+  }
+
+  Widget _buildHabitBreakdown() {
+    return Consumer<HabitProvider>(
+      builder: (context, habitProvider, child) {
+        final habits = habitProvider.habits;
+        
+        if (habits.isEmpty) {
+          return Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.all(32),
+            decoration: BoxDecoration(
+              color: neutralWhite,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Column(
+              children: [
+                Icon(
+                  Icons.bar_chart_outlined,
+                  size: 48,
+                  color: neutralMediumGray,
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'No habits to analyze',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: neutralMediumGray,
+                  ),
+                ),
+                Text(
+                  'Add some habits to see detailed statistics',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: neutralMediumGray,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+        
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: neutralWhite,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: neutralBlack.withValues(alpha: 0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Habit Breakdown',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: neutralBlack,
+                  letterSpacing: 0.3,
+                ),
+              ),
+              const SizedBox(height: 20),
+              
+              ...habits.take(5).map((habit) => _buildHabitBreakdownItem(habit, habitProvider)),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildHabitBreakdownItem(dynamic habit, HabitProvider habitProvider) {
+    final streak = habitProvider.getCurrentStreak(habit.id!);
+    final completionRate = habitProvider.getHabitCompletionRate(habit.id!);
+    
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        children: [
+          // Habit icon
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: neutralBlack,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: _getHabitIcon(habit),
+          ),
+          
+          const SizedBox(width: 12),
+          
+          // Habit details
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  habit.name,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: neutralBlack,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Streak: $streak days • ${(completionRate * 100).toStringAsFixed(0)}% completed',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: neutralMediumGray,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          // Progress indicator
+          Container(
+            width: 50,
+            height: 8,
+            decoration: BoxDecoration(
+              color: neutralLightGray,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: FractionallySizedBox(
+              alignment: Alignment.centerLeft,
+              widthFactor: completionRate,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: primaryOrange,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomNavigation() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final navWidth = (screenWidth * 0.65).clamp(200.0, 280.0);
+    
+    return Center(
+      child: SizedBox(
+        width: navWidth,
+        height: 85,
+        child: Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            // Navigation bar container
+            Container(
+              width: navWidth,
+              height: 65,
+              decoration: BoxDecoration(
+                color: neutralBlack,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  topRight: Radius.circular(30),
+                  bottomLeft: Radius.circular(15),
+                  bottomRight: Radius.circular(15),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: neutralBlack.withValues(alpha: 0.15),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    // Home button
+                    IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: Image.asset(
+                        'assets/icons/home-inactive.png',
+                        width: 24,
+                        height: 24,
+                        color: neutralWhite,
+                        errorBuilder: (context, error, stackTrace) => const Icon(
+                          Icons.home_outlined,
+                          size: 24,
+                          color: neutralWhite,
+                        ),
+                      ),
+                    ),
+                    
+                    // Empty space for the protruding add button
+                    const SizedBox(width: 44),
+                    
+                    // Statistics button (active)
+                    IconButton(
+                      onPressed: () {},
+                      icon: Image.asset(
+                        'assets/icons/stats-active.png',
+                        width: 24,
+                        height: 24,
+                        color: neutralWhite,
+                        errorBuilder: (context, error, stackTrace) => const Icon(
+                          Icons.bar_chart,
+                          size: 24,
+                          color: neutralWhite,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            
+            // Add button protruding above the navbar
+            Positioned(
+              top: 0,
+              child: Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: neutralWhite,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: neutralBlack,
+                    width: 2.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: neutralBlack.withValues(alpha: 0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: IconButton(
+                  onPressed: () => Navigator.of(context).pushNamed('/add-habit'),
+                  icon: const Icon(
+                    Icons.add,
+                    size: 26,
+                    color: neutralBlack,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Color _getConsistencyScoreColor(double score) {
+    if (score >= 80) {
+      return const Color(0xFFE8F5E8); // Light green for excellent
+    } else if (score >= 60) {
+      return const Color(0xFFFFEAE4); // Light orange for good
+    } else if (score >= 40) {
+      return const Color(0xFFFFF3E0); // Light yellow for fair
+    } else {
+      return const Color(0xFFFFEBEE); // Light red for needs improvement
+    }
+  }
+
+  Color _getConsistencyScoreValueColor(double score) {
+    if (score >= 80) {
+      return const Color(0xFF4CAF50); // Green for excellent (80-100)
+    } else if (score >= 60) {
+      return primaryOrange; // Orange for good (60-79)
+    } else if (score >= 40) {
+      return const Color(0xFFF57F17); // Amber for fair (40-59)
+    } else {
+      return const Color(0xFFD32F2F); // Red for needs improvement (0-39)
+    }
+  }
+
+  Widget _getHabitIcon(dynamic habit) {
+    switch (habit.categoryId) {
+      case 1: // Health & Fitness
+        return const Icon(
+          Icons.fitness_center,
+          size: 20,
+          color: neutralWhite,
+        );
+      case 2: // Learning
+        return const Icon(Icons.school, size: 20, color: neutralWhite);
+      case 3: // Social
+        return const Icon(Icons.people, size: 20, color: neutralWhite);
+      case 4: // Productivity
+        return const Icon(Icons.work, size: 20, color: neutralWhite);
+      case 5: // Mindfulness
+        return const Icon(Icons.self_improvement, size: 20, color: neutralWhite);
+      default: // Other
+        return const Icon(Icons.star, size: 20, color: neutralWhite);
+    }
+  }
+}

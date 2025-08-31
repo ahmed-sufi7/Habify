@@ -9,6 +9,7 @@ import 'screens/launch/splash_screen.dart';
 import 'screens/intro/intro_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/add_habit/add_habit_screen.dart';
+import 'screens/statistics/statistics_screen.dart';
 import 'services/first_time_user_service.dart';
 
 void main() async {
@@ -120,6 +121,7 @@ class HabifyApp extends StatelessWidget {
               '/intro': (context) => const IntroScreen(),
               '/splash': (context) => const SplashScreen(),
               '/add-habit': (context) => const AddHabitScreen(),
+              '/statistics': (context) => const StatisticsScreen(),
             },
             
             // Error handling
@@ -151,6 +153,8 @@ class HabifyApp extends StatelessWidget {
         return MaterialPageRoute(builder: (_) => const SplashScreen());
       case '/add-habit':
         return MaterialPageRoute(builder: (_) => const AddHabitScreen());
+      case '/statistics':
+        return MaterialPageRoute(builder: (_) => const StatisticsScreen());
       default:
         return null;
     }

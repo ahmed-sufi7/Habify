@@ -911,7 +911,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             
                             return Expanded(
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 4),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: _viewType == StatisticsViewType.monthly ? 8 : 4,
+                                ),
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [

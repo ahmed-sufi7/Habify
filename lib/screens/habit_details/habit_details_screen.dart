@@ -695,6 +695,7 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
   void _showMoreOptionsMenu() {
     showModalBottomSheet(
       context: context,
+      backgroundColor: Colors.grey[100],
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -732,6 +733,7 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: Colors.grey[100],
           title: const Text('Delete Habit'),
           content: Text('Are you sure you want to delete "${_habit!.name}"? This action cannot be undone.'),
           actions: [
@@ -756,23 +758,119 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
   void _deleteHabit() async {
     try {
       final habitProvider = Provider.of<HabitProvider>(context, listen: false);
-      await habitProvider.deleteHabit(_habit!.id!);
+      final habitName = _habit!.name;
       
+      // Show loading indicator
       if (mounted) {
-        Navigator.of(context).pop(); // Go back to home screen
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${_habit!.name} deleted successfully'),
-            backgroundColor: Colors.green,
+          const SnackBar(
+            content: Row(
+              children: [
+                SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+                SizedBox(width: 12),
+                Text('Deleting habit...'),
+              ],
+            ),
+            backgroundColor: Colors.orange,
+            duration: Duration(seconds: 2),
           ),
         );
       }
+      
+      // Delete the habit
+      final success = await habitProvider.deleteHabit(_habit!.id!);
+      
+      if (mounted) {
+        // Clear any existing snackbars
+        ScaffoldMessenger.of(context).clearSnackBars();
+        
+        if (success) {
+          // Navigate back to home screen
+          Navigator.of(context).pop();
+          
+          // Show success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text('$habitName deleted successfully')),
+                ],
+              ),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 3),
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.all(16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          );
+        } else {
+          // Show error message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Row(
+                children: [
+                  Icon(Icons.error_outline, color: Colors.white, size: 20),
+                  SizedBox(width: 8),
+                  Expanded(child: Text('Failed to delete habit. Please try again.')),
+                ],
+              ),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 4),
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.all(16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              action: SnackBarAction(
+                label: 'RETRY',
+                textColor: Colors.white,
+                onPressed: () => _showDeleteConfirmation(),
+              ),
+            ),
+          );
+        }
+      }
     } catch (e) {
       if (mounted) {
+        // Clear loading snackbar
+        ScaffoldMessenger.of(context).clearSnackBars();
+        
+        // Show detailed error message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to delete habit: $e'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.error_outline, color: Colors.white, size: 20),
+                    SizedBox(width: 8),
+                    Text('Error deleting habit', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text('$e', style: const TextStyle(fontSize: 12)),
+              ],
+            ),
             backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
         );
       }

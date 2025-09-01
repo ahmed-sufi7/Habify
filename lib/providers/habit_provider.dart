@@ -582,23 +582,70 @@ class HabitProvider extends ChangeNotifier {
 
   // Get completion percentage for each day of the week
   Map<String, double> get weeklyCompletionPattern {
-    // This would normally query the database for the last 7 days of completion data
-    // For now, return sample data that varies based on current habits and streaks
+    return getWeeklyCompletionPattern(DateTime.now());
+  }
+
+  Map<String, double> getWeeklyCompletionPattern(DateTime weekDate) {
     final Map<String, double> pattern = {};
     final days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     
-    // Calculate pattern based on current habit performance
-    final avgStreak = averageStreak;
-    final baseRate = (avgStreak / 10).clamp(0.3, 0.9); // Base rate between 30-90%
+    // Get start of the week for the given date
+    final startOfWeek = weekDate.subtract(Duration(days: weekDate.weekday - 1));
     
     for (int i = 0; i < days.length; i++) {
-      // Add some variation (+/- 20%)
-      final variation = (i * 0.05) - 0.15; // Creates pattern variation
-      final rate = (baseRate + variation).clamp(0.2, 1.0);
-      pattern[days[i]] = rate;
+      final dayDate = startOfWeek.add(Duration(days: i));
+      final completionRate = _calculateDayCompletionRate(dayDate);
+      pattern[days[i]] = completionRate;
     }
     
     return pattern;
+  }
+
+  double _calculateDayCompletionRate(DateTime date) {
+    if (_habits.isEmpty) return 0.0;
+    
+    // Check if date is today
+    final isToday = _isSameDay(date, DateTime.now());
+    
+    if (isToday) {
+      // For today, use current completion status
+      final todayCompleted = _todayCompletionStatus.values.where((completed) => completed).length;
+      return todayCompleted / _habits.length;
+    } else if (date.isAfter(DateTime.now())) {
+      // Future dates have no completion
+      return 0.0;
+    } else {
+      // For past dates, estimate based on streaks and habit start dates
+      int completedHabits = 0;
+      
+      for (final habit in _habits) {
+        if (date.isBefore(habit.startDate)) continue;
+        
+        final currentStreak = getCurrentStreak(habit.id!);
+        final daysSinceStart = DateTime.now().difference(habit.startDate).inDays;
+        final daysFromDate = DateTime.now().difference(date).inDays;
+        
+        // If the habit's current streak is longer than days from the date,
+        // it was likely completed on that date
+        if (currentStreak > daysFromDate) {
+          completedHabits++;
+        } else {
+          // Use a probability based on overall performance
+          final overallRate = daysSinceStart > 0 ? (currentStreak / daysSinceStart).clamp(0.0, 1.0) : 0.5;
+          if (overallRate > 0.5) {
+            completedHabits++;
+          }
+        }
+      }
+      
+      return completedHabits / _habits.length;
+    }
+  }
+
+  bool _isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year && 
+           date1.month == date2.month && 
+           date1.day == date2.day;
   }
 
   // Calculate total missed habits (estimated based on streaks vs time since creation)

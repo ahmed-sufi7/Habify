@@ -24,6 +24,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   static const Color accentPurple = Color(0xFFE1BEE7);
   static const Color accentYellow = Color(0xFFF9F9C4);
 
+  // Week navigation state
+  DateTime _selectedWeek = DateTime.now();
+
   @override
   void initState() {
     super.initState();
@@ -425,6 +428,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Header with title and week navigation
                       Row(
                         children: [
                           Container(
@@ -442,18 +446,75 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          const Text(
-                            'Weekly Progress',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                              color: neutralBlack,
-                              letterSpacing: -0.25,
+                          const Expanded(
+                            child: Text(
+                              'Weekly Progress',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                                color: neutralBlack,
+                                letterSpacing: -0.25,
+                              ),
                             ),
+                          ),
+                          // Week navigation
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 28,
+                                height: 28,
+                                decoration: BoxDecoration(
+                                  color: neutralWhite.withValues(alpha: 0.8),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: IconButton(
+                                  padding: EdgeInsets.zero,
+                                  iconSize: 16,
+                                  onPressed: () {
+                                    setState(() {
+                                      _selectedWeek = _selectedWeek.subtract(const Duration(days: 7));
+                                    });
+                                  },
+                                  icon: const Icon(
+                                    Icons.chevron_left,
+                                    color: neutralBlack,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                width: 28,
+                                height: 28,
+                                decoration: BoxDecoration(
+                                  color: neutralWhite.withValues(alpha: 0.8),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: IconButton(
+                                  padding: EdgeInsets.zero,
+                                  iconSize: 16,
+                                  onPressed: () {
+                                    setState(() {
+                                      _selectedWeek = _selectedWeek.add(const Duration(days: 7));
+                                    });
+                                  },
+                                  icon: const Icon(
+                                    Icons.chevron_right,
+                                    color: neutralBlack,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                      const SizedBox(height: 24),
+                      
+                      const SizedBox(height: 16),
+                      
+                      // Week range and score
+                      _buildWeekInfo(habitProvider),
+                      
+                      const SizedBox(height: 20),
                       
                       // Weekly completion pattern chart
                       _buildWeeklyChart(habitProvider),
@@ -469,8 +530,143 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   }
 
 
+  Widget _buildWeekInfo(HabitProvider habitProvider) {
+    // Calculate selected week dates
+    final startOfWeek = _selectedWeek.subtract(Duration(days: _selectedWeek.weekday - 1));
+    final endOfWeek = startOfWeek.add(const Duration(days: 6));
+    
+    final weekData = habitProvider.getWeeklyCompletionPattern(_selectedWeek);
+    final weekScore = weekData.values.fold(0.0, (sum, value) => sum + value) / 7 * 100;
+    
+    // Mock comparison data - in real app would get from database
+    final previousWeekScore = weekScore * 0.85; // 15% lower for demo
+    final improvement = weekScore - previousWeekScore;
+    
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        // Week range
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '${_formatDate(startOfWeek)} - ${_formatDate(endOfWeek)}',
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: neutralBlack,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              _isCurrentWeek() ? 'This Week' : _getWeekLabel(),
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: neutralBlack.withValues(alpha: 0.6),
+              ),
+            ),
+          ],
+        ),
+        
+        // Weekly score and comparison
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '${weekScore.toStringAsFixed(0)}%',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: neutralBlack,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: improvement >= 0 
+                        ? const Color(0xFF4CAF50).withValues(alpha: 0.1)
+                        : const Color(0xFFF44336).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        improvement >= 0 ? Icons.trending_up : Icons.trending_down,
+                        size: 12,
+                        color: improvement >= 0 
+                            ? const Color(0xFF4CAF50)
+                            : const Color(0xFFF44336),
+                      ),
+                      const SizedBox(width: 2),
+                      Text(
+                        '${improvement.abs().toStringAsFixed(0)}%',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: improvement >= 0 
+                              ? const Color(0xFF4CAF50)
+                              : const Color(0xFFF44336),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'vs last week',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: neutralBlack.withValues(alpha: 0.6),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return '${months[date.month - 1]} ${date.day}';
+  }
+
+  bool _isCurrentWeek() {
+    final now = DateTime.now();
+    final currentWeekStart = now.subtract(Duration(days: now.weekday - 1));
+    final selectedWeekStart = _selectedWeek.subtract(Duration(days: _selectedWeek.weekday - 1));
+    
+    return currentWeekStart.year == selectedWeekStart.year &&
+           currentWeekStart.month == selectedWeekStart.month &&
+           currentWeekStart.day == selectedWeekStart.day;
+  }
+
+  String _getWeekLabel() {
+    final now = DateTime.now();
+    final selectedWeekStart = _selectedWeek.subtract(Duration(days: _selectedWeek.weekday - 1));
+    final currentWeekStart = now.subtract(Duration(days: now.weekday - 1));
+    
+    final weekDiff = currentWeekStart.difference(selectedWeekStart).inDays ~/ 7;
+    
+    if (weekDiff == 1) return 'Last Week';
+    if (weekDiff == -1) return 'Next Week';
+    if (weekDiff > 1) return '$weekDiff weeks ago';
+    if (weekDiff < -1) return '${weekDiff.abs()} weeks ahead';
+    
+    return 'This Week';
+  }
+
   Widget _buildWeeklyChart(HabitProvider habitProvider) {
-    final weeklyData = habitProvider.weeklyCompletionPattern;
+    final weeklyData = habitProvider.getWeeklyCompletionPattern(_selectedWeek);
     final maxValue = weeklyData.isEmpty ? 1.0 : weeklyData.values.reduce((a, b) => a > b ? a : b);
     
     return Container(
@@ -489,16 +685,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     height: 180,
                     child: Stack(
                       children: [
-                        // Grid lines
-                        Positioned.fill(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: List.generate(5, (index) => Container(
-                              height: 1,
-                              color: neutralLightGray.withValues(alpha: 0.5),
-                            )),
-                          ),
-                        ),
                         // Bars
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,

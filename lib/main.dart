@@ -10,6 +10,7 @@ import 'screens/intro/intro_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/add_habit/add_habit_screen.dart';
 import 'screens/statistics/statistics_screen.dart';
+import 'screens/habit_details/habit_details_screen.dart';
 import 'services/first_time_user_service.dart';
 
 void main() async {
@@ -155,6 +156,15 @@ class HabifyApp extends StatelessWidget {
         return MaterialPageRoute(builder: (_) => const AddHabitScreen());
       case '/statistics':
         return MaterialPageRoute(builder: (_) => const StatisticsScreen());
+      case '/habit-details':
+        // Extract habit ID from route arguments
+        final habitId = settings.arguments as int?;
+        if (habitId != null) {
+          return MaterialPageRoute(
+            builder: (_) => HabitDetailsScreen(habitId: habitId),
+          );
+        }
+        return null;
       default:
         return null;
     }

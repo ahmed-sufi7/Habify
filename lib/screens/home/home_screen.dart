@@ -705,17 +705,24 @@ class _HomeScreenState extends State<HomeScreen> {
     final isCompleted = habitProvider.isHabitCompletedToday(habit.id!);
     final currentStreak = habitProvider.getCurrentStreak(habit.id!);
     
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: _getHabitBackgroundColor(index),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).pushNamed(
+          '/habit-details',
+          arguments: habit.id,
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: _getHabitBackgroundColor(index),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
             // Header row
             Row(
               children: [
@@ -805,7 +812,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 _buildDynamicToggle(habit.id!, isCompleted, index),
               ],
             ),
-          ],
+            ],
+          ),
         ),
       ),
     );

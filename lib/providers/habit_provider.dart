@@ -766,6 +766,44 @@ class HabitProvider extends ChangeNotifier {
     return (baseScore + momentumBonus).clamp(0.0, 100.0);
   }
   
+  // Methods for habit details screen
+  int getHabitCompletedCount(int habitId) {
+    // For now, use current streak as a proxy for total completed
+    // In a real app, this would query the database for actual completion count
+    return getCurrentStreak(habitId);
+  }
+  
+  int getHabitMissedCount(int habitId) {
+    final habit = getHabitById(habitId);
+    if (habit == null) return 0;
+    
+    final daysSinceStart = DateTime.now().difference(habit.startDate).inDays + 1;
+    final currentStreak = getCurrentStreak(habitId);
+    
+    // Estimate missed days as (days since start - current streak)
+    return (daysSinceStart - currentStreak).clamp(0, daysSinceStart);
+  }
+  
+  int getLongestStreak(int habitId) {
+    // For now, return current streak as longest streak
+    // In a real app, this would query the database for historical streak data
+    return getCurrentStreak(habitId);
+  }
+  
+  double getCompletionRate(int habitId) {
+    final habit = getHabitById(habitId);
+    if (habit == null) return 0.0;
+    
+    final daysSinceStart = DateTime.now().difference(habit.startDate).inDays + 1;
+    final currentStreak = getCurrentStreak(habitId);
+    
+    if (daysSinceStart <= 0) return 0.0;
+    
+    // Calculate completion rate as percentage
+    final rate = (currentStreak / daysSinceStart) * 100;
+    return rate.clamp(0.0, 100.0);
+  }
+  
   // Refresh all data
   Future<void> refresh() async {
     await initialize();

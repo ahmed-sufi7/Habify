@@ -648,6 +648,72 @@ class HabitProvider extends ChangeNotifier {
            date1.day == date2.day;
   }
 
+  // Monthly completion pattern (4-5 weeks in a month)
+  Map<String, double> getMonthlyCompletionPattern(DateTime monthDate) {
+    final Map<String, double> pattern = {};
+    final startOfMonth = DateTime(monthDate.year, monthDate.month, 1);
+    final endOfMonth = DateTime(monthDate.year, monthDate.month + 1, 0);
+    final totalDays = endOfMonth.day;
+    
+    // Group by weeks in the month
+    int weekNumber = 1;
+    DateTime currentDate = startOfMonth;
+    
+    while (currentDate.isBefore(endOfMonth) || currentDate.isAtSameMomentAs(endOfMonth)) {
+      final weekEnd = DateTime(
+        currentDate.year,
+        currentDate.month,
+        (currentDate.day + 6).clamp(1, totalDays),
+      );
+      
+      // Calculate week completion rate
+      double weekTotal = 0.0;
+      int daysInWeek = 0;
+      
+      DateTime dayIterator = currentDate;
+      while (dayIterator.isBefore(weekEnd) || dayIterator.isAtSameMomentAs(weekEnd)) {
+        weekTotal += _calculateDayCompletionRate(dayIterator);
+        daysInWeek++;
+        dayIterator = dayIterator.add(const Duration(days: 1));
+      }
+      
+      pattern['Week $weekNumber'] = daysInWeek > 0 ? weekTotal / daysInWeek : 0.0;
+      
+      currentDate = weekEnd.add(const Duration(days: 1));
+      weekNumber++;
+      
+      if (weekNumber > 5) break; // Maximum 5 weeks in a month
+    }
+    
+    return pattern;
+  }
+
+  // Yearly completion pattern (12 months)
+  Map<String, double> getYearlyCompletionPattern(DateTime yearDate) {
+    final Map<String, double> pattern = {};
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    for (int month = 1; month <= 12; month++) {
+      final monthStart = DateTime(yearDate.year, month, 1);
+      final monthEnd = DateTime(yearDate.year, month + 1, 0);
+      
+      double monthTotal = 0.0;
+      int daysInMonth = 0;
+      
+      DateTime dayIterator = monthStart;
+      while (dayIterator.isBefore(monthEnd) || dayIterator.isAtSameMomentAs(monthEnd)) {
+        monthTotal += _calculateDayCompletionRate(dayIterator);
+        daysInMonth++;
+        dayIterator = dayIterator.add(const Duration(days: 1));
+      }
+      
+      pattern[months[month - 1]] = daysInMonth > 0 ? monthTotal / daysInMonth : 0.0;
+    }
+    
+    return pattern;
+  }
+
   // Calculate total missed habits (estimated based on streaks vs time since creation)
   int get totalMissedHabits {
     int totalMissed = 0;

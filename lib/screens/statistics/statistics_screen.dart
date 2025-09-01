@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../../providers/habit_provider.dart';
 import '../../providers/statistics_provider.dart';
 
+enum StatisticsViewType { weekly, monthly, yearly }
+
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
 
@@ -24,8 +26,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   static const Color accentPurple = Color(0xFFE1BEE7);
   static const Color accentYellow = Color(0xFFF9F9C4);
 
-  // Week navigation state
+  // View navigation state
+  StatisticsViewType _viewType = StatisticsViewType.weekly;
   DateTime _selectedWeek = DateTime.now();
+  DateTime _selectedMonth = DateTime.now();
+  DateTime _selectedYear = DateTime.now();
 
   @override
   void initState() {
@@ -394,6 +399,167 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     );
   }
 
+  Widget _buildViewToggle() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              height: 40,
+              decoration: BoxDecoration(
+                color: neutralWhite,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: neutralBlack.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  _buildToggleButton('Weekly', StatisticsViewType.weekly),
+                  _buildToggleButton('Monthly', StatisticsViewType.monthly),
+                  _buildToggleButton('Yearly', StatisticsViewType.yearly),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildToggleButton(String title, StatisticsViewType viewType) {
+    final isSelected = _viewType == viewType;
+    
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _viewType = viewType;
+          });
+        },
+        child: Container(
+          height: 40,
+          decoration: BoxDecoration(
+            color: isSelected ? neutralBlack : Colors.transparent,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Center(
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? neutralWhite : neutralBlack.withValues(alpha: 0.6),
+                letterSpacing: -0.25,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCompactViewToggle() {
+    return Container(
+      height: 42,
+      decoration: BoxDecoration(
+        color: neutralWhite.withValues(alpha: 0.8),
+        borderRadius: BorderRadius.circular(21),
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final buttonWidth = constraints.maxWidth / 3;
+          return Stack(
+            children: [
+              // Animated background indicator
+              AnimatedPositioned(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeInOut,
+                left: _getIndicatorPosition() * buttonWidth,
+                top: 0,
+                child: Container(
+                  width: buttonWidth,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: neutralBlack,
+                    borderRadius: BorderRadius.circular(21),
+                  ),
+                ),
+              ),
+              // Toggle buttons
+              Row(
+                children: [
+                  _buildCompactToggleButton('Weekly', StatisticsViewType.weekly, 0),
+                  _buildCompactToggleButton('Monthly', StatisticsViewType.monthly, 1),
+                  _buildCompactToggleButton('Yearly', StatisticsViewType.yearly, 2),
+                ],
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildCompactToggleButton(String title, StatisticsViewType viewType, int index) {
+    final isSelected = _viewType == viewType;
+    
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _viewType = viewType;
+          });
+        },
+        child: Container(
+          height: 42,
+          decoration: const BoxDecoration(
+            color: Colors.transparent,
+          ),
+          child: Center(
+            child: AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 200),
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? neutralWhite : neutralBlack.withValues(alpha: 0.7),
+                letterSpacing: -0.25,
+              ),
+              child: Text(title),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  double _getIndicatorPosition() {
+    switch (_viewType) {
+      case StatisticsViewType.weekly:
+        return 0.0;
+      case StatisticsViewType.monthly:
+        return 1.0;
+      case StatisticsViewType.yearly:
+        return 2.0;
+    }
+  }
+
+  String _getChartTitle() {
+    switch (_viewType) {
+      case StatisticsViewType.weekly:
+        return 'Weekly Progress';
+      case StatisticsViewType.monthly:
+        return 'Monthly Progress';
+      case StatisticsViewType.yearly:
+        return 'Yearly Progress';
+    }
+  }
+
   Widget _buildStatisticsChart() {
     return Consumer<HabitProvider>(
       builder: (context, habitProvider, child) {
@@ -428,7 +594,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Header with title and week navigation
+                      // Header with title and navigation
                       Row(
                         children: [
                           Container(
@@ -446,10 +612,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          const Expanded(
+                          Expanded(
                             child: Text(
-                              'Weekly Progress',
-                              style: TextStyle(
+                              _getChartTitle(),
+                              style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w500,
                                 color: neutralBlack,
@@ -457,7 +623,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                               ),
                             ),
                           ),
-                          // Week navigation
+                          // Navigation arrows
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -473,7 +639,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                   iconSize: 16,
                                   onPressed: () {
                                     setState(() {
-                                      _selectedWeek = _selectedWeek.subtract(const Duration(days: 7));
+                                      _navigatePrevious();
                                     });
                                   },
                                   icon: const Icon(
@@ -495,7 +661,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                   iconSize: 16,
                                   onPressed: () {
                                     setState(() {
-                                      _selectedWeek = _selectedWeek.add(const Duration(days: 7));
+                                      _navigateNext();
                                     });
                                   },
                                   icon: const Icon(
@@ -518,6 +684,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       
                       // Weekly completion pattern chart
                       _buildWeeklyChart(habitProvider),
+                      
+                      const SizedBox(height: 16),
+                      
+                      // View toggle buttons
+                      _buildCompactViewToggle(),
                     ],
                   ),
                 ),
@@ -531,16 +702,39 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
 
   Widget _buildWeekInfo(HabitProvider habitProvider) {
-    // Calculate selected week dates
-    final startOfWeek = _selectedWeek.subtract(Duration(days: _selectedWeek.weekday - 1));
-    final endOfWeek = startOfWeek.add(const Duration(days: 6));
+    String dateRange;
+    String periodLabel;
+    Map<String, double> data;
+    double score;
     
-    final weekData = habitProvider.getWeeklyCompletionPattern(_selectedWeek);
-    final weekScore = weekData.values.fold(0.0, (sum, value) => sum + value) / 7 * 100;
+    switch (_viewType) {
+      case StatisticsViewType.weekly:
+        final startOfWeek = _selectedWeek.subtract(Duration(days: _selectedWeek.weekday - 1));
+        final endOfWeek = startOfWeek.add(const Duration(days: 6));
+        dateRange = '${_formatDate(startOfWeek)} - ${_formatDate(endOfWeek)}';
+        periodLabel = _isCurrentWeek() ? 'This Week' : _getWeekLabel();
+        data = habitProvider.getWeeklyCompletionPattern(_selectedWeek);
+        score = data.values.fold(0.0, (sum, value) => sum + value) / data.length * 100;
+        break;
+      
+      case StatisticsViewType.monthly:
+        dateRange = '${_formatMonth(_selectedMonth)} ${_selectedMonth.year}';
+        periodLabel = _isCurrentMonth() ? 'This Month' : _getMonthLabel();
+        data = habitProvider.getMonthlyCompletionPattern(_selectedMonth);
+        score = data.values.fold(0.0, (sum, value) => sum + value) / data.length * 100;
+        break;
+      
+      case StatisticsViewType.yearly:
+        dateRange = '${_selectedYear.year}';
+        periodLabel = _isCurrentYear() ? 'This Year' : '${_selectedYear.year}';
+        data = habitProvider.getYearlyCompletionPattern(_selectedYear);
+        score = data.values.fold(0.0, (sum, value) => sum + value) / data.length * 100;
+        break;
+    }
     
     // Mock comparison data - in real app would get from database
-    final previousWeekScore = weekScore * 0.85; // 15% lower for demo
-    final improvement = weekScore - previousWeekScore;
+    final previousScore = score * 0.85; // 15% lower for demo
+    final improvement = score - previousScore;
     
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -550,7 +744,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${_formatDate(startOfWeek)} - ${_formatDate(endOfWeek)}',
+              dateRange,
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -559,7 +753,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             ),
             const SizedBox(height: 4),
             Text(
-              _isCurrentWeek() ? 'This Week' : _getWeekLabel(),
+              periodLabel,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
@@ -577,7 +771,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  '${weekScore.toStringAsFixed(0)}%',
+                  '${score.toStringAsFixed(0)}%',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -621,7 +815,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             ),
             const SizedBox(height: 4),
             Text(
-              'vs last week',
+              _getComparisonLabel(),
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
@@ -665,9 +859,93 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     return 'This Week';
   }
 
+  String _formatMonth(DateTime date) {
+    const months = ['January', 'February', 'March', 'April', 'May', 'June',
+                   'July', 'August', 'September', 'October', 'November', 'December'];
+    return months[date.month - 1];
+  }
+
+  bool _isCurrentMonth() {
+    final now = DateTime.now();
+    return _selectedMonth.year == now.year && _selectedMonth.month == now.month;
+  }
+
+  bool _isCurrentYear() {
+    final now = DateTime.now();
+    return _selectedYear.year == now.year;
+  }
+
+  String _getMonthLabel() {
+    final now = DateTime.now();
+    final monthDiff = (now.year - _selectedMonth.year) * 12 + (now.month - _selectedMonth.month);
+    
+    if (monthDiff == 1) return 'Last Month';
+    if (monthDiff == -1) return 'Next Month';
+    if (monthDiff > 1) return '$monthDiff months ago';
+    if (monthDiff < -1) return '${monthDiff.abs()} months ahead';
+    
+    return 'This Month';
+  }
+
+  String _getComparisonLabel() {
+    switch (_viewType) {
+      case StatisticsViewType.weekly:
+        return 'vs last week';
+      case StatisticsViewType.monthly:
+        return 'vs last month';
+      case StatisticsViewType.yearly:
+        return 'vs last year';
+    }
+  }
+
+  void _navigatePrevious() {
+    switch (_viewType) {
+      case StatisticsViewType.weekly:
+        _selectedWeek = _selectedWeek.subtract(const Duration(days: 7));
+        break;
+      case StatisticsViewType.monthly:
+        _selectedMonth = DateTime(_selectedMonth.year, _selectedMonth.month - 1, 1);
+        break;
+      case StatisticsViewType.yearly:
+        _selectedYear = DateTime(_selectedYear.year - 1, 1, 1);
+        break;
+    }
+  }
+
+  void _navigateNext() {
+    switch (_viewType) {
+      case StatisticsViewType.weekly:
+        _selectedWeek = _selectedWeek.add(const Duration(days: 7));
+        break;
+      case StatisticsViewType.monthly:
+        _selectedMonth = DateTime(_selectedMonth.year, _selectedMonth.month + 1, 1);
+        break;
+      case StatisticsViewType.yearly:
+        _selectedYear = DateTime(_selectedYear.year + 1, 1, 1);
+        break;
+    }
+  }
+
   Widget _buildWeeklyChart(HabitProvider habitProvider) {
-    final weeklyData = habitProvider.getWeeklyCompletionPattern(_selectedWeek);
-    final maxValue = weeklyData.isEmpty ? 1.0 : weeklyData.values.reduce((a, b) => a > b ? a : b);
+    Map<String, double> chartData;
+    List<String> labels;
+    
+    switch (_viewType) {
+      case StatisticsViewType.weekly:
+        chartData = habitProvider.getWeeklyCompletionPattern(_selectedWeek);
+        labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        break;
+      case StatisticsViewType.monthly:
+        chartData = habitProvider.getMonthlyCompletionPattern(_selectedMonth);
+        labels = chartData.keys.map((key) => key.replaceAll('Week ', 'W')).toList();
+        break;
+      case StatisticsViewType.yearly:
+        chartData = habitProvider.getYearlyCompletionPattern(_selectedYear);
+        labels = chartData.keys.toList();
+        break;
+    }
+    
+    final maxValue = chartData.isEmpty ? 1.0 : chartData.values.reduce((a, b) => a > b ? a : b);
     
     return Container(
       height: 240,
@@ -689,10 +967,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           crossAxisAlignment: CrossAxisAlignment.end,
-                          children: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) {
-                            final value = weeklyData[day] ?? 0.0;
+                          children: chartData.keys.toList().map((key) {
+                            final value = chartData[key] ?? 0.0;
                             final barHeight = (value / maxValue) * 130; // Max 130px for the bar area, leaving space for percentage labels
-                            final shortDay = day.substring(0, 3);
                             
                             Color barColor;
                             if (value >= 0.8) {
@@ -754,10 +1031,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           // Day labels
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) {
+            children: labels.map((label) {
               return Expanded(
                 child: Text(
-                  day,
+                  label,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 12,

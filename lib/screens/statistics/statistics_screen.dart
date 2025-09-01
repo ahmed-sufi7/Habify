@@ -74,12 +74,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         // Statistics chart
                         _buildStatisticsChart(),
                         
-                        // Category breakdown
-                        _buildCategoryBreakdown(),
-                        
-                        // Habit breakdown
-                        _buildHabitBreakdown(),
-                        
                         const SizedBox(height: 100), // Space for floating bottom nav
                       ],
                     ),
@@ -576,11 +570,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               children: [
                 // Background illustration positioned bottom right (70% visible)
                 Positioned(
-                  bottom: -50,
-                  right: -50,
+                  bottom: -70,
+                  right: -70,
                   child: SizedBox(
-                    width: 180,
-                    height: 180,
+                    width: 240,
+                    height: 240,
                     child: Image.asset(
                       'assets/illustrations/leaf.png',
                       fit: BoxFit.contain,

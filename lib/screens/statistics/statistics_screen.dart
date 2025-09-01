@@ -19,12 +19,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   static const Color neutralBlack = Color(0xFF000000);
   static const Color neutralMediumGray = Color(0xFF666666);
   static const Color neutralLightGray = Color(0xFFE0E0E0);
-  static const Color neutralBackgroundGray = Color(0xFFF5F5F5);
-  static const Color accentGreen = Color(0xFF4CAF50);
-  static const Color accentGreenLight = Color(0xFFC8E6C9);
-  static const Color accentBlue = Color(0xFFE3F2FD);
-  static const Color accentPurple = Color(0xFFE1BEE7);
-  static const Color accentYellow = Color(0xFFF9F9C4);
 
   // View navigation state
   StatisticsViewType _viewType = StatisticsViewType.weekly;
@@ -393,70 +387,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     );
   }
 
-  Widget _buildViewToggle() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              height: 40,
-              decoration: BoxDecoration(
-                color: neutralWhite,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: neutralBlack.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  _buildToggleButton('Weekly', StatisticsViewType.weekly),
-                  _buildToggleButton('Monthly', StatisticsViewType.monthly),
-                  _buildToggleButton('Yearly', StatisticsViewType.yearly),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildToggleButton(String title, StatisticsViewType viewType) {
-    final isSelected = _viewType == viewType;
-    
-    return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            _viewType = viewType;
-          });
-        },
-        child: Container(
-          height: 40,
-          decoration: BoxDecoration(
-            color: isSelected ? neutralBlack : Colors.transparent,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Center(
-            child: Text(
-              title,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: isSelected ? neutralWhite : neutralBlack.withValues(alpha: 0.6),
-                letterSpacing: -0.25,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _buildCompactViewToggle() {
     return Container(
@@ -920,6 +850,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     }
   }
 
+
   Widget _buildWeeklyChart(HabitProvider habitProvider) {
     Map<String, double> chartData;
     List<String> labels;
@@ -941,7 +872,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     
     final maxValue = chartData.isEmpty ? 1.0 : chartData.values.reduce((a, b) => a > b ? a : b);
     
-    return Container(
+    return SizedBox(
       height: 240,
       width: double.infinity,
       child: Column(
@@ -953,7 +884,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               children: [
                 // Chart bars
                 Expanded(
-                  child: Container(
+                  child: SizedBox(
                     height: 180,
                     child: Stack(
                       children: [

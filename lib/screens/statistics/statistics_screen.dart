@@ -228,9 +228,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     child: _buildStatCard(
                       title: 'Total Habits',
                       value: '$totalHabits',
-                      backgroundColor: const Color(0xFFFFEAE4),
-                      valueColor: primaryOrange,
-                      icon: Icons.star,
+                      backgroundColor: const Color(0xFFD0D7F9),
+                      valueColor: neutralBlack,
+                      iconPath: 'assets/icons/habit-category.png',
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -238,9 +238,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     child: _buildStatCard(
                       title: 'Completed Today',
                       value: '$completedToday/$totalHabits',
-                      backgroundColor: const Color(0xFFE8F5EA),
-                      valueColor: accentGreen,
-                      icon: Icons.check_circle,
+                      backgroundColor: const Color(0xFFF9DCF8),
+                      valueColor: neutralBlack,
+                      iconPath: 'assets/icons/completed-today.png',
                     ),
                   ),
                 ],
@@ -255,9 +255,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     child: _buildStatCard(
                       title: 'Longest Streak',
                       value: '$longestStreak days',
-                      backgroundColor: const Color(0xFFFFE0E6),
-                      valueColor: const Color(0xFFE91E63),
-                      icon: Icons.local_fire_department,
+                      backgroundColor: const Color(0xFFFFFBC5),
+                      valueColor: neutralBlack,
+                      iconPath: 'assets/icons/streak-category.png',
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -265,9 +265,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     child: _buildStatCard(
                       title: 'Average Streak',
                       value: '${averageStreak.toStringAsFixed(1)} days',
-                      backgroundColor: accentBlue,
-                      valueColor: const Color(0xFF1976D2),
-                      icon: Icons.trending_up,
+                      backgroundColor: const Color(0xFFC4DBE6),
+                      valueColor: neutralBlack,
+                      iconPath: 'assets/icons/average-streak.png',
                     ),
                   ),
                 ],
@@ -282,9 +282,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     child: _buildStatCard(
                       title: 'Habits Completed',
                       value: '$totalCompleted',
-                      backgroundColor: const Color(0xFFE8F5EA),
-                      valueColor: accentGreen,
-                      icon: Icons.check_circle,
+                      backgroundColor: const Color(0xFFEED8FF),
+                      valueColor: neutralBlack,
+                      iconPath: 'assets/icons/habit-completed.png',
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -292,9 +292,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     child: _buildStatCard(
                       title: 'Habits Missed',
                       value: '$totalMissed',
-                      backgroundColor: const Color(0xFFFFEBEE),
-                      valueColor: const Color(0xFFD32F2F),
-                      icon: Icons.cancel_outlined,
+                      backgroundColor: const Color(0xFFD0D7F9),
+                      valueColor: neutralBlack,
+                      iconPath: 'assets/icons/habit-missed.png',
                     ),
                   ),
                 ],
@@ -309,19 +309,19 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     child: _buildStatCard(
                       title: 'Today\'s Rate',
                       value: '${completionRate.toStringAsFixed(0)}%',
-                      backgroundColor: const Color(0xFFF3E5F5),
-                      valueColor: const Color(0xFF9C27B0),
-                      icon: Icons.today,
+                      backgroundColor: const Color(0xFFFFE5E5),
+                      valueColor: neutralBlack,
+                      iconPath: 'assets/icons/todays-rate.png',
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: _buildStatCard(
                       title: 'Consistency Score',
-                      value: '${consistencyScore.toStringAsFixed(0)}',
-                      backgroundColor: _getConsistencyScoreColor(consistencyScore),
-                      valueColor: _getConsistencyScoreValueColor(consistencyScore),
-                      icon: Icons.psychology,
+                      value: '${consistencyScore.toStringAsFixed(0)}%',
+                      backgroundColor: const Color(0xFFDCEDFF),
+                      valueColor: neutralBlack,
+                      iconPath: 'assets/icons/consistency-score.png',
                     ),
                   ),
                 ],
@@ -338,7 +338,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     required String value,
     required Color backgroundColor,
     required Color valueColor,
-    required IconData icon,
+    required String iconPath,
   }) {
     return Container(
       padding: const EdgeInsets.all(14),
@@ -352,10 +352,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           // Icon and title in one line
           Row(
             children: [
-              Icon(
-                icon,
-                color: valueColor,
-                size: 20,
+              SizedBox(
+                width: 20,
+                height: 20,
+                child: Image.asset(
+                  iconPath,
+                  fit: BoxFit.contain,
+                  color: neutralBlack,
+                ),
               ),
               const SizedBox(width: 6),
               Expanded(
@@ -375,11 +379,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           // Value below
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 26,
-              fontWeight: FontWeight.w700,
-              color: valueColor,
-              letterSpacing: -0.5,
+              fontWeight: FontWeight.w500,
+              color: neutralBlack,
+              letterSpacing: -0.25,
             ),
           ),
         ],
@@ -392,35 +396,72 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       builder: (context, habitProvider, child) {
         return Container(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: neutralWhite,
+            color: const Color(0xFFEED8FF),
             borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: neutralBlack.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 2),
-              ),
-            ],
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Weekly Completion Pattern',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: neutralBlack,
-                  letterSpacing: 0.3,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                // Background illustration positioned bottom right (70% visible)
+                Positioned(
+                  bottom: -50,
+                  right: -50,
+                  child: SizedBox(
+                    width: 180,
+                    height: 180,
+                    child: Image.asset(
+                      'assets/illustrations/leaf.png',
+                      fit: BoxFit.contain,
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 24),
               
-              // Weekly completion pattern chart
-              _buildWeeklyChart(habitProvider),
-            ],
+                // Main card content
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 35,
+                            height: 35,
+                            decoration: const BoxDecoration(
+                              color: neutralBlack,
+                              shape: BoxShape.circle,
+                            ),
+                            padding: const EdgeInsets.all(7),
+                            child: Image.asset(
+                              'assets/icons/stats-active.png',
+                              fit: BoxFit.contain,
+                              color: neutralWhite,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Weekly Progress',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                              color: neutralBlack,
+                              letterSpacing: -0.25,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      
+                      // Weekly completion pattern chart
+                      _buildWeeklyChart(habitProvider),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -442,58 +483,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                // Y-axis percentage labels
-                Container(
-                  width: 28,
-                  height: 180,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        '100%',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                          color: neutralMediumGray,
-                        ),
-                      ),
-                      Text(
-                        '75%',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                          color: neutralMediumGray,
-                        ),
-                      ),
-                      Text(
-                        '50%',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                          color: neutralMediumGray,
-                        ),
-                      ),
-                      Text(
-                        '25%',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                          color: neutralMediumGray,
-                        ),
-                      ),
-                      Text(
-                        '0%',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                          color: neutralMediumGray,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 4),
                 // Chart bars
                 Expanded(
                   child: Container(
@@ -516,7 +505,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) {
                             final value = weeklyData[day] ?? 0.0;
-                            final barHeight = (value / maxValue) * 160; // Max 160px for the bar area
+                            final barHeight = (value / maxValue) * 130; // Max 130px for the bar area, leaving space for percentage labels
                             final shortDay = day.substring(0, 3);
                             
                             Color barColor;
@@ -534,20 +523,20 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             
                             return Expanded(
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 2),
+                                padding: const EdgeInsets.symmetric(horizontal: 4),
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     // Percentage label above bar
                                     if (value > 0)
                                       Padding(
-                                        padding: const EdgeInsets.only(bottom: 4),
+                                        padding: const EdgeInsets.only(bottom: 8),
                                         child: Text(
                                           '${(value * 100).toInt()}%',
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             fontSize: 10,
                                             fontWeight: FontWeight.w600,
-                                            color: barColor,
+                                            color: neutralBlack,
                                           ),
                                         ),
                                       ),
@@ -556,20 +545,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                       duration: const Duration(milliseconds: 800),
                                       curve: Curves.easeOutCubic,
                                       width: double.infinity,
-                                      height: barHeight.clamp(4.0, 160.0), // Minimum 4px height
+                                      height: barHeight.clamp(4.0, 130.0), // Minimum 4px height
                                       decoration: BoxDecoration(
-                                        color: barColor,
-                                        borderRadius: const BorderRadius.only(
-                                          topLeft: Radius.circular(6),
-                                          topRight: Radius.circular(6),
-                                        ),
-                                        boxShadow: value > 0 ? [
-                                          BoxShadow(
-                                            color: barColor.withValues(alpha: 0.3),
-                                            blurRadius: 4,
-                                            offset: const Offset(0, 2),
-                                          ),
-                                        ] : null,
+                                        color: neutralWhite, // White color
+                                        borderRadius: BorderRadius.circular(20), // Pill shape
                                       ),
                                     ),
                                   ],
@@ -588,28 +567,21 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           const SizedBox(height: 12),
           // Day labels
           Row(
-            children: [
-              const SizedBox(width: 32), // Offset for Y-axis labels
-              Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) {
-                    return Expanded(
-                      child: Text(
-                        day,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: neutralBlack,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    );
-                  }).toList(),
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) {
+              return Expanded(
+                child: Text(
+                  day,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: neutralBlack,
+                    letterSpacing: -0.25,
+                  ),
                 ),
-              ),
-            ],
+              );
+            }).toList(),
           ),
         ],
       ),

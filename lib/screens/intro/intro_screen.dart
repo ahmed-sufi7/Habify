@@ -35,7 +35,7 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
   late Animation<double> _completeButtonScale;
 
   // Design color palette
-  static const Color primaryDark = Color(0xFF2D2D2D);
+  static const Color primaryDark = Color(0xFF000000);
   static const Color primaryBlue = Color(0xFF4A5FBD);
   static const Color accentBlue = Color(0xFFC8D4F0);
   static const Color backgroundLight = Color(0xFFF8F9FA);

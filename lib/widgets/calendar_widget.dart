@@ -453,14 +453,8 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
     // Add haptic feedback
     // HapticFeedback.lightImpact();
     
-    // You could add functionality to show habit details for that date
+    // TODO: Add functionality to show habit details for that date
     // or navigate to a detailed view
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Tapped on ${_formatDateForSnackbar(date)}'),
-        duration: const Duration(seconds: 1),
-      ),
-    );
   }
 
   String _getMonthYearString(DateTime date) {

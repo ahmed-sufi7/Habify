@@ -96,11 +96,8 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
                   _buildWeekdayHeaders(),
                   const SizedBox(height: 12),
                   _buildCalendarGrid(),
-                  const SizedBox(height: 20),
-                  _buildBottomControls(),
-                  const SizedBox(height: 8),
-                  // Extra padding for safe area
-                  SizedBox(height: MediaQuery.of(context).padding.bottom),
+                  // Minimal padding for safe area
+                  SizedBox(height: MediaQuery.of(context).padding.bottom + 4),
                 ],
               ),
             ),
@@ -123,78 +120,37 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
   }
 
   Widget _buildHeader() {
-    return Column(
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // Month/Year title with navigation
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            // Previous month button
-            _buildNavButton(Icons.chevron_left, () {
-              setState(() {
-                _currentMonth = DateTime(_currentMonth.year, _currentMonth.month - 1, 1);
-              });
-            }),
-            
-            // Month and year
-            Expanded(
-              child: Text(
-                _getMonthYearString(_currentMonth),
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w600,
-                  color: primaryText,
-                  letterSpacing: -0.5,
-                  fontFamily: 'SF Pro Display',
-                ),
-              ),
+        // Previous month button
+        _buildNavButton(Icons.chevron_left, () {
+          setState(() {
+            _currentMonth = DateTime(_currentMonth.year, _currentMonth.month - 1, 1);
+          });
+        }),
+        
+        // Month and year
+        Expanded(
+          child: Text(
+            _getMonthYearString(_currentMonth),
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w600,
+              color: primaryText,
+              letterSpacing: -0.5,
+              fontFamily: 'SF Pro Display',
             ),
-            
-            // Next month button
-            _buildNavButton(Icons.chevron_right, () {
-              setState(() {
-                _currentMonth = DateTime(_currentMonth.year, _currentMonth.month + 1, 1);
-              });
-            }),
-          ],
+          ),
         ),
         
-        const SizedBox(height: 8),
-        
-        // Current date indicator
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: todayIndicator.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: todayIndicator.withValues(alpha: 0.2)),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.today,
-                    color: todayIndicator,
-                    size: 16,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    _getTodayString(),
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: todayIndicator,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+        // Next month button
+        _buildNavButton(Icons.chevron_right, () {
+          setState(() {
+            _currentMonth = DateTime(_currentMonth.year, _currentMonth.month + 1, 1);
+          });
+        }),
       ],
     );
   }
@@ -370,51 +326,6 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
     );
   }
 
-  Widget _buildBottomControls() {
-    return Column(
-      children: [
-        // Quick actions row
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            // Today button
-            TextButton.icon(
-              onPressed: () {
-                setState(() {
-                  _currentMonth = DateTime.now();
-                });
-              },
-              icon: const Icon(Icons.today, size: 18),
-              label: const Text('Today'),
-              style: TextButton.styleFrom(
-                foregroundColor: todayIndicator,
-                backgroundColor: todayIndicator.withValues(alpha: 0.1),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-            
-            // Close button
-            TextButton.icon(
-              onPressed: () => Navigator.of(context).pop(),
-              icon: const Icon(Icons.close, size: 18),
-              label: const Text('Close'),
-              style: TextButton.styleFrom(
-                backgroundColor: completedDay,
-                foregroundColor: surfaceWhite,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
 
   Widget _buildNavButton(IconData icon, VoidCallback onPressed) {
     return Container(
@@ -511,16 +422,6 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
 
-  String _getTodayString() {
-    final now = DateTime.now();
-    const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
-    const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    
-    return '${weekdays[now.weekday - 1]}, ${months[now.month - 1]} ${now.day}';
-  }
 }
 
 /// Custom painter for partial circular border based on habit completion ratio

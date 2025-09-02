@@ -1185,9 +1185,9 @@ class _HomeScreenState extends State<HomeScreen> {
       useSafeArea: true,
       builder: (BuildContext context) {
         return DraggableScrollableSheet(
-          initialChildSize: 0.75,
-          minChildSize: 0.5,
-          maxChildSize: 0.9,
+          initialChildSize: 0.6,
+          minChildSize: 0.4,
+          maxChildSize: 0.75,
           builder: (context, scrollController) {
             return const HabitCalendarWidget();
           },

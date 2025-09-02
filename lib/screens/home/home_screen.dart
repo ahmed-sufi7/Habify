@@ -1013,7 +1013,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const colors = [
       Color(0xFFD0D7F9), // Light purple-blue
       Color(0xFFC4DBE6), // Light blue
-      Color(0xFFFFFBC5), // Light yellow
+      Color(0xFFE8D5F0), // Light lavender
     ];
     
     return colors[index % 3];

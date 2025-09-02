@@ -17,11 +17,14 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
   late DateTime _currentMonth;
   late AnimationController _animationController;
   late Animation<double> _slideAnimation;
+  late PageController _pageController;
+  
+  // Base date for calculating page indices
+  final DateTime _baseDate = DateTime(2020, 1, 1);
 
   // Design colors from calendar_design.json
   static const Color backgroundGradient1 = Color(0xFFE8D5F0);
   static const Color backgroundGradient2 = Color(0xFFF0E1F5);
-  static const Color surfaceWhite = Color(0xFFFFFFFF);
   static const Color completedDay = Color(0xFF2C2C2C);
   static const Color completedDayText = Color(0xFFFFFFFF);
   static const Color incompleteDayBorder = Color(0xFF2C2C2C);
@@ -30,7 +33,6 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
   static const Color futureDayText = Color(0xFF2C2C2C);
   static const Color currentDay = Color(0xFFFF6B35);
   static const Color currentDayText = Color(0xFFFFFFFF);
-  static const Color todayIndicator = Color(0xFF2C2C2C);
   static const Color primaryText = Color(0xFF2C2C2C);
   static const Color secondaryText = Color(0xFF666666);
 
@@ -38,6 +40,12 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
   void initState() {
     super.initState();
     _currentMonth = DateTime.now();
+    
+    // Calculate initial page based on current month
+    final monthsDiff = (_currentMonth.year - _baseDate.year) * 12 + 
+                     (_currentMonth.month - _baseDate.month);
+    _pageController = PageController(initialPage: monthsDiff);
+    
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 350),
       vsync: this,
@@ -55,6 +63,7 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
   @override
   void dispose() {
     _animationController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -95,7 +104,7 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
                   const SizedBox(height: 20),
                   _buildWeekdayHeaders(),
                   const SizedBox(height: 12),
-                  _buildCalendarGrid(),
+                  _buildScrollableCalendar(),
                   // Minimal padding for safe area
                   SizedBox(height: MediaQuery.of(context).padding.bottom + 4),
                 ],
@@ -123,34 +132,61 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // Previous month button
-        _buildNavButton(Icons.chevron_left, () {
-          setState(() {
-            _currentMonth = DateTime(_currentMonth.year, _currentMonth.month - 1, 1);
-          });
-        }),
-        
-        // Month and year
-        Expanded(
-          child: Text(
-            _getMonthYearString(_currentMonth),
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w600,
-              color: primaryText,
-              letterSpacing: -0.5,
-              fontFamily: 'SF Pro Display',
+        // Left side - Icon and month text
+        Row(
+          children: [
+            // Calendar icon
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: completedDay, // Black background
+                shape: BoxShape.circle,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Image.asset(
+                  'assets/icons/calendder.png',
+                  color: Colors.white, // White icon color
+                  fit: BoxFit.contain,
+                ),
+              ),
             ),
-          ),
+            
+            const SizedBox(width: 12),
+            
+            // Month and year text
+            Text(
+              _getMonthYearString(_currentMonth),
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w500,
+                color: primaryText,
+                letterSpacing: -0.5,
+                fontFamily: 'SF Pro Display',
+              ),
+            ),
+          ],
         ),
         
-        // Next month button
-        _buildNavButton(Icons.chevron_right, () {
-          setState(() {
-            _currentMonth = DateTime(_currentMonth.year, _currentMonth.month + 1, 1);
-          });
-        }),
+        // Right side - Navigation buttons
+        Row(
+          children: [
+            _buildNavButton(Icons.chevron_left, () {
+              _pageController.previousPage(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+              );
+            }),
+            const SizedBox(width: 8),
+            _buildNavButton(Icons.chevron_right, () {
+              _pageController.nextPage(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+              );
+            }),
+          ],
+        ),
       ],
     );
   }
@@ -177,11 +213,37 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
     );
   }
 
-  Widget _buildCalendarGrid() {
+  Widget _buildScrollableCalendar() {
+    return SizedBox(
+      height: 280, // Fixed height for calendar grid
+      child: PageView.builder(
+        controller: _pageController,
+        onPageChanged: (pageIndex) {
+          setState(() {
+            _currentMonth = DateTime(
+              _baseDate.year + (pageIndex ~/ 12),
+              _baseDate.month + (pageIndex % 12),
+              1,
+            );
+          });
+        },
+        itemBuilder: (context, pageIndex) {
+          final monthToShow = DateTime(
+            _baseDate.year + (pageIndex ~/ 12),
+            _baseDate.month + (pageIndex % 12),
+            1,
+          );
+          return _buildCalendarForMonth(monthToShow);
+        },
+      ),
+    );
+  }
+
+  Widget _buildCalendarForMonth(DateTime month) {
     return Consumer<HabitProvider>(
       builder: (context, habitProvider, child) {
-        final daysInMonth = _getDaysInMonth(_currentMonth);
-        final firstDayOfMonth = DateTime(_currentMonth.year, _currentMonth.month, 1);
+        final daysInMonth = _getDaysInMonth(month);
+        final firstDayOfMonth = DateTime(month.year, month.month, 1);
         final startDayOfWeek = firstDayOfMonth.weekday; // 1 = Monday, 7 = Sunday
         
         // Calculate how many cells we need (including empty cells for previous month)
@@ -203,7 +265,7 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
                     return const Expanded(child: SizedBox(height: 44));
                   }
                   
-                  final date = DateTime(_currentMonth.year, _currentMonth.month, dayNumber);
+                  final date = DateTime(month.year, month.month, dayNumber);
                   return Expanded(
                     child: Center(child: _buildDayCell(date, habitProvider)),
                   );
@@ -326,26 +388,27 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
     );
   }
 
-
   Widget _buildNavButton(IconData icon, VoidCallback onPressed) {
     return Container(
-      width: 40,
-      height: 40,
+      width: 32,
+      height: 32,
       decoration: BoxDecoration(
-        color: surfaceWhite.withValues(alpha: 0.8),
-        borderRadius: BorderRadius.circular(20),
+        color: Colors.white.withValues(alpha: 0.8),
+        shape: BoxShape.circle,
       ),
       child: IconButton(
         onPressed: onPressed,
         icon: Icon(
           icon,
           color: primaryText,
-          size: 20,
+          size: 16,
         ),
         padding: EdgeInsets.zero,
       ),
     );
   }
+
+
 
   Future<Map<String, dynamic>> _getHabitCompletionData(
     DateTime date, 

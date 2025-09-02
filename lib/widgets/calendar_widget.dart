@@ -178,7 +178,7 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
                 curve: Curves.easeInOut,
               );
             }),
-            const SizedBox(width: 8),
+            const SizedBox(width: 4),
             _buildNavButton(Icons.chevron_right, () {
               _pageController.nextPage(
                 duration: const Duration(milliseconds: 300),
@@ -390,8 +390,8 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
 
   Widget _buildNavButton(IconData icon, VoidCallback onPressed) {
     return Container(
-      width: 32,
-      height: 32,
+      width: 30,
+      height: 30,
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.8),
         shape: BoxShape.circle,
@@ -401,7 +401,7 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
         icon: Icon(
           icon,
           color: primaryText,
-          size: 16,
+          size: 15,
         ),
         padding: EdgeInsets.zero,
       ),

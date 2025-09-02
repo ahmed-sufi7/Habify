@@ -147,7 +147,7 @@ class HabifyApp extends StatelessWidget {
     // Handle dynamic routing for app navigation
     switch (settings.name) {
       case '/':
-        return MaterialPageRoute(builder: (_) => const HomeScreen());
+        return _createNoAnimationRoute(const HomeScreen());
       case '/intro':
         return MaterialPageRoute(builder: (_) => const IntroScreen());
       case '/splash':
@@ -155,7 +155,7 @@ class HabifyApp extends StatelessWidget {
       case '/add-habit':
         return MaterialPageRoute(builder: (_) => const AddHabitScreen());
       case '/statistics':
-        return MaterialPageRoute(builder: (_) => const StatisticsScreen());
+        return _createNoAnimationRoute(const StatisticsScreen());
       case '/habit-details':
         // Extract habit ID from route arguments
         final habitId = settings.arguments as int?;
@@ -168,6 +168,15 @@ class HabifyApp extends StatelessWidget {
       default:
         return null;
     }
+  }
+  
+  // Create a route with no transition animation
+  PageRoute _createNoAnimationRoute(Widget page) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionDuration: Duration.zero,
+      reverseTransitionDuration: Duration.zero,
+    );
   }
 }
 

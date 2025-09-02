@@ -1303,7 +1303,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   children: [
                     // Home button
                     IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () => Navigator.of(context).pushReplacementNamed('/'),
                       icon: Image.asset(
                         'assets/icons/home-inactive.png',
                         width: 24,

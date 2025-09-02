@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/habit_provider.dart';
 import '../../providers/statistics_provider.dart';
+import '../../widgets/calendar_widget.dart';
 
 enum StatisticsViewType { weekly, monthly, yearly }
 
@@ -158,19 +159,22 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               // Calendar button
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: neutralWhite,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: neutralBlack, width: 1.5),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(6.0),
-                  child: Image.asset(
-                    'assets/icons/calendder.png',
-                    fit: BoxFit.contain,
+              GestureDetector(
+                onTap: () => _showCalendar(),
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: neutralWhite,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: neutralBlack, width: 1.5),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(6.0),
+                    child: Image.asset(
+                      'assets/icons/calendder.png',
+                      fit: BoxFit.contain,
+                    ),
                   ),
                 ),
               ),
@@ -1416,5 +1420,27 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       default: // Other
         return const Icon(Icons.star, size: 20, color: neutralWhite);
     }
+  }
+
+  void _showCalendar() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      enableDrag: true,
+      showDragHandle: false,
+      useSafeArea: true,
+      builder: (BuildContext context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.75,
+          minChildSize: 0.5,
+          maxChildSize: 0.9,
+          builder: (context, scrollController) {
+            return const HabitCalendarWidget();
+          },
+        );
+      },
+    );
   }
 }

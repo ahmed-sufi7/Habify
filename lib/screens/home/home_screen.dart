@@ -4,6 +4,7 @@ import '../../providers/habit_provider.dart';
 import '../../providers/category_provider.dart';
 import '../../providers/app_settings_provider.dart';
 import '../../models/habit.dart';
+import '../../widgets/calendar_widget.dart';
 
 /// Home Screen - Main dashboard following home_design.json specifications
 /// 
@@ -264,19 +265,22 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               // Calendar button
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: neutralWhite,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: neutralBlack, width: 1.5),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(6.0),
-                  child: Image.asset(
-                    'assets/icons/calendder.png',
-                    fit: BoxFit.contain,
+              GestureDetector(
+                onTap: () => _showCalendar(),
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: neutralWhite,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: neutralBlack, width: 1.5),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(6.0),
+                    child: Image.asset(
+                      'assets/icons/calendder.png',
+                      fit: BoxFit.contain,
+                    ),
                   ),
                 ),
               ),
@@ -1168,6 +1172,28 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       return 'Good Night';
     }
+  }
+
+  void _showCalendar() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      enableDrag: true,
+      showDragHandle: false,
+      useSafeArea: true,
+      builder: (BuildContext context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.75,
+          minChildSize: 0.5,
+          maxChildSize: 0.9,
+          builder: (context, scrollController) {
+            return const HabitCalendarWidget();
+          },
+        );
+      },
+    );
   }
 }
 

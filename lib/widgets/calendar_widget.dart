@@ -21,6 +21,10 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
   
   // Base date for calculating page indices
   final DateTime _baseDate = DateTime(2020, 1, 1);
+  
+  
+  // Reasonable page limits to prevent memory issues
+  static const int _maxPages = 1200; // 100 years worth of months
 
   // Design colors from calendar_design.json
   static const Color backgroundGradient1 = Color(0xFFE8D5F0);
@@ -216,21 +220,32 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
       height: 280, // Fixed height for calendar grid
       child: PageView.builder(
         controller: _pageController,
+        itemCount: _maxPages, // Prevent infinite scrolling
         onPageChanged: (pageIndex) {
           setState(() {
-            _currentMonth = DateTime(
-              _baseDate.year + (pageIndex ~/ 12),
-              _baseDate.month + (pageIndex % 12),
-              1,
-            );
+            // Safe month calculation with bounds checking
+            final totalMonths = pageIndex;
+            final years = totalMonths ~/ 12;
+            final months = totalMonths % 12;
+            
+            // Clamp to reasonable date ranges
+            final targetYear = (_baseDate.year + years).clamp(1900, 2200);
+            final targetMonth = (_baseDate.month + months).clamp(1, 12);
+            
+            _currentMonth = DateTime(targetYear, targetMonth, 1);
           });
         },
         itemBuilder: (context, pageIndex) {
-          final monthToShow = DateTime(
-            _baseDate.year + (pageIndex ~/ 12),
-            _baseDate.month + (pageIndex % 12),
-            1,
-          );
+          if (pageIndex >= _maxPages) return const SizedBox();
+          
+          final totalMonths = pageIndex;
+          final years = totalMonths ~/ 12;
+          final months = totalMonths % 12;
+          
+          final targetYear = (_baseDate.year + years).clamp(1900, 2200);
+          final targetMonth = (_baseDate.month + months).clamp(1, 12);
+          
+          final monthToShow = DateTime(targetYear, targetMonth, 1);
           return _buildCalendarForMonth(monthToShow);
         },
       ),
@@ -240,13 +255,22 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
   Widget _buildCalendarForMonth(DateTime month) {
     return Consumer<HabitProvider>(
       builder: (context, habitProvider, child) {
+        // Use pre-loaded data from HabitProvider
+        final monthData = habitProvider.getCalendarDataForMonth(month);
+        
+        // If no data available, load it asynchronously
+        if (monthData.isEmpty) {
+          // Trigger loading in background
+          habitProvider.ensureCalendarDataLoaded(month);
+        }
+        
         final daysInMonth = _getDaysInMonth(month);
         final firstDayOfMonth = DateTime(month.year, month.month, 1);
         final startDayOfWeek = firstDayOfMonth.weekday; // 1 = Monday, 7 = Sunday
         
         // Calculate how many cells we need (including empty cells for previous month)
         final totalCells = daysInMonth + (startDayOfWeek - 1);
-        final rows = (totalCells / 7).ceil();
+        final rows = (totalCells / 7).ceil().clamp(1, 6); // Max 6 rows
         
         return Column(
           children: List.generate(rows, (weekIndex) {
@@ -264,8 +288,14 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
                   }
                   
                   final date = DateTime(month.year, month.month, dayNumber);
+                  final dateData = monthData[date] ?? {
+                    'completionRatio': 0.0,
+                    'completedCount': 0,
+                    'totalCount': 0,
+                  };
+                  
                   return Expanded(
-                    child: Center(child: _buildDayCell(date, habitProvider)),
+                    child: Center(child: _buildDayCell(date, dateData)),
                   );
                 }),
               ),
@@ -276,7 +306,7 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
     );
   }
 
-  Widget _buildDayCell(DateTime date, HabitProvider habitProvider) {
+  Widget _buildDayCell(DateTime date, Map<String, dynamic> habitData) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final cellDate = DateTime(date.year, date.month, date.day);
@@ -284,27 +314,17 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
     final isToday = cellDate.isAtSameMomentAs(today);
     final isFuture = cellDate.isAfter(today);
     
-    return FutureBuilder<Map<String, dynamic>>(
-      future: _getHabitCompletionData(cellDate, habitProvider),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return _buildBaseDayCell(date, isToday, isFuture, 0.0, 0, 0);
-        }
-        
-        final data = snapshot.data!;
-        final completionRatio = data['completionRatio'] as double;
-        final completedCount = data['completedCount'] as int;
-        final totalCount = data['totalCount'] as int;
-        
-        return _buildBaseDayCell(
-          date, 
-          isToday, 
-          isFuture, 
-          completionRatio, 
-          completedCount, 
-          totalCount
-        );
-      },
+    final completionRatio = habitData['completionRatio'] as double;
+    final completedCount = habitData['completedCount'] as int;
+    final totalCount = habitData['totalCount'] as int;
+    
+    return _buildBaseDayCell(
+      date, 
+      isToday, 
+      isFuture, 
+      completionRatio, 
+      completedCount, 
+      totalCount
     );
   }
 
@@ -408,46 +428,6 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
 
 
 
-  Future<Map<String, dynamic>> _getHabitCompletionData(
-    DateTime date, 
-    HabitProvider habitProvider
-  ) async {
-    final habits = habitProvider.habits;
-    if (habits.isEmpty) {
-      return {
-        'completionRatio': 0.0,
-        'completedCount': 0,
-        'totalCount': 0,
-      };
-    }
-
-    // Filter habits that should be active on this date
-    final activeHabits = habits.where((habit) => 
-      habit.shouldShowOnDate(date)
-    ).toList();
-
-    if (activeHabits.isEmpty) {
-      return {
-        'completionRatio': 0.0,
-        'completedCount': 0,
-        'totalCount': 0,
-      };
-    }
-
-    int completedCount = 0;
-    for (final habit in activeHabits) {
-      final isCompleted = await habitProvider.isHabitCompletedOnDate(habit.id!, date);
-      if (isCompleted) {
-        completedCount++;
-      }
-    }
-
-    return {
-      'completionRatio': activeHabits.isNotEmpty ? completedCount / activeHabits.length : 0.0,
-      'completedCount': completedCount,
-      'totalCount': activeHabits.length,
-    };
-  }
 
   void _onDateTapped(DateTime date) {
     // Add haptic feedback
@@ -469,13 +449,6 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
     return DateTime(date.year, date.month + 1, 0).day;
   }
 
-  String _formatDateForSnackbar(DateTime date) {
-    const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
-    return '${months[date.month - 1]} ${date.day}, ${date.year}';
-  }
 
 }
 

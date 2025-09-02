@@ -15,6 +15,10 @@ class HabitProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
   
+  // Calendar data cache - pre-loaded for fast calendar rendering
+  Map<String, Map<DateTime, Map<String, dynamic>>> _calendarCache = {};
+  DateTime? _lastCalendarCacheUpdate;
+  
   // Getters
   List<Habit> get habits => _habits;
   List<Category> get categories => _categories;
@@ -39,6 +43,9 @@ class HabitProvider extends ChangeNotifier {
       loadCategories(),
       loadTodayStatus(),
     ]);
+    
+    // Pre-load calendar data for current and adjacent months
+    await _preloadCalendarData();
   }
   
   // Loading states management
@@ -105,6 +112,10 @@ class HabitProvider extends ChangeNotifier {
       await loadHabits();
       await loadTodayStatus();
       
+      // Clear calendar cache and reload for updated data
+      _clearCalendarCache();
+      await _preloadCalendarData();
+      
       return habitId;
     } catch (e) {
       _setError('Failed to create habit: ${e.toString()}');
@@ -125,9 +136,13 @@ class HabitProvider extends ChangeNotifier {
       final index = _habits.indexWhere((h) => h.id == habit.id);
       if (index != -1) {
         _habits[index] = habit;
-        notifyListeners();
       }
       
+      // Clear calendar cache and reload for updated data
+      _clearCalendarCache();
+      await _preloadCalendarData();
+      
+      notifyListeners();
       return true;
     } catch (e) {
       _setError('Failed to update habit: ${e.toString()}');
@@ -180,9 +195,13 @@ class HabitProvider extends ChangeNotifier {
       final index = _habits.indexWhere((h) => h.id == id);
       if (index != -1) {
         _habits[index] = updatedHabit;
-        notifyListeners();
       }
       
+      // Clear calendar cache and reload for updated data
+      _clearCalendarCache();
+      await _preloadCalendarData();
+      
+      notifyListeners();
       return true;
     } catch (e) {
       _setError('Failed to update habit: ${e.toString()}');
@@ -203,6 +222,10 @@ class HabitProvider extends ChangeNotifier {
       _habits.removeWhere((habit) => habit.id == habitId);
       _todayCompletionStatus.remove(habitId);
       _currentStreaks.remove(habitId);
+      
+      // Clear calendar cache and reload for updated data
+      _clearCalendarCache();
+      await _preloadCalendarData();
       
       // Force immediate UI update
       notifyListeners();
@@ -561,6 +584,110 @@ class HabitProvider extends ChangeNotifier {
     // Simple estimation: current streak / days since start
     if (daysSinceStart <= 0) return 0.0;
     return (currentStreak / daysSinceStart).clamp(0.0, 1.0);
+  }
+
+  // Pre-load calendar data for fast calendar rendering
+  Future<void> _preloadCalendarData() async {
+    final now = DateTime.now();
+    final currentMonth = DateTime(now.year, now.month, 1);
+    
+    // Pre-load current month and adjacent months (prev and next)
+    final monthsToLoad = [
+      DateTime(currentMonth.year, currentMonth.month - 1, 1), // Previous month
+      currentMonth, // Current month
+      DateTime(currentMonth.year, currentMonth.month + 1, 1), // Next month
+    ];
+    
+    for (final month in monthsToLoad) {
+      await _loadMonthCalendarData(month);
+    }
+  }
+  
+  // Load calendar data for a specific month
+  Future<Map<DateTime, Map<String, dynamic>>> _loadMonthCalendarData(DateTime month) async {
+    final monthKey = '${month.year}-${month.month}';
+    
+    // Check if already cached and recent (within 5 minutes)
+    if (_calendarCache.containsKey(monthKey) && 
+        _lastCalendarCacheUpdate != null &&
+        DateTime.now().difference(_lastCalendarCacheUpdate!).inMinutes < 5) {
+      return _calendarCache[monthKey]!;
+    }
+    
+    final result = <DateTime, Map<String, dynamic>>{};
+    
+    if (_habits.isEmpty) {
+      _calendarCache[monthKey] = result;
+      return result;
+    }
+    
+    final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
+    
+    // Batch process all days in the month
+    for (int day = 1; day <= daysInMonth; day++) {
+      final date = DateTime(month.year, month.month, day);
+      
+      // Filter habits that should be active on this date
+      final activeHabits = _habits.where((habit) => 
+        habit.shouldShowOnDate(date)
+      ).toList();
+      
+      if (activeHabits.isEmpty) {
+        result[date] = {
+          'completionRatio': 0.0,
+          'completedCount': 0,
+          'totalCount': 0,
+        };
+        continue;
+      }
+      
+      int completedCount = 0;
+      for (final habit in activeHabits) {
+        try {
+          final isCompleted = await isHabitCompletedOnDate(habit.id!, date);
+          if (isCompleted) {
+            completedCount++;
+          }
+        } catch (e) {
+          // Handle errors gracefully
+          continue;
+        }
+      }
+      
+      result[date] = {
+        'completionRatio': completedCount / activeHabits.length,
+        'completedCount': completedCount,
+        'totalCount': activeHabits.length,
+      };
+    }
+    
+    _calendarCache[monthKey] = result;
+    _lastCalendarCacheUpdate = DateTime.now();
+    
+    return result;
+  }
+  
+  // Get pre-loaded calendar data for a month
+  Map<DateTime, Map<String, dynamic>> getCalendarDataForMonth(DateTime month) {
+    final monthKey = '${month.year}-${month.month}';
+    return _calendarCache[monthKey] ?? {};
+  }
+  
+  // Load calendar data for a month if not already cached
+  Future<Map<DateTime, Map<String, dynamic>>> ensureCalendarDataLoaded(DateTime month) async {
+    final monthKey = '${month.year}-${month.month}';
+    
+    if (!_calendarCache.containsKey(monthKey)) {
+      return await _loadMonthCalendarData(month);
+    }
+    
+    return _calendarCache[monthKey]!;
+  }
+  
+  // Clear calendar cache when habits change
+  void _clearCalendarCache() {
+    _calendarCache.clear();
+    _lastCalendarCacheUpdate = null;
   }
 
   // Get habits by category

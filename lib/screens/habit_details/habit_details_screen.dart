@@ -453,7 +453,7 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
             children: [
               // Time indicator
               Text(
-                '${_formatTime12Hour(habit.notificationTime)} reminder',
+                '${_formatTime12Hour(habit.notificationTime)} Reminder',
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,

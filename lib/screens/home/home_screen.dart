@@ -804,7 +804,7 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 // Time indicator
                 Text(
-                  '${_formatTime12Hour(habit.notificationTime)} reminder',
+                  '${_formatTime12Hour(habit.notificationTime)} Reminder',
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,

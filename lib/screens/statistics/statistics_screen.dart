@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/habit_provider.dart';
 import '../../providers/statistics_provider.dart';
 import '../../widgets/calendar_widget.dart';
+import '../home/home_screen.dart';
 
 enum StatisticsViewType { weekly, monthly, yearly }
 
@@ -1303,7 +1304,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   children: [
                     // Home button
                     IconButton(
-                      onPressed: () => Navigator.of(context).pushReplacementNamed('/'),
+                      onPressed: () => _navigateToHome(),
                       icon: Image.asset(
                         'assets/icons/home-inactive.png',
                         width: 24,
@@ -1420,6 +1421,16 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       default: // Other
         return const Icon(Icons.star, size: 20, color: neutralWhite);
     }
+  }
+
+  void _navigateToHome() {
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const HomeScreen(),
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+      ),
+    );
   }
 
   void _showCalendar() {

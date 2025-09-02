@@ -5,6 +5,7 @@ import '../../providers/category_provider.dart';
 import '../../providers/app_settings_provider.dart';
 import '../../models/habit.dart';
 import '../../widgets/calendar_widget.dart';
+import '../statistics/statistics_screen.dart';
 
 /// Home Screen - Main dashboard following home_design.json specifications
 /// 
@@ -952,7 +953,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     
                     // Statistics button
                     IconButton(
-                      onPressed: () => Navigator.of(context).pushReplacementNamed('/statistics'),
+                      onPressed: () => _navigateToStatistics(),
                       icon: Image.asset(
                         'assets/icons/stats-inacative.png',
                         width: 24,
@@ -1172,6 +1173,16 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       return 'Good Night';
     }
+  }
+
+  void _navigateToStatistics() {
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const StatisticsScreen(),
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+      ),
+    );
   }
 
   void _showCalendar() {

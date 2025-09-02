@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../intro/intro_screen.dart';
+import '../home/home_screen.dart';
+import '../../services/first_time_user_service.dart';
 
 /// Simple splash screen with centered logo on white background
 class SplashScreen extends StatefulWidget {
@@ -38,19 +40,49 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _navigateToNextScreen() {
-    // Always navigate to intro screen for now to avoid provider access issues
-    Navigator.of(context).pushReplacement(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const IntroScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(
-            opacity: animation,
-            child: child,
-          );
-        },
-        transitionDuration: const Duration(milliseconds: 500),
-      ),
-    );
+    try {
+      // Check if user is first-time or onboarding not completed
+      final isFirstTime = FirstTimeUserService.isFirstTimeUser();
+      final isOnboardingCompleted = FirstTimeUserService.isOnboardingCompleted();
+      
+      Widget destinationScreen;
+      
+      if (isFirstTime || !isOnboardingCompleted) {
+        // Show intro screen for first-time users or users who haven't completed onboarding
+        destinationScreen = const IntroScreen();
+      } else {
+        // Show home screen for returning users
+        destinationScreen = const HomeScreen();
+      }
+      
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => destinationScreen,
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 500),
+        ),
+      );
+    } catch (error) {
+      debugPrint('Navigation error: $error');
+      // Fallback to home screen if there's an error
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => const HomeScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 500),
+        ),
+      );
+    }
   }
 
   @override

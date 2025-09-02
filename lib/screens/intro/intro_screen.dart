@@ -461,70 +461,70 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
     return SafeArea(
       child: Column(
         children: [
+          // Header with skip button
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: _skipToMain,
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    overlayColor: Colors.transparent,
+                    splashFactory: NoSplash.splashFactory,
+                  ),
+                  child: const Text(
+                    'Skip',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: textPrimary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
           // Scrollable content area
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 48, 24, 24),
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-            // Header with skip button and logo
+            // Logo section
             SizedBox(
               height: 80,
-              child: Stack(
-                children: [
-                  // Skip button positioned at top right within header bounds
-                  Positioned(
-                    top: 0,
-                    right: 0,
-                    child: TextButton(
-                      onPressed: _skipToMain,
-                      style: TextButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        overlayColor: Colors.transparent, // Remove hover/splash color
-                        splashFactory: NoSplash.splashFactory, // Remove splash effect
-                      ),
-                      child: const Text(
-                        'Skip',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: textPrimary,
-                        ),
-                      ),
-                    ),
-                  ),
-                  // Centered logo
-                  Center(
-                    child: CircleAvatar(
-                      radius: 30,
-                      backgroundColor: Colors.transparent,
-                      child: ClipOval(
-                        child: Image.asset(
-                          'assets/logos/logo_black_bg.png',
+              child: Center(
+                child: CircleAvatar(
+                  radius: 30,
+                  backgroundColor: Colors.transparent,
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/logos/logo_black_bg.png',
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
                           width: 60,
                           height: 60,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              width: 60,
-                              height: 60,
-                              decoration: const BoxDecoration(
-                                color: primaryDark,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.self_improvement,
-                                color: white,
-                                size: 30,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
+                          decoration: const BoxDecoration(
+                            color: primaryDark,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.self_improvement,
+                            color: white,
+                            size: 30,
+                          ),
+                        );
+                      },
                     ),
                   ),
-                ],
+                ),
               ),
             ),
             const SizedBox(height: 40),

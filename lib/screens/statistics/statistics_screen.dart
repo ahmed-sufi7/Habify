@@ -27,6 +27,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   DateTime _selectedWeek = DateTime.now();
   DateTime _selectedMonth = DateTime.now();
   DateTime _selectedYear = DateTime.now();
+  
+  // Animation state tracking
+  bool _shouldAnimateBars = false;
+  StatisticsViewType? _previousViewType;
 
   @override
   void initState() {
@@ -442,7 +446,18 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       child: GestureDetector(
         onTap: () {
           setState(() {
+            _previousViewType = _viewType;
             _viewType = viewType;
+            _shouldAnimateBars = true;
+          });
+          
+          // Trigger animation reset for bars
+          Future.delayed(const Duration(milliseconds: 50), () {
+            if (mounted) {
+              setState(() {
+                _shouldAnimateBars = false;
+              });
+            }
           });
         },
         child: Container(
@@ -940,7 +955,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                       duration: const Duration(milliseconds: 800),
                                       curve: Curves.easeOutCubic,
                                       width: double.infinity,
-                                      height: barHeight.clamp(4.0, 130.0), // Minimum 4px height
+                                      height: _shouldAnimateBars ? 0.0 : barHeight.clamp(4.0, 130.0), // Start from 0 when animating
                                       decoration: BoxDecoration(
                                         color: neutralWhite, // White color
                                         borderRadius: BorderRadius.circular(20), // Pill shape

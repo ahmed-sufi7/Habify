@@ -496,21 +496,21 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                   children: [
             // Logo section
             SizedBox(
-              height: 80,
+              height: 100,
               child: Center(
                 child: CircleAvatar(
-                  radius: 30,
+                  radius: 40,
                   backgroundColor: Colors.transparent,
                   child: ClipOval(
                     child: Image.asset(
                       'assets/logos/logo_black_bg.png',
-                      width: 60,
-                      height: 60,
+                      width: 80,
+                      height: 80,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
-                          width: 60,
-                          height: 60,
+                          width: 80,
+                          height: 80,
                           decoration: const BoxDecoration(
                             color: primaryDark,
                             shape: BoxShape.circle,
@@ -518,7 +518,7 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                           child: const Icon(
                             Icons.self_improvement,
                             color: white,
-                            size: 30,
+                            size: 40,
                           ),
                         );
                       },

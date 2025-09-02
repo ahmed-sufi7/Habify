@@ -792,7 +792,7 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
         ScaffoldMessenger.of(context).clearSnackBars();
         
         if (success) {
-          // Navigate back to home screen
+          // Navigate back to home screen first
           Navigator.of(context).pop();
           
           // Show success message

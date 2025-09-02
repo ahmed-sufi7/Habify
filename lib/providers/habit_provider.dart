@@ -149,6 +149,7 @@ class HabitProvider extends ChangeNotifier {
       _todayCompletionStatus.remove(habitId);
       _currentStreaks.remove(habitId);
       
+      // Force immediate UI update
       notifyListeners();
       return true;
     } catch (e) {
@@ -156,6 +157,8 @@ class HabitProvider extends ChangeNotifier {
       return false;
     } finally {
       _setLoading(false);
+      // Ensure listeners are notified even if there was an error
+      notifyListeners();
     }
   }
   

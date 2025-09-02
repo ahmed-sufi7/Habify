@@ -1434,8 +1434,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       builder: (BuildContext context) {
         return DraggableScrollableSheet(
           initialChildSize: 0.55,
-          minChildSize: 0.4,
+          minChildSize: 0.0,
           maxChildSize: 0.55,
+          snap: true,
+          snapSizes: const [0.0, 0.55],
           builder: (context, scrollController) {
             return SingleChildScrollView(
               controller: scrollController,

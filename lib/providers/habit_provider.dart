@@ -136,6 +136,61 @@ class HabitProvider extends ChangeNotifier {
       _setLoading(false);
     }
   }
+
+  Future<bool> updateHabitById({
+    required int id,
+    required String name,
+    required String description,
+    required int categoryId,
+    required String priority,
+    required int durationMinutes,
+    required String notificationTime,
+    required String repetitionPattern,
+    String? alarmTime,
+    List<int> customDays = const [],
+  }) async {
+    try {
+      _setLoading(true);
+      _clearError();
+      
+      // Get the existing habit to preserve other fields
+      final existingHabit = getHabitById(id);
+      if (existingHabit == null) {
+        _setError('Habit not found');
+        return false;
+      }
+      
+      // Create updated habit object
+      final updatedHabit = existingHabit.copyWith(
+        name: name,
+        description: description,
+        categoryId: categoryId,
+        priority: priority,
+        durationMinutes: durationMinutes,
+        notificationTime: notificationTime,
+        alarmTime: alarmTime,
+        repetitionPattern: repetitionPattern,
+        customDays: customDays,
+        updatedAt: DateTime.now(),
+      );
+      
+      await _habitService.updateHabit(updatedHabit);
+      
+      // Update local state
+      final index = _habits.indexWhere((h) => h.id == id);
+      if (index != -1) {
+        _habits[index] = updatedHabit;
+        notifyListeners();
+      }
+      
+      return true;
+    } catch (e) {
+      _setError('Failed to update habit: ${e.toString()}');
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
   
   Future<bool> deleteHabit(int habitId) async {
     try {

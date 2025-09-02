@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/habit_provider.dart';
 import '../../models/habit.dart';
+import 'edit_habit_screen.dart';
 
 /// Habit Details Screen - Shows detailed information about a specific habit
 /// Following the design specification from Habit_details.json
@@ -589,7 +590,7 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
               _buildGoalItem('assets/icons/habit-completed.png', 'Habit Completed', '$completedCount'),
               _buildGoalItem('assets/icons/habit-missed.png', 'Habit Missed', '$missedCount'),
               _buildGoalItem('assets/icons/streak-category.png', 'Longest Streak', '$longestStreak'),
-              _buildGoalItem('assets/icons/completed-today.png', 'Completed Rate', '${completionRate.toStringAsFixed(0)}%'),
+              _buildGoalItem('assets/icons/completed-today.png', 'Completion Rate', '${completionRate.toStringAsFixed(0)}%'),
             ],
           ),
         );
@@ -710,7 +711,7 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
                 title: const Text('Edit Habit'),
                 onTap: () {
                   Navigator.pop(context);
-                  // Navigate to edit habit screen
+                  _navigateToEditHabit();
                 },
               ),
               ListTile(
@@ -1056,5 +1057,42 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
     return date1.year == date2.year &&
            date1.month == date2.month &&
            date1.day == date2.day;
+  }
+
+  void _navigateToEditHabit() async {
+    if (_habit == null) return;
+    
+    final result = await Navigator.of(context).push<Map<String, dynamic>>(
+      MaterialPageRoute(
+        builder: (context) => EditHabitScreen(habit: _habit!),
+      ),
+    );
+    
+    if (result != null && result['success'] == true) {
+      // Reload habit details after successful edit
+      _loadHabitDetails();
+      
+      // Show success message
+      if (mounted && result['message'] != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                const SizedBox(width: 8),
+                Expanded(child: Text(result['message'])),
+              ],
+            ),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        );
+      }
+    }
   }
 }

@@ -1435,9 +1435,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         return DraggableScrollableSheet(
           initialChildSize: 0.55,
           minChildSize: 0.4,
-          maxChildSize: 0.7,
+          maxChildSize: 0.55,
           builder: (context, scrollController) {
-            return const HabitCalendarWidget();
+            return SingleChildScrollView(
+              controller: scrollController,
+              child: const HabitCalendarWidget(),
+            );
           },
         );
       },

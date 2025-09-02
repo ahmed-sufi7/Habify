@@ -91,8 +91,7 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
               ),
             ],
           ),
-          child: SingleChildScrollView(
-            child: Padding(
+          child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -109,7 +108,6 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
                   SizedBox(height: MediaQuery.of(context).padding.bottom + 4),
                 ],
               ),
-            ),
           ),
         );
       },

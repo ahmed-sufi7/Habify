@@ -255,7 +255,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   Expanded(
                     child: _buildStatCard(
                       title: 'Longest Streak',
-                      value: '$longestStreak days',
+                      value: '$longestStreak ${longestStreak == 1 ? 'Day' : 'Days'}',
                       backgroundColor: const Color(0xFFFFFBC5),
                       valueColor: neutralBlack,
                       iconPath: 'assets/icons/streak-category.png',
@@ -265,7 +265,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   Expanded(
                     child: _buildStatCard(
                       title: 'Average Streak',
-                      value: '${averageStreak.toStringAsFixed(1)} days',
+                      value: '${averageStreak.toStringAsFixed(1)} ${averageStreak == 1.0 ? 'Day' : 'Days'}',
                       backgroundColor: const Color(0xFFC4DBE6),
                       valueColor: neutralBlack,
                       iconPath: 'assets/icons/average-streak.png',

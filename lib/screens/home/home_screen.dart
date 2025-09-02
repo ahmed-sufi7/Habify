@@ -586,7 +586,7 @@ class _HomeScreenState extends State<HomeScreen> {
         // Show loading state
         if (habitProvider.isLoading) {
           return Container(
-            margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+            margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 64),
             child: const Center(
               child: Column(
                 children: [

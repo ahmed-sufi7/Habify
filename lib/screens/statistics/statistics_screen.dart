@@ -1549,7 +1549,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             height: 80,
                             decoration: BoxDecoration(
                               color: Colors.transparent,
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(15),
                               border: Border.all(
                                 color: const Color(0xFF2C2C2C),
                                 width: 1.5,

@@ -1378,7 +1378,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   ],
                 ),
                 child: IconButton(
-                  onPressed: () => Navigator.of(context).pushNamed('/add-habit'),
+                  onPressed: () => _showAddOptionsModal(),
                   icon: const Icon(
                     Icons.add,
                     size: 26,
@@ -1468,6 +1468,140 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             return SingleChildScrollView(
               controller: scrollController,
               child: const HabitCalendarWidget(),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showAddOptionsModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      enableDrag: true,
+      showDragHandle: false,
+      useSafeArea: true,
+      builder: (BuildContext context) {
+        // Calculate height based on content:
+        // - Drag handle: 12 (top margin) + 5 (height) = 17px
+        // - Top spacing: 24px  
+        // - First button: 80px (Add Pomodoro)
+        // - Button spacing: 16px
+        // - Second button: 60px (Add Habit)
+        // - Bottom padding: 16px
+        // Total: 213px + safe area padding
+        const double contentHeight = 213.0;
+        final double screenHeight = MediaQuery.of(context).size.height;
+        final double adaptiveHeight = (contentHeight + MediaQuery.of(context).padding.bottom + 20) / screenHeight;
+        
+        return DraggableScrollableSheet(
+          initialChildSize: adaptiveHeight,
+          minChildSize: 0.0,
+          maxChildSize: adaptiveHeight,
+          snap: true,
+          snapSizes: [0.0, adaptiveHeight],
+          builder: (context, scrollController) {
+            return Container(
+              decoration: const BoxDecoration(
+                color: Color(0xFFFAFAFA),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  topRight: Radius.circular(30),
+                ),
+              ),
+              child: Column(
+                children: [
+                  // Drag handle
+                  Container(
+                    margin: const EdgeInsets.only(top: 12),
+                    width: 50,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: neutralLightGray,
+                      borderRadius: BorderRadius.circular(2.5),
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // Buttons
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      children: [
+                        // Add Pomodoro button
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).pop(); // Close modal
+                            // Navigate to add pomodoro screen when implemented
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Add Pomodoro feature coming soon!'),
+                                backgroundColor: primaryOrange,
+                              ),
+                            );
+                          },
+                          child: Container(
+                            width: double.infinity,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              color: Colors.transparent,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: const Color(0xFF2C2C2C),
+                                width: 1.5,
+                              ),
+                            ),
+                            child: const Center(
+                              child: Text(
+                                'Add Pomodoro',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFF2C2C2C),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        
+                        const SizedBox(height: 16),
+                        
+                        // Add Habit button
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).pop(); // Close modal
+                            Navigator.of(context).pushNamed('/add-habit');
+                          },
+                          child: Container(
+                            width: double.infinity,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF2C2C2C),
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: const Center(
+                              child: Text(
+                                'Add Habit',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: neutralWhite,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 16), // Bottom padding
+                ],
+              ),
             );
           },
         );

@@ -9,6 +9,7 @@ import 'screens/launch/splash_screen.dart';
 import 'screens/intro/intro_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/add_habit/add_habit_screen.dart';
+import 'screens/add_pomodoro/add_pomodoro_screen.dart';
 import 'screens/statistics/statistics_screen.dart';
 import 'screens/habit_details/habit_details_screen.dart';
 import 'services/first_time_user_service.dart';
@@ -122,6 +123,7 @@ class HabifyApp extends StatelessWidget {
               '/intro': (context) => const IntroScreen(),
               '/splash': (context) => const SplashScreen(),
               '/add-habit': (context) => const AddHabitScreen(),
+              '/add-pomodoro': (context) => const AddPomodoroScreen(),
               '/statistics': (context) => const StatisticsScreen(),
             },
             
@@ -154,6 +156,8 @@ class HabifyApp extends StatelessWidget {
         return MaterialPageRoute(builder: (_) => const SplashScreen());
       case '/add-habit':
         return MaterialPageRoute(builder: (_) => const AddHabitScreen());
+      case '/add-pomodoro':
+        return MaterialPageRoute(builder: (_) => const AddPomodoroScreen());
       case '/statistics':
         return _createNoAnimationRoute(const StatisticsScreen());
       case '/habit-details':

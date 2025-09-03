@@ -1536,13 +1536,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         GestureDetector(
                           onTap: () {
                             Navigator.of(context).pop(); // Close modal
-                            // Navigate to add pomodoro screen when implemented
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Add Pomodoro feature coming soon!'),
-                                backgroundColor: primaryOrange,
-                              ),
-                            );
+                            Navigator.of(context).pushNamed('/add-pomodoro');
                           },
                           child: Container(
                             width: double.infinity,

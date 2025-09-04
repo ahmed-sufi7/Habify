@@ -456,6 +456,74 @@ class HabitCompletionDao {
     return maxStreak;
   }
 
+  // Calculate actual completed and missed counts based on habit schedule
+  Future<Map<String, int>> getActualHabitCounts(int habitId) async {
+    // Get habit details
+    final habitResult = await _dbHelper.rawQuery('''
+      SELECT start_date, repetition_pattern, custom_days, notification_time
+      FROM habits 
+      WHERE id = ?
+    ''', [habitId]);
+    
+    if (habitResult.isEmpty) return {'completed': 0, 'missed': 0, 'scheduled': 0};
+    
+    final habitData = habitResult.first;
+    final startDate = DateTime.parse(habitData['start_date'] as String);
+    final repetitionPattern = habitData['repetition_pattern'] as String;
+    final customDaysStr = habitData['custom_days'] as String?;
+    final customDays = customDaysStr?.split(',').map((e) => int.tryParse(e.trim()) ?? 0).where((e) => e != 0).toList() ?? <int>[];
+    
+    // Get all completion records
+    final completions = await _dbHelper.rawQuery('''
+      SELECT completion_date, status
+      FROM $_tableName
+      WHERE habit_id = ?
+      ORDER BY completion_date ASC
+    ''', [habitId]);
+    
+    final Map<String, String> completionMap = {};
+    for (final completion in completions) {
+      completionMap[completion['completion_date'] as String] = completion['status'] as String;
+    }
+    
+    // Count scheduled days, completed days, and missed days
+    int scheduledDays = 0;
+    int completedDays = 0;
+    int missedDays = 0;
+    
+    final today = DateTime.now();
+    final endDate = DateTime(today.year, today.month, today.day);
+    final startDay = DateTime(startDate.year, startDate.month, startDate.day);
+    
+    for (DateTime date = startDay; !date.isAfter(endDate); date = date.add(const Duration(days: 1))) {
+      // Check if habit should be active on this date
+      if (_shouldHabitBeActiveOnDate(date, repetitionPattern, customDays)) {
+        scheduledDays++;
+        final dateStr = date.toIso8601String().split('T')[0];
+        final status = completionMap[dateStr];
+        
+        if (status == 'completed') {
+          completedDays++;
+        } else if (status == 'missed') {
+          missedDays++;
+        } else {
+          // No record exists but habit was scheduled - consider it missed if past due
+          final isToday = date.isAtSameMomentAs(endDate);
+          if (!isToday) {
+            missedDays++;
+          }
+          // For today, don't count as missed yet (24-hour grace period)
+        }
+      }
+    }
+    
+    return {
+      'completed': completedDays,
+      'missed': missedDays, 
+      'scheduled': scheduledDays,
+    };
+  }
+
   Future<Map<int, int>> getCurrentStreaksForAllHabits() async {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -475,11 +543,16 @@ class HabitCompletionDao {
 
   // Statistics and analytics
   Future<Map<String, dynamic>> getHabitCompletionStats(int habitId) async {
+    // Get actual counts based on habit schedule
+    final actualCounts = await getActualHabitCounts(habitId);
+    final completedCount = actualCounts['completed'] ?? 0;
+    final missedCount = actualCounts['missed'] ?? 0;
+    final scheduledCount = actualCounts['scheduled'] ?? 0;
+    
+    // Get database record counts for additional info
     final result = await _dbHelper.rawQuery('''
       SELECT 
         COUNT(*) as total_entries,
-        SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed_count,
-        SUM(CASE WHEN status = 'missed' THEN 1 ELSE 0 END) as missed_count,
         SUM(CASE WHEN status = 'skipped' THEN 1 ELSE 0 END) as skipped_count
       FROM $_tableName
       WHERE habit_id = ?
@@ -487,8 +560,6 @@ class HabitCompletionDao {
 
     final row = result.first;
     final totalEntries = row['total_entries'] as int;
-    final completedCount = row['completed_count'] as int;
-    final missedCount = row['missed_count'] as int;
     final skippedCount = row['skipped_count'] as int;
 
     return {
@@ -496,7 +567,8 @@ class HabitCompletionDao {
       'completed_count': completedCount,
       'missed_count': missedCount,
       'skipped_count': skippedCount,
-      'completion_rate': totalEntries > 0 ? (completedCount / totalEntries * 100) : 0.0,
+      'scheduled_count': scheduledCount,
+      'completion_rate': scheduledCount > 0 ? (completedCount / scheduledCount * 100) : 0.0,
       'current_streak': await calculateCurrentStreak(habitId, DateTime.now()),
       'longest_streak': await getLongestStreak(habitId),
     };

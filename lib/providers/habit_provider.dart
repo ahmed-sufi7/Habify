@@ -955,41 +955,40 @@ class HabitProvider extends ChangeNotifier {
   }
   
   // Methods for habit details screen
-  int getHabitCompletedCount(int habitId) {
-    // For now, use current streak as a proxy for total completed
-    // In a real app, this would query the database for actual completion count
-    return getCurrentStreak(habitId);
+  Future<int> getHabitCompletedCount(int habitId) async {
+    try {
+      final stats = await _habitService.getHabitStats(habitId);
+      return stats?['completion_stats']?['completed_count'] ?? 0;
+    } catch (e) {
+      return 0;
+    }
   }
   
-  int getHabitMissedCount(int habitId) {
-    final habit = getHabitById(habitId);
-    if (habit == null) return 0;
-    
-    final daysSinceStart = DateTime.now().difference(habit.startDate).inDays + 1;
-    final currentStreak = getCurrentStreak(habitId);
-    
-    // Estimate missed days as (days since start - current streak)
-    return (daysSinceStart - currentStreak).clamp(0, daysSinceStart);
+  Future<int> getHabitMissedCount(int habitId) async {
+    try {
+      final stats = await _habitService.getHabitStats(habitId);
+      return stats?['completion_stats']?['missed_count'] ?? 0;
+    } catch (e) {
+      return 0;
+    }
   }
   
-  int getLongestStreak(int habitId) {
-    // For now, return current streak as longest streak
-    // In a real app, this would query the database for historical streak data
-    return getCurrentStreak(habitId);
+  Future<int> getLongestStreak(int habitId) async {
+    try {
+      final stats = await _habitService.getHabitStats(habitId);
+      return stats?['completion_stats']?['longest_streak'] ?? 0;
+    } catch (e) {
+      return 0;
+    }
   }
   
-  double getCompletionRate(int habitId) {
-    final habit = getHabitById(habitId);
-    if (habit == null) return 0.0;
-    
-    final daysSinceStart = DateTime.now().difference(habit.startDate).inDays + 1;
-    final currentStreak = getCurrentStreak(habitId);
-    
-    if (daysSinceStart <= 0) return 0.0;
-    
-    // Calculate completion rate as percentage
-    final rate = (currentStreak / daysSinceStart) * 100;
-    return rate.clamp(0.0, 100.0);
+  Future<double> getCompletionRate(int habitId) async {
+    try {
+      final stats = await _habitService.getHabitStats(habitId);
+      return stats?['completion_stats']?['completion_rate']?.toDouble() ?? 0.0;
+    } catch (e) {
+      return 0.0;
+    }
   }
   
   // Refresh all data

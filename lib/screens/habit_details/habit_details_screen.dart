@@ -563,11 +563,18 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
   Widget _buildGoalsSection() {
     return Consumer<HabitProvider>(
       builder: (context, habitProvider, child) {
-        // Calculate statistics
-        final completedCount = habitProvider.getHabitCompletedCount(_habit!.id!);
-        final missedCount = habitProvider.getHabitMissedCount(_habit!.id!);
-        final longestStreak = habitProvider.getLongestStreak(_habit!.id!);
-        final completionRate = habitProvider.getCompletionRate(_habit!.id!);
+        return FutureBuilder<Map<String, dynamic>>(
+          future: _getHabitStatistics(habitProvider),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            
+            final stats = snapshot.data!;
+            final completedCount = stats['completed_count'] as int;
+            final missedCount = stats['missed_count'] as int;
+            final longestStreak = stats['longest_streak'] as int;
+            final completionRate = stats['completion_rate'] as double;
         
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -593,6 +600,8 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
               _buildGoalItem('assets/icons/completed-today.png', 'Completion Rate', '${completionRate.toStringAsFixed(0)}%'),
             ],
           ),
+        );
+          },
         );
       },
     );
@@ -1027,6 +1036,20 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
       default:
         return 'Other';
     }
+  }
+
+  Future<Map<String, dynamic>> _getHabitStatistics(HabitProvider habitProvider) async {
+    final completedCount = await habitProvider.getHabitCompletedCount(_habit!.id!);
+    final missedCount = await habitProvider.getHabitMissedCount(_habit!.id!);
+    final longestStreak = await habitProvider.getLongestStreak(_habit!.id!);
+    final completionRate = await habitProvider.getCompletionRate(_habit!.id!);
+    
+    return {
+      'completed_count': completedCount,
+      'missed_count': missedCount,
+      'longest_streak': longestStreak,
+      'completion_rate': completionRate,
+    };
   }
 
   String _getFrequencyText() {

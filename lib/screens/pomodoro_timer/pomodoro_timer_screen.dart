@@ -1054,12 +1054,10 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
         Expanded(
           child: Text(
             'Session $sessionNumber',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
-              color: isCompleted || isCurrent 
-                  ? const Color(0xFF1A1A1A)
-                  : const Color(0xFF666666),
+              color: Color(0xFF1A1A1A), // All sessions fully visible
             ),
           ),
         ),
@@ -1071,7 +1069,7 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
             shape: BoxShape.circle,
             border: isCompleted 
                 ? null 
-                : Border.all(color: const Color(0xFF666666), width: 2),
+                : Border.all(color: const Color(0xFF2C2C2C), width: 2),
           ),
           child: isCompleted 
               ? const Icon(

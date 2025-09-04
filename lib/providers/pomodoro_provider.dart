@@ -128,6 +128,29 @@ class PomodoroProvider extends ChangeNotifier {
       _setLoading(false);
     }
   }
+
+  // Load a specific session for display in timer screen
+  Future<void> loadSessionForDisplay(int sessionId) async {
+    try {
+      _clearError();
+      final session = await _pomodoroService.getSessionById(sessionId);
+      if (session != null) {
+        _activeSession = session;
+        // Initialize timer state for new session
+        _currentSessionNumber = 1;
+        _currentSessionType = SessionType.work;
+        _totalSeconds = session.workDurationMinutes * 60;
+        _remainingSeconds = _totalSeconds;
+        _timerState = TimerState.idle;
+        _isLongBreak = false;
+        notifyListeners();
+      } else {
+        _setError('Session not found');
+      }
+    } catch (e) {
+      _setError('Failed to load session: ${e.toString()}');
+    }
+  }
   
   Future<int?> createSession({
     required String name,
@@ -289,6 +312,51 @@ class PomodoroProvider extends ChangeNotifier {
     _remainingSeconds = _totalSeconds;
     notifyListeners();
   }
+
+  // Simple timer start for loaded sessions (doesn't create database session)
+  void startLoadedTimer() {
+    if (_activeSession != null && _timerState == TimerState.idle) {
+      _timerState = TimerState.running;
+      _startTimer();
+      notifyListeners();
+    }
+  }
+
+  // Simple timer stop for loaded sessions (doesn't affect database)
+  void stopLoadedTimer() {
+    _stopTimer();
+    _timerState = TimerState.idle;
+    _remainingSeconds = _totalSeconds;
+    notifyListeners();
+  }
+
+  // Update session type and duration for next session
+  void moveToNextSession(SessionType sessionType, bool isLongBreak, [int? sessionNumber]) {
+    if (_activeSession == null) return;
+    
+    _currentSessionType = sessionType;
+    _isLongBreak = isLongBreak;
+    if (sessionNumber != null) {
+      _currentSessionNumber = sessionNumber;
+    }
+    
+    // Set duration based on session type
+    switch (sessionType) {
+      case SessionType.work:
+        _totalSeconds = _activeSession!.workDurationMinutes * 60;
+        break;
+      case SessionType.shortBreak:
+        _totalSeconds = _activeSession!.shortBreakMinutes * 60;
+        break;
+      case SessionType.longBreak:
+        _totalSeconds = _activeSession!.longBreakMinutes * 60;
+        break;
+    }
+    
+    _remainingSeconds = _totalSeconds;
+    _timerState = TimerState.idle;
+    notifyListeners();
+  }
   
   Future<bool> completeCurrentSession() async {
     try {
@@ -351,13 +419,10 @@ class PomodoroProvider extends ChangeNotifier {
   void _timerCompleted() {
     _stopTimer();
     _timerState = TimerState.completed;
-    
-    // Auto-complete the session
-    completeCurrentSession();
-    
     notifyListeners();
     
-    // Optionally show notification or play sound here
+    // Don't auto-complete database session, just mark as completed locally
+    // Let the UI handle showing next session dialog
   }
   
   // Current session management

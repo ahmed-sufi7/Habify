@@ -10,6 +10,7 @@ import 'screens/intro/intro_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/add_habit/add_habit_screen.dart';
 import 'screens/add_pomodoro/add_pomodoro_screen.dart';
+import 'screens/pomodoro_timer/pomodoro_timer_screen.dart';
 import 'screens/statistics/statistics_screen.dart';
 import 'screens/habit_details/habit_details_screen.dart';
 import 'services/first_time_user_service.dart';
@@ -166,6 +167,18 @@ class HabifyApp extends StatelessWidget {
         if (habitId != null) {
           return MaterialPageRoute(
             builder: (_) => HabitDetailsScreen(habitId: habitId),
+          );
+        }
+        return null;
+      case '/pomodoro-timer':
+        // Extract session data from route arguments
+        final args = settings.arguments as Map<String, dynamic>?;
+        if (args != null) {
+          return MaterialPageRoute(
+            builder: (_) => PomodoroTimerScreen(
+              sessionId: args['sessionId'] as int,
+              sessionName: args['sessionName'] as String,
+            ),
           );
         }
         return null;

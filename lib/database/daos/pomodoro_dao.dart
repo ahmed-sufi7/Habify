@@ -551,18 +551,8 @@ class PomodoroDao {
       errors.add('Sessions count must be greater than 0');
     }
     
-    // Check for duplicate name (excluding current session if updating)
-    if (session.id == null) {
-      final existingSession = await getSessionByName(session.name);
-      if (existingSession != null) {
-        errors.add('A session with this name already exists');
-      }
-    } else {
-      final existingSession = await getSessionByName(session.name);
-      if (existingSession != null && existingSession.id != session.id) {
-        errors.add('A session with this name already exists');
-      }
-    }
+    // Note: Allowing duplicate session names as users may want multiple sessions
+    // with the same name (e.g., multiple "Study Session" or "Work Session")
     
     return errors;
   }

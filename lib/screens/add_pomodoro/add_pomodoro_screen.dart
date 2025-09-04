@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:audioplayers/audioplayers.dart';
 import '../../providers/pomodoro_provider.dart';
 
 class AddPomodoroScreen extends StatefulWidget {
@@ -83,16 +82,14 @@ class _AddPomodoroScreenState extends State<AddPomodoroScreen> with TickerProvid
       }
 
       if (mounted) {
-        // Show success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Pomodoro session created successfully!'),
-            backgroundColor: Color(0xFF4CAF50),
-          ),
+        // Navigate to Pomodoro timer screen
+        Navigator.of(context).pushReplacementNamed(
+          '/pomodoro-timer',
+          arguments: {
+            'sessionId': sessionId,
+            'sessionName': _nameController.text.trim(),
+          },
         );
-        
-        // Navigate back
-        Navigator.of(context).pop();
       }
     } catch (e) {
       setState(() {
@@ -197,11 +194,14 @@ class _AddPomodoroScreenState extends State<AddPomodoroScreen> with TickerProvid
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios,
-            size: 24,
+            size: 20,
             color: Color(0xFF1A1A1A),
           ),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
         ),
+        titleSpacing: 0,
         title: const Text(
           'Add Pomodoro',
           style: TextStyle(
@@ -408,7 +408,7 @@ class _AddPomodoroScreenState extends State<AddPomodoroScreen> with TickerProvid
 
             // Bottom save button
             Container(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
               child: AnimatedBuilder(
                 animation: _buttonScale,
                 builder: (context, child) {

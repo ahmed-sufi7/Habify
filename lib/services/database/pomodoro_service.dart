@@ -208,12 +208,12 @@ class PomodoroService {
     return await _pomodoroDao.getActiveSessions();
   }
 
-  Future<List<PomodoroSession>> getAllSessions() async {
-    return await _pomodoroDao.getAllSessions();
+  Future<PomodoroSession?> getSessionById(int sessionId) async {
+    return await _pomodoroDao.getSessionById(sessionId);
   }
 
-  Future<PomodoroSession?> getSessionById(int id) async {
-    return await _pomodoroDao.getSessionById(id);
+  Future<List<PomodoroSession>> getAllSessions() async {
+    return await _pomodoroDao.getAllSessions();
   }
 
   Future<PomodoroSession?> getSessionByName(String name) async {

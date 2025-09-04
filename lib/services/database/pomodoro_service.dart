@@ -1,12 +1,9 @@
 import '../../database/daos/pomodoro_dao.dart';
-import '../../database/daos/notification_dao.dart';
 import '../../models/pomodoro_session.dart';
 import '../../models/pomodoro_completion.dart';
-import '../../models/notification.dart';
 
 class PomodoroService {
   final PomodoroDao _pomodoroDao = PomodoroDao();
-  final NotificationDao _notificationDao = NotificationDao();
 
   // Session management
   Future<int> createPomodoroSession({
@@ -65,7 +62,6 @@ class PomodoroService {
 
     // Delete associated data
     await _pomodoroDao.deleteCompletionsBySession(sessionId);
-    await _notificationDao.deleteNotificationsByPomodoroSession(sessionId);
     await _pomodoroDao.deleteSession(sessionId);
   }
 
@@ -92,17 +88,7 @@ class PomodoroService {
 
     final completionId = await _pomodoroDao.startWorkSession(sessionId, sessionNumber);
 
-    // Schedule notification for session end
-    if (session.notificationEnabled) {
-      final endTime = DateTime.now().add(Duration(minutes: session.workDurationMinutes));
-      final notification = AppNotification.pomodoroBreak(
-        pomodoroSessionId: sessionId,
-        sessionName: session.name,
-        isLongBreak: sessionNumber % 4 == 0, // Long break every 4 sessions
-      );
-      
-      await _notificationDao.insertNotification(notification.copyWith(scheduledTime: endTime));
-    }
+    // Note: Pomodoro notifications are now handled by the simple notification service
 
     return {
       'completion_id': completionId,
@@ -127,17 +113,7 @@ class PomodoroService {
     final completionId = await _pomodoroDao.startBreakSession(sessionId, sessionNumber, isLongBreak);
     final breakDuration = isLongBreak ? session.longBreakMinutes : session.shortBreakMinutes;
 
-    // Schedule notification for break end
-    if (session.notificationEnabled) {
-      final endTime = DateTime.now().add(Duration(minutes: breakDuration));
-      final notification = AppNotification.pomodoroStart(
-        pomodoroSessionId: sessionId,
-        sessionName: session.name,
-        scheduledTime: endTime,
-      );
-      
-      await _notificationDao.insertNotification(notification);
-    }
+    // Note: Pomodoro notifications are now handled by the simple notification service
 
     return {
       'completion_id': completionId,
@@ -156,16 +132,7 @@ class PomodoroService {
 
     await _pomodoroDao.completeSession(activeCompletion.id!);
 
-    // Create completion notification
-    final session = await _pomodoroDao.getSessionById(activeCompletion.sessionId);
-    if (session != null && session.notificationEnabled) {
-      final notification = AppNotification.pomodoroComplete(
-        pomodoroSessionId: activeCompletion.sessionId,
-        sessionName: session.name,
-        completedSessions: 1,
-      );
-      await _notificationDao.insertNotification(notification);
-    }
+    // Note: Pomodoro completion notifications are now handled by the simple notification service
   }
 
   Future<void> cancelCurrentSession({String? notes}) async {
@@ -438,8 +405,7 @@ class PomodoroService {
     // Clean up old completions
     await _pomodoroDao.deleteCompletionsOlderThan(cutoffDate);
     
-    // Clean up old pomodoro notifications
-    await _notificationDao.deleteNotificationsOlderThan(cutoffDate);
+    // Note: No notification cleanup needed with simple notification system
   }
 
   // Export data

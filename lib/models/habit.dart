@@ -270,7 +270,7 @@ class Habit {
 
   String get durationDisplay {
     if (durationMinutes < 60) {
-      return '${durationMinutes} min';
+      return '$durationMinutes min';
     } else {
       final hours = durationMinutes ~/ 60;
       final minutes = durationMinutes % 60;

@@ -14,6 +14,7 @@ import 'screens/pomodoro_timer/pomodoro_timer_screen.dart';
 import 'screens/statistics/statistics_screen.dart';
 import 'screens/habit_details/habit_details_screen.dart';
 import 'services/first_time_user_service.dart';
+import 'services/notification_service.dart';
 
 void main() async {
   // Ensure Flutter binding is initialized
@@ -41,6 +42,15 @@ void main() async {
   } catch (e) {
     debugPrint('FirstTimeUserService initialization failed: $e');
     // Continue with app startup even if service fails
+  }
+  
+  // Initialize notifications
+  try {
+    await NotificationService.initialize();
+    await NotificationService.requestPermissions();
+  } catch (e) {
+    debugPrint('Notification service initialization failed: $e');
+    // Continue with app startup even if notifications fail
   }
   
   // Set system UI overlay style
@@ -87,10 +97,6 @@ class HabifyApp extends StatelessWidget {
         
         ChangeNotifierProvider(
           create: (_) => PomodoroProvider(),
-        ),
-        
-        ChangeNotifierProvider(
-          create: (_) => NotificationProvider(),
         ),
         
         // Statistics Provider (depends on other providers for data)

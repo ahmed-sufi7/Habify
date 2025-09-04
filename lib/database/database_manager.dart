@@ -6,12 +6,10 @@ import 'daos/category_dao.dart';
 import 'daos/habit_dao.dart';
 import 'daos/habit_completion_dao.dart';
 import 'daos/pomodoro_dao.dart';
-import 'daos/notification_dao.dart';
 
 // Services
 import '../services/database/habit_service.dart';
 import '../services/database/pomodoro_service.dart';
-import '../services/database/notification_service.dart';
 
 
 /// DatabaseManager provides a centralized access point to all database operations
@@ -30,12 +28,10 @@ class DatabaseManager {
   late final HabitDao _habitDao;
   late final HabitCompletionDao _habitCompletionDao;
   late final PomodoroDao _pomodoroDao;
-  late final NotificationDao _notificationDao;
   
   // Services
   late final HabitService _habitService;
   late final PomodoroService _pomodoroService;
-  late final NotificationService _notificationService;
 
   bool _initialized = false;
 
@@ -50,12 +46,10 @@ class DatabaseManager {
     _habitDao = HabitDao();
     _habitCompletionDao = HabitCompletionDao();
     _pomodoroDao = PomodoroDao();
-    _notificationDao = NotificationDao();
     
     // Initialize Services
     _habitService = HabitService();
     _pomodoroService = PomodoroService();
-    _notificationService = NotificationService();
 
     // Ensure database is created
     await _dbHelper.database;
@@ -81,10 +75,6 @@ class DatabaseManager {
     return _pomodoroService;
   }
 
-  NotificationService get notificationService {
-    _ensureInitialized();
-    return _notificationService;
-  }
 
   // Getters for DAOs (for advanced operations)
   CategoryDao get categoryDao {
@@ -107,10 +97,6 @@ class DatabaseManager {
     return _pomodoroDao;
   }
 
-  NotificationDao get notificationDao {
-    _ensureInitialized();
-    return _notificationDao;
-  }
 
   // Getter for database helper (for low-level operations)
   DatabaseHelper get dbHelper {
@@ -124,12 +110,10 @@ class DatabaseManager {
     
     final habitDashboard = await _habitService.getDashboardData();
     final pomodoroDashboard = await _pomodoroService.getPomodorosDashboardData();
-    final notificationSummary = await _notificationService.getNotificationSummary();
     
     return {
       'habits': habitDashboard,
       'pomodoro': pomodoroDashboard,
-      'notifications': notificationSummary,
       'timestamp': DateTime.now().toIso8601String(),
     };
   }
@@ -145,7 +129,6 @@ class DatabaseManager {
     await Future.wait([
       _habitService.cleanupOldData(daysToKeep: habitDataDaysToKeep),
       _pomodoroService.cleanupOldData(daysToKeep: pomodoroDataDaysToKeep),
-      _notificationService.cleanupOldNotifications(daysToKeep: notificationDaysToKeep),
     ]);
   }
 
@@ -155,7 +138,6 @@ class DatabaseManager {
     
     final habitStats = await _habitService.getOverallHabitStats();
     final pomodoroStats = await _pomodoroService.getOverallPomodoroStats();
-    final notificationStats = await _notificationService.getNotificationStats();
     
     // Database info
     final dbInfo = {
@@ -173,7 +155,6 @@ class DatabaseManager {
     return {
       'habits': habitStats,
       'pomodoro': pomodoroStats,
-      'notifications': notificationStats,
       'database': dbInfo,
       'table_counts': tableCounts,
       'generated_at': DateTime.now().toIso8601String(),
@@ -190,7 +171,6 @@ class DatabaseManager {
     final completions = await _habitCompletionDao.getAllCompletions();
     final pomodoroSessions = await _pomodoroDao.getAllSessions();
     final pomodoroCompletions = await _pomodoroDao.getAllCompletions();
-    final notifications = await _notificationDao.getAllNotifications();
 
     return {
       'export_info': {
@@ -203,7 +183,6 @@ class DatabaseManager {
       'habit_completions': completions.map((c) => c.toMap()).toList(),
       'pomodoro_sessions': pomodoroSessions.map((s) => s.toMap()).toList(),
       'pomodoro_completions': pomodoroCompletions.map((c) => c.toMap()).toList(),
-      'notifications': notifications.map((n) => n.toMap()).toList(),
       'statistics': await getAppStatistics(),
     };
   }

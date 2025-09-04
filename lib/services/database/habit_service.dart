@@ -1,17 +1,14 @@
 import '../../database/daos/habit_dao.dart';
 import '../../database/daos/category_dao.dart';
 import '../../database/daos/habit_completion_dao.dart';
-import '../../database/daos/notification_dao.dart';
 import '../../models/habit.dart';
 import '../../models/category.dart';
 import '../../models/habit_completion.dart';
-import '../../models/notification.dart';
 
 class HabitService {
   final HabitDao _habitDao = HabitDao();
   final CategoryDao _categoryDao = CategoryDao();
   final HabitCompletionDao _completionDao = HabitCompletionDao();
-  final NotificationDao _notificationDao = NotificationDao();
 
   // Habit management
   Future<int> createHabit({
@@ -93,14 +90,11 @@ class HabitService {
   Future<void> deleteHabit(int habitId) async {
     // Delete associated data
     await _completionDao.deleteCompletionsByHabit(habitId);
-    await _notificationDao.deleteNotificationsByHabit(habitId);
     await _habitDao.deleteHabit(habitId);
   }
 
   Future<void> deactivateHabit(int habitId) async {
     await _habitDao.updateHabitStatus(habitId, false);
-    // Remove future notifications
-    await _notificationDao.deleteNotificationsByHabit(habitId);
   }
 
   Future<void> reactivateHabit(int habitId) async {
@@ -143,10 +137,7 @@ class HabitService {
 
     // Check for streak milestones and create celebration notifications
     final currentStreak = await _completionDao.calculateCurrentStreak(habitId, completionDate);
-    if (currentStreak > 0 && currentStreak % 7 == 0) {
-      // Weekly streak milestone
-      await _notificationDao.scheduleStreakCelebration(habitId, habit.name, currentStreak);
-    }
+    // Note: Streak celebrations are now handled by the simple notification service
   }
 
   Future<void> markHabitMissed(int habitId, {DateTime? date, String? notes}) async {
@@ -312,8 +303,7 @@ class HabitService {
     DateTime startDate,
     DateTime? endDate,
   ) async {
-    // Delete existing reminders
-    await _notificationDao.deleteNotificationsByHabit(habitId);
+    // Note: Notification management is now handled by NotificationService
 
     // Generate schedule times based on repetition pattern
     final scheduleTimes = _generateScheduleTimes(
@@ -324,8 +314,7 @@ class HabitService {
       endDate,
     );
 
-    // Schedule notifications
-    await _notificationDao.scheduleHabitReminders(habitId, habitName, scheduleTimes);
+    // Note: Notifications are now handled by the simple notification service in AddHabitScreen
   }
 
   List<DateTime> _generateScheduleTimes(
@@ -423,8 +412,7 @@ class HabitService {
     // Clean up old completions
     await _completionDao.deleteCompletionsOlderThan(cutoffDate);
     
-    // Clean up old notifications
-    await _notificationDao.deleteNotificationsOlderThan(cutoffDate);
+    // Note: No notification cleanup needed with simple notification system
   }
 
   // Batch operations
@@ -453,7 +441,7 @@ class HabitService {
     final todayHabitsWithStatus = await getTodayHabitsWithStatus();
     final overallStats = await getOverallHabitStats();
     final categories = await getAllCategories();
-    final unreadNotificationCount = await _notificationDao.getUnreadNotificationCount();
+    final unreadNotificationCount = 0; // Simplified notification system doesn't track unread count
 
     // Get current streaks
     final streaks = await _completionDao.getCurrentStreaksForAllHabits();

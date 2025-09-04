@@ -58,9 +58,7 @@ class ProviderInitializationHelper {
       final pomodoroProvider = Provider.of<PomodoroProvider>(context, listen: false);
       await pomodoroProvider.initialize();
       
-      // Notifications (independent)
-      final notificationProvider = Provider.of<NotificationProvider>(context, listen: false);
-      await notificationProvider.initialize();
+      // Note: Notification provider removed - using simple notification service instead
       
     } catch (e) {
       debugPrint('Data provider initialization error: $e');
@@ -92,8 +90,6 @@ class ProviderInitializationHelper {
         return !provider.isLoading && provider.error == null;
       } else if (provider is PomodoroProvider) {
         return !provider.isLoading && provider.error == null;
-      } else if (provider is NotificationProvider) {
-        return !provider.isLoading && provider.error == null;
       } else if (provider is StatisticsProvider) {
         return !provider.isLoading && provider.error == null;
       } else if (provider is AppSettingsProvider) {
@@ -112,8 +108,7 @@ class ProviderInitializationHelper {
     return isProviderReady<AppSettingsProvider>(context) &&
            isProviderReady<CategoryProvider>(context) &&
            isProviderReady<HabitProvider>(context) &&
-           isProviderReady<PomodoroProvider>(context) &&
-           isProviderReady<NotificationProvider>(context);
+           isProviderReady<PomodoroProvider>(context);
   }
   
   /// Refresh all providers
@@ -123,7 +118,6 @@ class ProviderInitializationHelper {
         Provider.of<CategoryProvider>(context, listen: false),
         Provider.of<HabitProvider>(context, listen: false),
         Provider.of<PomodoroProvider>(context, listen: false),
-        Provider.of<NotificationProvider>(context, listen: false),
         Provider.of<StatisticsProvider>(context, listen: false),
       ];
       

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/habit.dart';
 import '../models/category.dart';
-import '../models/habit_completion.dart';
 import '../services/database/habit_service.dart';
 
 class HabitProvider extends ChangeNotifier {
@@ -342,7 +341,8 @@ class HabitProvider extends ChangeNotifier {
   // Helper method to update a single habit's streak
   Future<void> _updateHabitStreak(int habitId) async {
     try {
-      final habit = _habits.firstWhere((h) => h.id == habitId);
+      // Find the habit to ensure it exists
+      _habits.firstWhere((h) => h.id == habitId);
       // We would need to add this method to HabitService or call the DAO directly
       // For now, we'll refresh the entire today status which includes streaks
       await loadTodayStatus();
@@ -958,7 +958,7 @@ class HabitProvider extends ChangeNotifier {
   Future<int> getHabitCompletedCount(int habitId) async {
     try {
       final stats = await _habitService.getHabitStats(habitId);
-      return stats?['completion_stats']?['completed_count'] ?? 0;
+      return (stats?['completion_stats'] as Map<String, dynamic>?)?['completed_count'] ?? 0;
     } catch (e) {
       return 0;
     }
@@ -967,7 +967,7 @@ class HabitProvider extends ChangeNotifier {
   Future<int> getHabitMissedCount(int habitId) async {
     try {
       final stats = await _habitService.getHabitStats(habitId);
-      return stats?['completion_stats']?['missed_count'] ?? 0;
+      return (stats?['completion_stats'] as Map<String, dynamic>?)?['missed_count'] ?? 0;
     } catch (e) {
       return 0;
     }
@@ -976,7 +976,7 @@ class HabitProvider extends ChangeNotifier {
   Future<int> getLongestStreak(int habitId) async {
     try {
       final stats = await _habitService.getHabitStats(habitId);
-      return stats?['completion_stats']?['longest_streak'] ?? 0;
+      return (stats?['completion_stats'] as Map<String, dynamic>?)?['longest_streak'] ?? 0;
     } catch (e) {
       return 0;
     }
@@ -985,7 +985,7 @@ class HabitProvider extends ChangeNotifier {
   Future<double> getCompletionRate(int habitId) async {
     try {
       final stats = await _habitService.getHabitStats(habitId);
-      return stats?['completion_stats']?['completion_rate']?.toDouble() ?? 0.0;
+      return ((stats?['completion_stats'] as Map<String, dynamic>?)?['completion_rate'] as num?)?.toDouble() ?? 0.0;
     } catch (e) {
       return 0.0;
     }

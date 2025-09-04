@@ -22,9 +22,7 @@ extension ProviderExtensions on BuildContext {
   PomodoroProvider get pomodoroProvider => read<PomodoroProvider>();
   PomodoroProvider get watchPomodoroProvider => watch<PomodoroProvider>();
   
-  // Notification Provider
-  NotificationProvider get notificationProvider => read<NotificationProvider>();
-  NotificationProvider get watchNotificationProvider => watch<NotificationProvider>();
+  // Note: Notification provider removed - using simple notification service instead
   
   // Statistics Provider
   StatisticsProvider get statisticsProvider => read<StatisticsProvider>();
@@ -166,55 +164,7 @@ extension PomodoroProviderExtensions on PomodoroProvider {
   }
 }
 
-/// Extension methods for notification-related operations
-extension NotificationProviderExtensions on NotificationProvider {
-  /// Get notification count by type
-  int getNotificationCountByType(String type) {
-    return notifications.where((n) => n.type == type).length;
-  }
-  
-  /// Get today's notification summary
-  Map<String, int> get todayNotificationSummary {
-    final todayNotifs = todayNotifications;
-    final summary = <String, int>{};
-    
-    for (final notification in todayNotifs) {
-      summary[notification.type] = (summary[notification.type] ?? 0) + 1;
-    }
-    
-    return summary;
-  }
-  
-  /// Quick notification scheduling
-  Future<bool> scheduleQuickReminder(String title, String message, DateTime time) async {
-    final notificationId = await createNotification(
-      type: 'reminder',
-      title: title,
-      message: message,
-      scheduledTime: time,
-    );
-    
-    return notificationId != null;
-  }
-  
-  /// Bulk mark operations
-  Future<bool> markAllHabitNotificationsAsRead(int habitId) async {
-    try {
-      final habitNotifications = await getHabitNotifications(habitId);
-      if (habitNotifications == null) return false;
-      
-      for (final notification in habitNotifications) {
-        if (!notification.isRead) {
-          await markAsRead(notification.id!);
-        }
-      }
-      
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-}
+// Note: Notification extension methods removed since NotificationProvider was simplified
 
 /// Extension methods for statistics-related operations
 extension StatisticsProviderExtensions on StatisticsProvider {

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../providers/habit_provider.dart';
 import '../../providers/category_provider.dart';
 import '../../database/database_manager.dart';
+import '../../services/notification_service.dart';
 
 // Custom exception classes for better error handling
 class ValidationException implements Exception {
@@ -990,6 +991,9 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
         throw DatabaseException('Failed to create habit - database returned null');
       }
       
+      // Schedule notifications for the habit
+      await _scheduleHabitNotifications(habitId, sanitizedName, repetitionPattern);
+      
       return habitId;
       
     } on ValidationException catch (e) {
@@ -1128,6 +1132,47 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
         onError: _showErrorDialog,
       ),
     );
+  }
+
+  Future<void> _scheduleHabitNotifications(int habitId, String habitName, String repetitionPattern) async {
+    try {
+      final notificationHour = _selectedNotificationHour;
+      final notificationMinute = _selectedNotificationMinute;
+      
+      // Convert repetition pattern to weekdays
+      List<int> weekdays = _getWeekdaysFromPattern(repetitionPattern);
+      
+      if (weekdays.isNotEmpty) {
+        await NotificationService.scheduleRepeatingHabitReminder(
+          habitId: habitId,
+          habitName: habitName,
+          weekdays: weekdays,
+          hour: notificationHour,
+          minute: notificationMinute,
+        );
+        debugPrint('Scheduled notifications for habit: $habitName at $notificationHour:$notificationMinute on days: $weekdays');
+      }
+    } catch (e) {
+      debugPrint('Failed to schedule notifications for habit: $habitName - $e');
+      // Don't fail the habit creation if notifications fail
+    }
+  }
+  
+  List<int> _getWeekdaysFromPattern(String pattern) {
+    switch (pattern.toLowerCase()) {
+      case 'daily':
+        return [1, 2, 3, 4, 5, 6, 7]; // Monday to Sunday
+      case 'weekly':
+        return [1]; // Monday only
+      case 'weekdays':
+        return [1, 2, 3, 4, 5]; // Monday to Friday
+      case 'weekends':
+        return [6, 7]; // Saturday and Sunday
+      case 'every other day':
+        return [1, 3, 5, 7]; // Mon, Wed, Fri, Sun
+      default:
+        return [1, 2, 3, 4, 5, 6, 7]; // Default to daily
+    }
   }
 
   void _showErrorDialog(String message) {

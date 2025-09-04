@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/database/habit_service.dart';
 import '../services/database/pomodoro_service.dart';
-import '../services/database/notification_service.dart';
-import '../models/habit.dart';
-import '../models/category.dart';
 
 enum StatsPeriod {
   today,
@@ -23,7 +20,6 @@ enum StatsChartType {
 class StatisticsProvider extends ChangeNotifier {
   final HabitService _habitService = HabitService();
   final PomodoroService _pomodoroService = PomodoroService();
-  final NotificationService _notificationService = NotificationService();
   
   // State variables
   Map<String, dynamic>? _overallHabitStats;
@@ -183,12 +179,11 @@ class StatisticsProvider extends ChangeNotifier {
       final results = await Future.wait([
         _habitService.getOverallHabitStats(),
         _pomodoroService.getOverallPomodoroStats(),
-        _notificationService.getNotificationStats(),
       ]);
       
       _overallHabitStats = results[0];
       _overallPomodoroStats = results[1];
-      _notificationStats = results[2];
+      _notificationStats = {}; // Empty since we removed notification tracking
       
       // Update cache
       _updateCache('habit_stats', _overallHabitStats);

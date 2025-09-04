@@ -302,24 +302,134 @@ class HabitCompletionDao {
 
   // Streak calculations
   Future<int> calculateCurrentStreak(int habitId, DateTime asOfDate) async {
-    final List<Map<String, dynamic>> maps = await _dbHelper.rawQuery('''
+    // First, get the habit to understand its schedule
+    final habitResult = await _dbHelper.rawQuery('''
+      SELECT start_date, repetition_pattern, custom_days, notification_time
+      FROM habits 
+      WHERE id = ?
+    ''', [habitId]);
+    
+    if (habitResult.isEmpty) return 0;
+    
+    final habitData = habitResult.first;
+    final startDate = DateTime.parse(habitData['start_date'] as String);
+    final repetitionPattern = habitData['repetition_pattern'] as String;
+    final customDaysStr = habitData['custom_days'] as String?;
+    final customDays = customDaysStr?.split(',').map((e) => int.tryParse(e.trim()) ?? 0).where((e) => e != 0).toList() ?? <int>[];
+    
+    // Get all completion records for this habit
+    final List<Map<String, dynamic>> completions = await _dbHelper.rawQuery('''
       SELECT completion_date, status
       FROM $_tableName
       WHERE habit_id = ? AND completion_date <= ?
       ORDER BY completion_date DESC
     ''', [habitId, asOfDate.toIso8601String().split('T')[0]]);
-
-    int streak = 0;
-    for (final map in maps) {
-      if (map['status'] == 'completed') {
-        streak++;
-      } else if (map['status'] == 'missed') {
-        break; // Streak broken
-      }
-      // Skip 'skipped' entries - they don't break the streak
+    
+    // Create a map for quick lookup of completion status by date
+    final Map<String, String> completionMap = {};
+    for (final completion in completions) {
+      completionMap[completion['completion_date'] as String] = completion['status'] as String;
     }
-
+    
+    // Check each day backwards from asOfDate to find current streak
+    int streak = 0;
+    final today = DateTime(asOfDate.year, asOfDate.month, asOfDate.day);
+    final now = DateTime.now();
+    
+    for (int i = 0; i <= 365; i++) { // Check up to 365 days back to avoid infinite loops
+      final checkDate = today.subtract(Duration(days: i));
+      final checkDateStr = checkDate.toIso8601String().split('T')[0];
+      
+      // Skip if before habit start date
+      if (checkDate.isBefore(DateTime(startDate.year, startDate.month, startDate.day))) {
+        break;
+      }
+      
+      // Check if habit should be active on this date
+      if (!_shouldHabitBeActiveOnDate(checkDate, repetitionPattern, customDays)) {
+        continue; // Skip days when habit isn't scheduled
+      }
+      
+      // Check completion status
+      final status = completionMap[checkDateStr];
+      
+      if (status == 'completed') {
+        streak++;
+      } else if (status == 'missed') {
+        // Explicitly marked as missed - streak is broken
+        break;
+      } else {
+        // No record exists for a day the habit should have been done
+        // Check if this is within the 24-hour grace period
+        final isToday = checkDate.isAtSameMomentAs(today);
+        final isFutureDate = checkDate.isAfter(today);
+        
+        if (isFutureDate) {
+          // Future dates don't count - skip them
+          continue;
+        } else if (isToday) {
+          // For today, check if 24 hours have passed since the habit's scheduled time
+          final habitTimeParts = (habitResult.first['notification_time'] as String? ?? '00:00').split(':');
+          final habitHour = int.tryParse(habitTimeParts[0]) ?? 0;
+          final habitMinute = int.tryParse(habitTimeParts[1]) ?? 0;
+          
+          final habitScheduledTime = DateTime(
+            checkDate.year, 
+            checkDate.month, 
+            checkDate.day, 
+            habitHour, 
+            habitMinute
+          );
+          
+          final twentyFourHoursLater = habitScheduledTime.add(const Duration(hours: 24));
+          
+          if (now.isBefore(twentyFourHoursLater)) {
+            // Still within 24-hour grace period - don't break streak
+            continue;
+          } else {
+            // 24 hours have passed without completion - streak is broken
+            break;
+          }
+        } else {
+          // Past date with no completion record - streak is broken
+          break;
+        }
+      }
+    }
+    
     return streak;
+  }
+  
+  // Helper method to check if habit should be active on a given date
+  bool _shouldHabitBeActiveOnDate(DateTime date, String repetitionPattern, List<int> customDays) {
+    final weekday = date.weekday; // 1 = Monday, 7 = Sunday
+    
+    switch (repetitionPattern) {
+      case 'Everyday':
+        return true;
+      case 'Weekdays':
+        return weekday >= 1 && weekday <= 5;
+      case 'Weekends':
+        return weekday == 6 || weekday == 7;
+      case 'Monday':
+        return weekday == 1;
+      case 'Tuesday':
+        return weekday == 2;
+      case 'Wednesday':
+        return weekday == 3;
+      case 'Thursday':
+        return weekday == 4;
+      case 'Friday':
+        return weekday == 5;
+      case 'Saturday':
+        return weekday == 6;
+      case 'Sunday':
+        return weekday == 7;
+      case 'Custom':
+        return customDays.contains(weekday);
+      default:
+        return false;
+    }
   }
 
   Future<int> getLongestStreak(int habitId) async {

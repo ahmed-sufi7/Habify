@@ -306,7 +306,10 @@ class HabitProvider extends ChangeNotifier {
       // Update local completion status
       _todayCompletionStatus[habitId] = false;
       
-      // Update streak
+      // Reset streak to 0 when habit is missed
+      _currentStreaks[habitId] = 0;
+      
+      // Update streak from database to be sure
       await _updateHabitStreak(habitId);
       
       notifyListeners();
@@ -325,7 +328,7 @@ class HabitProvider extends ChangeNotifier {
       // Update local completion status
       _todayCompletionStatus[habitId] = false;
       
-      // Update streak
+      // Recalculate streak after undoing completion
       await _updateHabitStreak(habitId);
       
       notifyListeners();

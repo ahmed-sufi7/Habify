@@ -5,7 +5,10 @@
       "Bash(flutter analyze:*)",
       "Bash(flutter pub:*)",
       "Read(/d:\\Downloads/**)",
-      "Read(/d:\\Downloads/**)"
+      "Read(/d:\\Downloads/**)",
+      "Read(/D:\\Desktop\\Habify Flutter\\habify\\lib\\screens\\home/**)",
+      "Read(/D:\\Desktop\\Habify Flutter\\habify\\lib\\screens\\home/**)",
+      "Read(/D:\\Desktop\\Habify Flutter\\habify\\lib\\providers/**)"
     ],
     "deny": [],
     "ask": []

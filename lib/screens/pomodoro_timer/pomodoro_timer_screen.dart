@@ -42,6 +42,13 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
     // Load the session for display (but don't start timer automatically)
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final provider = Provider.of<PomodoroProvider>(context, listen: false);
+      
+      // Check if there's already an active session with this ID
+      if (provider.activeSession?.id == widget.sessionId) {
+        // Session is already active, just continue with current state
+        return;
+      }
+      
       // Load the session into provider state for display
       await provider.loadSessionForDisplay(widget.sessionId);
     });
@@ -99,10 +106,12 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
       provider.resumeTimer();
       _pulseController.repeat(reverse: true);
     } else if (provider.isIdle || provider.isCompleted) {
-      // Start the timer for the loaded session
-      provider.startLoadedTimer();
-      if (provider.isRunning) {
-        _pulseController.repeat(reverse: true);
+      // Start the timer for the loaded session (only if there's an active session)
+      if (provider.activeSession != null) {
+        provider.startLoadedTimer();
+        if (provider.isRunning) {
+          _pulseController.repeat(reverse: true);
+        }
       }
     }
   }
@@ -131,11 +140,24 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
     }
   }
 
+  void _terminateSessionAndGoHome() {
+    final provider = Provider.of<PomodoroProvider>(context, listen: false);
+    
+    // Stop animation
+    _pulseController.stop();
+    
+    // Completely terminate the session
+    provider.terminateCurrentSession();
+    
+    // Navigate to home screen, removing all previous routes
+    Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+  }
+
   void _handleStop() {
     final provider = Provider.of<PomodoroProvider>(context, listen: false);
     
-    if (provider.isIdle) {
-      // If idle, just go back
+    if (provider.isIdle && provider.activeSession == null) {
+      // If no active session, just go back
       Navigator.of(context).pop();
       return;
     }
@@ -249,9 +271,8 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
                         ),
                         child: TextButton(
                           onPressed: () {
-                            Navigator.of(context).pop();
-                            provider.stopLoadedTimer();
-                            _pulseController.stop();
+                            Navigator.of(context).pop(); // Close dialog
+                            _terminateSessionAndGoHome();
                           },
                           style: TextButton.styleFrom(
                             shape: RoundedRectangleBorder(
@@ -279,44 +300,6 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
     );
   }
 
-  void _checkForNextSession(PomodoroProvider provider) {
-    // Enhanced logic to determine and start next session
-    if (provider.activeSession == null) {
-      // Safety check - session was deleted/cleared
-      Navigator.of(context).pop();
-      return;
-    }
-    
-    if (provider.currentSessionType == SessionType.work) {
-      // After work, start break
-      // Fixed: Use activeSession.sessionsCount for proper calculation
-      final sessionsCount = provider.activeSession!.sessionsCount;
-      final isLongBreak = (provider.currentSessionNumber % (sessionsCount == 1 ? 2 : 4)) == 0;
-      final breakType = isLongBreak ? 'Long Break' : 'Short Break';
-      
-      _showNextSessionDialog(
-        title: 'Work Session Complete!',
-        message: 'Time for a $breakType. Ready to continue?',
-        onStart: () {
-          provider.startBreakSession(widget.sessionId, provider.currentSessionNumber, isLongBreak);
-        },
-      );
-    } else {
-      // After break, start next work session or finish
-      final totalSessions = provider.activeSession?.sessionsCount ?? 4;
-      if (provider.currentSessionNumber < totalSessions) {
-        _showNextSessionDialog(
-          title: 'Break Complete!',
-          message: 'Ready for the next work session?',
-          onStart: () {
-            provider.startWorkSession(widget.sessionId, sessionNumber: provider.currentSessionNumber + 1);
-          },
-        );
-      } else {
-        _showCompletionDialog();
-      }
-    }
-  }
 
   void _moveToNextSessionDialog(PomodoroProvider provider) {
     if (provider.currentSessionType == SessionType.work) {

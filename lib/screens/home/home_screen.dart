@@ -3,9 +3,12 @@ import 'package:provider/provider.dart';
 import '../../providers/habit_provider.dart';
 import '../../providers/category_provider.dart';
 import '../../providers/app_settings_provider.dart';
+import '../../providers/pomodoro_provider.dart';
 import '../../models/habit.dart';
 import '../../widgets/calendar_widget.dart';
+import '../../widgets/live_pomodoro_indicator.dart';
 import '../statistics/statistics_screen.dart';
+import '../pomodoro_timer/pomodoro_timer_screen.dart';
 
 /// Home Screen - Main dashboard following home_design.json specifications
 /// 
@@ -142,6 +145,9 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 // Header
                 _buildHeader(),
+                
+                // Live Pomodoro Session Indicator
+                _buildLivePomodoroIndicator(),
                 
                 // Main content
                 Expanded(
@@ -310,6 +316,28 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
+  }
+
+  Widget _buildLivePomodoroIndicator() {
+    return LivePomodoroIndicator(
+      onTap: () => _navigateToActivePomodoroTimer(),
+    );
+  }
+
+  void _navigateToActivePomodoroTimer() async {
+    final pomodoroProvider = Provider.of<PomodoroProvider>(context, listen: false);
+    final activeSession = pomodoroProvider.activeSession;
+    
+    if (activeSession != null && activeSession.id != null) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => PomodoroTimerScreen(
+            sessionId: activeSession.id!,
+            sessionName: activeSession.name,
+          ),
+        ),
+      );
+    }
   }
 
   Widget _buildStreakCard() {

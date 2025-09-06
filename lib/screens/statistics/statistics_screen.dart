@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/habit_provider.dart';
 import '../../providers/statistics_provider.dart';
+import '../../providers/pomodoro_provider.dart';
 import '../../widgets/calendar_widget.dart';
+import '../../widgets/live_pomodoro_indicator.dart';
 import '../home/home_screen.dart';
+import '../pomodoro_timer/pomodoro_timer_screen.dart';
 
 enum StatisticsViewType { weekly, monthly, yearly }
 
@@ -62,6 +65,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               children: [
                 // Header
                 _buildHeader(),
+                
+                // Live Pomodoro Session Indicator
+                _buildLivePomodoroIndicator(),
                 
                 // Main content
                 Expanded(
@@ -208,6 +214,28 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         ],
       ),
     );
+  }
+
+  Widget _buildLivePomodoroIndicator() {
+    return LivePomodoroIndicator(
+      onTap: () => _navigateToActivePomodoroTimer(),
+    );
+  }
+
+  void _navigateToActivePomodoroTimer() async {
+    final pomodoroProvider = Provider.of<PomodoroProvider>(context, listen: false);
+    final activeSession = pomodoroProvider.activeSession;
+    
+    if (activeSession != null && activeSession.id != null) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => PomodoroTimerScreen(
+            sessionId: activeSession.id!,
+            sessionName: activeSession.name,
+          ),
+        ),
+      );
+    }
   }
 
   Widget _buildStatisticsCards() {

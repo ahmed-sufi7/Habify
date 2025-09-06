@@ -330,6 +330,20 @@ class PomodoroProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Terminate the current session completely (clears active session)
+  void terminateCurrentSession() {
+    _stopTimer();
+    _timerState = TimerState.idle;
+    _activeSession = null;
+    _currentCompletion = null;
+    _remainingSeconds = 0;
+    _totalSeconds = 0;
+    _currentSessionNumber = 1;
+    _currentSessionType = SessionType.work;
+    _isLongBreak = false;
+    notifyListeners();
+  }
+
   // Update session type and duration for next session
   void moveToNextSession(SessionType sessionType, bool isLongBreak, [int? sessionNumber]) {
     if (_activeSession == null) return;

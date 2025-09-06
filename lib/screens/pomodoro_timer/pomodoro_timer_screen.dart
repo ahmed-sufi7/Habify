@@ -912,7 +912,6 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
               
               // Work Duration
               _buildDurationItem(
-                icon: Icons.schedule,
                 title: 'Work Duration',
                 duration: '${session.workDurationMinutes} min',
               ),
@@ -920,7 +919,6 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
               
               // Short Break Duration
               _buildDurationItem(
-                icon: Icons.schedule,
                 title: 'Short Break Duration',
                 duration: '${session.shortBreakMinutes} min',
               ),
@@ -928,7 +926,6 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
               
               // Long Break Duration
               _buildDurationItem(
-                icon: Icons.schedule,
                 title: 'Long Break Duration',
                 duration: '${session.longBreakMinutes} min',
               ),
@@ -971,7 +968,6 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
   }
 
   Widget _buildDurationItem({
-    required IconData icon,
     required String title,
     required String duration,
   }) {
@@ -984,10 +980,15 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
             color: Color(0xFF2C2C2C),
             shape: BoxShape.circle,
           ),
-          child: Icon(
-            icon,
-            color: const Color(0xFFFFFFFF),
-            size: 20,
+          child: Padding(
+            padding: const EdgeInsets.all(14.0),
+            child: Image.asset(
+              'assets/icons/clock-icon.png',
+              width: 20,
+              height: 20,
+              color: const Color(0xFFFFFFFF),
+              fit: BoxFit.contain,
+            ),
           ),
         ),
         const SizedBox(width: 16),
@@ -1027,10 +1028,15 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
             color: Color(0xFF2C2C2C),
             shape: BoxShape.circle,
           ),
-          child: const Icon(
-            Icons.local_fire_department,
-            color: Color(0xFFFFFFFF),
-            size: 20,
+          child: Padding(
+            padding: const EdgeInsets.all(14.0),
+            child: Image.asset(
+              'assets/icons/streak-category.png',
+              width: 20,
+              height: 20,
+              color: const Color(0xFFFFFFFF),
+              fit: BoxFit.contain,
+            ),
           ),
         ),
         const SizedBox(width: 16),

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../providers/habit_provider.dart';
 import '../../providers/category_provider.dart';
 import '../../models/habit.dart';
+import '../../services/notification_service.dart';
 
 class EditHabitScreen extends StatefulWidget {
   final Habit habit;
@@ -799,6 +800,12 @@ class _EditHabitScreenState extends State<EditHabitScreen> with TickerProviderSt
       );
       
       if (success) {
+        // Update notifications with new time and repetition pattern
+        await _updateHabitNotifications(
+          widget.habit.id!,
+          _nameController.text.trim(),
+          repetitionPattern,
+        );
         _navigateBackWithSuccess();
       } else {
         _showErrorDialog('Failed to update habit. Please try again.');
@@ -809,6 +816,51 @@ class _EditHabitScreenState extends State<EditHabitScreen> with TickerProviderSt
       if (mounted) {
         setState(() => _isSaving = false);
       }
+    }
+  }
+
+  Future<void> _updateHabitNotifications(int habitId, String habitName, String repetitionPattern) async {
+    try {
+      // First, cancel all existing notifications for this habit
+      await NotificationService.cancelHabitNotifications(habitId);
+      
+      // Then schedule new notifications with updated time and pattern
+      final notificationHour = _selectedNotificationHour;
+      final notificationMinute = _selectedNotificationMinute;
+      
+      // Convert repetition pattern to weekdays
+      List<int> weekdays = _getWeekdaysFromPattern(repetitionPattern);
+      
+      if (weekdays.isNotEmpty) {
+        await NotificationService.scheduleRepeatingHabitReminder(
+          habitId: habitId,
+          habitName: habitName,
+          weekdays: weekdays,
+          hour: notificationHour,
+          minute: notificationMinute,
+        );
+        debugPrint('Updated notifications for habit: $habitName at $notificationHour:$notificationMinute on days: $weekdays');
+      }
+    } catch (e) {
+      debugPrint('Failed to update notifications for habit: $habitName - $e');
+      // Don't fail the habit update if notifications fail
+    }
+  }
+  
+  List<int> _getWeekdaysFromPattern(String pattern) {
+    switch (pattern.toLowerCase()) {
+      case 'daily':
+        return [1, 2, 3, 4, 5, 6, 7]; // Monday to Sunday
+      case 'weekly':
+        return [1]; // Monday only
+      case 'weekdays':
+        return [1, 2, 3, 4, 5]; // Monday to Friday
+      case 'weekends':
+        return [6, 7]; // Saturday and Sunday
+      case 'every other day':
+        return [1, 3, 5, 7]; // Mon, Wed, Fri, Sun
+      default:
+        return [1, 2, 3, 4, 5, 6, 7]; // Default to daily
     }
   }
 

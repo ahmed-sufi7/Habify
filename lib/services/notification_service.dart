@@ -64,8 +64,9 @@ class NotificationService {
           channelDescription: 'Notifications to remind you about your habits',
           importance: Importance.high,
           priority: Priority.high,
-          icon: '@drawable/noti_logo', // Your custom white H logo for notification icon
+          icon: '@drawable/noti_logo', // Your actual provided PNG logo
           color: Colors.black, // Black background
+          largeIcon: DrawableResourceAndroidBitmap('@drawable/noti_logo'), // Also use as large icon for more prominence
         ),
         iOS: DarwinNotificationDetails(
           presentAlert: true,
@@ -117,8 +118,9 @@ class NotificationService {
             channelDescription: 'Notifications to remind you about your habits',
             importance: Importance.high,
             priority: Priority.high,
-            icon: '@drawable/noti_logo', // Your custom white H logo for notification icon
+            icon: '@drawable/noti_logo', // Your actual provided PNG logo
             color: Colors.black, // Black background
+            largeIcon: DrawableResourceAndroidBitmap('@drawable/noti_logo'), // Also use as large icon for more prominence
           ),
           iOS: DarwinNotificationDetails(
             presentAlert: true,

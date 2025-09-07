@@ -43,7 +43,7 @@ class _MenuSidebarState extends State<MenuSidebar>
   late Animation<double> _fadeAnimation;
   
   double _dragDistance = 0.0;
-  final double _menuWidth = 0.75; // 75% of screen width
+  final double _menuWidth = 0.80; // 80% of screen width
 
   @override
   void initState() {
@@ -250,9 +250,9 @@ class _MenuSidebarState extends State<MenuSidebar>
                   'Habify',
                   style: TextStyle(
                     fontSize: 24,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                     color: neutralBlack,
-                    letterSpacing: 0.3,
+                    letterSpacing: 0,
                   ),
                 ),
                 SizedBox(height: 4),

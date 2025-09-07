@@ -49,7 +49,7 @@ class _MenuSidebarState extends State<MenuSidebar>
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 250), // Slightly faster for better responsiveness
       vsync: this,
     );
     
@@ -97,15 +97,13 @@ class _MenuSidebarState extends State<MenuSidebar>
   }
 
   void _handleDragUpdate(DragUpdateDetails details) {
-    setState(() {
-      _dragDistance += details.delta.dx;
-      // Only allow dragging to the left (closing direction)
-      if (_dragDistance > 0) _dragDistance = 0;
-      
-      // Update animation based on drag distance
-      double dragProgress = (_dragDistance / (MediaQuery.of(context).size.width * _menuWidth)).abs().clamp(0.0, 1.0);
-      _animationController.value = 1.0 - dragProgress;
-    });
+    _dragDistance += details.delta.dx;
+    // Only allow dragging to the left (closing direction)
+    if (_dragDistance > 0) _dragDistance = 0;
+    
+    // Update animation based on drag distance without setState for better performance
+    double dragProgress = (_dragDistance / (MediaQuery.of(context).size.width * _menuWidth)).abs().clamp(0.0, 1.0);
+    _animationController.value = 1.0 - dragProgress;
   }
 
   void _handleDragEnd(DragEndDetails details) {
@@ -151,10 +149,11 @@ class _MenuSidebarState extends State<MenuSidebar>
                   ),
                 ),
                 
-                // Sliding menu container
-                Transform.translate(
-                  offset: Offset(_slideAnimation.value * menuWidth, 0),
-                  child: GestureDetector(
+                // Sliding menu container with performance optimization
+                RepaintBoundary(
+                  child: Transform.translate(
+                    offset: Offset(_slideAnimation.value * menuWidth, 0),
+                    child: GestureDetector(
                     onPanStart: _handleDragStart,
                     onPanUpdate: _handleDragUpdate,
                     onPanEnd: _handleDragEnd,
@@ -195,6 +194,7 @@ class _MenuSidebarState extends State<MenuSidebar>
                     ),
                   ),
                 ),
+              ),
               ],
             ),
           ),

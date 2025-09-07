@@ -5,6 +5,7 @@ import '../../providers/statistics_provider.dart';
 import '../../providers/pomodoro_provider.dart';
 import '../../widgets/calendar_widget.dart';
 import '../../widgets/live_pomodoro_indicator.dart';
+import '../../widgets/menu_sidebar.dart';
 import '../home/home_screen.dart';
 import '../pomodoro_timer/pomodoro_timer_screen.dart';
 
@@ -34,6 +35,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   // Animation state tracking
   bool _shouldAnimateBars = false;
   StatisticsViewType? _previousViewType;
+  bool _isMenuOpen = false;
 
   @override
   void initState() {
@@ -52,6 +54,18 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     } catch (e) {
       debugPrint('Statistics provider initialization failed: $e');
     }
+  }
+
+  void _toggleMenu() {
+    setState(() {
+      _isMenuOpen = !_isMenuOpen;
+    });
+  }
+
+  void _closeMenu() {
+    setState(() {
+      _isMenuOpen = false;
+    });
   }
 
   @override
@@ -98,6 +112,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               child: _buildBottomNavigation(),
             ),
           ),
+          
+          // Menu Sidebar Overlay
+          if (_isMenuOpen)
+            MenuSidebar(
+              onClose: _closeMenu,
+              isVisible: _isMenuOpen,
+            ),
         ],
       ),
     );
@@ -192,20 +213,23 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               
               const SizedBox(width: 10),
               
-              // Notification bell
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: neutralWhite,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: neutralBlack, width: 1.5),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(6.0),
-                  child: Image.asset(
-                    'assets/icons/notification-bing.png',
-                    fit: BoxFit.contain,
+              // Menu button
+              GestureDetector(
+                onTap: _toggleMenu,
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: neutralWhite,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: neutralBlack, width: 1.5),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(6.0),
+                    child: Image.asset(
+                      'assets/icons/menu-icon.png',
+                      fit: BoxFit.contain,
+                    ),
                   ),
                 ),
               ),

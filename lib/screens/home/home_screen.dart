@@ -7,6 +7,7 @@ import '../../providers/pomodoro_provider.dart';
 import '../../models/habit.dart';
 import '../../widgets/calendar_widget.dart';
 import '../../widgets/live_pomodoro_indicator.dart';
+import '../../widgets/menu_sidebar.dart';
 import '../statistics/statistics_screen.dart';
 import '../pomodoro_timer/pomodoro_timer_screen.dart';
 
@@ -78,6 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   bool _isToggling = false;
+  bool _isMenuOpen = false;
   
   // Cache for expensive calculations to avoid rebuilds
   final Map<String, dynamic> _cache = {};
@@ -133,6 +135,18 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _toggleMenu() {
+    setState(() {
+      _isMenuOpen = !_isMenuOpen;
+    });
+  }
+
+  void _closeMenu() {
+    setState(() {
+      _isMenuOpen = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -181,6 +195,13 @@ class _HomeScreenState extends State<HomeScreen> {
               child: _buildBottomNavigation(),
             ),
           ),
+          
+          // Menu Sidebar Overlay
+          if (_isMenuOpen)
+            MenuSidebar(
+              onClose: _closeMenu,
+              isVisible: _isMenuOpen,
+            ),
         ],
       ),
     );
@@ -294,20 +315,23 @@ class _HomeScreenState extends State<HomeScreen> {
               
               const SizedBox(width: 10),
               
-              // Notification bell
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: neutralWhite,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: neutralBlack, width: 1.5),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(6.0),
-                  child: Image.asset(
-                    'assets/icons/notification-bing.png',
-                    fit: BoxFit.contain,
+              // Menu button
+              GestureDetector(
+                onTap: _toggleMenu,
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: neutralWhite,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: neutralBlack, width: 1.5),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(6.0),
+                    child: Image.asset(
+                      'assets/icons/menu-icon.png',
+                      fit: BoxFit.contain,
+                    ),
                   ),
                 ),
               ),

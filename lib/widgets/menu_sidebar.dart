@@ -163,8 +163,8 @@ class _MenuSidebarState extends State<MenuSidebar>
                       decoration: const BoxDecoration(
                         color: Color(0xFFFAFAFA), // Same as home/stats background
                         borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(30),
-                          bottomRight: Radius.circular(30),
+                          topRight: Radius.circular(20),
+                          bottomRight: Radius.circular(20),
                         ),
                         boxShadow: [
                           BoxShadow(
@@ -279,7 +279,7 @@ class _MenuSidebarState extends State<MenuSidebar>
         children: [
           // Home
           _buildMenuItem(
-            icon: Icons.home,
+            iconPath: 'assets/icons/home-active.png',
             title: 'Home',
             backgroundColor: const Color(0xFFE8F5EA), // Light green
             onTap: () {
@@ -292,7 +292,7 @@ class _MenuSidebarState extends State<MenuSidebar>
           
           // Statistics
           _buildMenuItem(
-            icon: Icons.bar_chart,
+            iconPath: 'assets/icons/stats-active.png',
             title: 'Statistics',
             backgroundColor: const Color(0xFFD0D7F9), // Light purple-blue
             onTap: () {
@@ -305,7 +305,7 @@ class _MenuSidebarState extends State<MenuSidebar>
           
           // Add Habit
           _buildMenuItem(
-            icon: Icons.add_circle_outline,
+            icon: Icons.add_circle,
             title: 'Add Habit',
             backgroundColor: const Color(0xFFFFE5E5), // Light pink
             onTap: () {
@@ -318,7 +318,7 @@ class _MenuSidebarState extends State<MenuSidebar>
           
           // Add Pomodoro
           _buildMenuItem(
-            icon: Icons.timer,
+            iconPath: 'assets/icons/clock-icon.png',
             title: 'Add Pomodoro',
             backgroundColor: const Color(0xFFFFFBC5), // Light yellow
             onTap: () {
@@ -331,12 +331,25 @@ class _MenuSidebarState extends State<MenuSidebar>
           
           // Contact Us
           _buildMenuItem(
-            icon: Icons.support_agent,
+            iconPath: 'assets/icons/contact-icon.png',
             title: 'Contact Us',
             backgroundColor: const Color(0xFFDCEDFF), // Light blue
             onTap: () {
               _closeMenu();
               _showContactDialog(context);
+            },
+          ),
+          
+          const SizedBox(height: 12),
+          
+          // Rate This App
+          _buildMenuItem(
+            iconPath: 'assets/icons/rate-icon.png',
+            title: 'Rate This App',
+            backgroundColor: const Color(0xFFC4DBE6), // Light blue-gray
+            onTap: () {
+              _closeMenu();
+              _showRateDialog(context);
             },
           ),
         ],
@@ -345,7 +358,8 @@ class _MenuSidebarState extends State<MenuSidebar>
   }
 
   Widget _buildMenuItem({
-    required IconData icon,
+    IconData? icon,
+    String? iconPath,
     required String title,
     required Color backgroundColor,
     required VoidCallback onTap,
@@ -369,11 +383,27 @@ class _MenuSidebarState extends State<MenuSidebar>
                 color: neutralBlack,
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                color: neutralWhite,
-                size: 20,
-              ),
+              child: iconPath != null
+                  ? Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Image.asset(
+                        iconPath,
+                        width: 20,
+                        height: 20,
+                        color: neutralWhite,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) => Icon(
+                          Icons.error,
+                          color: neutralWhite,
+                          size: 20,
+                        ),
+                      ),
+                    )
+                  : Icon(
+                      icon ?? Icons.star,
+                      color: neutralWhite,
+                      size: 20,
+                    ),
             ),
             const SizedBox(width: 16),
             // Title
@@ -521,6 +551,125 @@ class _MenuSidebarState extends State<MenuSidebar>
               ),
               child: const Text(
                 'Close',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showRateDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFFFAFAFA),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Row(
+            children: [
+              Container(
+                width: 30,
+                height: 30,
+                decoration: const BoxDecoration(
+                  color: neutralBlack,
+                  shape: BoxShape.circle,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(6.0),
+                  child: Image.asset(
+                    'assets/icons/rate-icon.png',
+                    width: 18,
+                    height: 18,
+                    color: neutralWhite,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'Rate Habify',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: neutralBlack,
+                ),
+              ),
+            ],
+          ),
+          content: const Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Enjoying Habify? Help us grow by rating the app!',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: neutralMediumGray,
+                ),
+              ),
+              SizedBox(height: 16),
+              Text(
+                '⭐ Your feedback helps us improve',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: neutralBlack,
+                ),
+              ),
+              SizedBox(height: 8),
+              Text(
+                '📱 Takes just a few seconds',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: neutralBlack,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              style: TextButton.styleFrom(
+                foregroundColor: neutralMediumGray,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              ),
+              child: const Text(
+                'Maybe Later',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                // TODO: Add actual rating functionality (launch store)
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Thanks! This would open the app store.'),
+                    backgroundColor: primaryOrange,
+                  ),
+                );
+              },
+              style: TextButton.styleFrom(
+                backgroundColor: primaryOrange,
+                foregroundColor: neutralWhite,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text(
+                'Rate Now',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,

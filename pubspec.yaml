@@ -83,6 +83,9 @@ dependencies:
   
   # Package Info
   package_info_plus: ^8.0.2
+  
+  # URL Launcher for email functionality
+  url_launcher: ^6.3.0
 
 dev_dependencies:
   flutter_test:

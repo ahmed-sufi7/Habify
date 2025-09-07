@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:intl/intl.dart';
 
 /// Menu Sidebar Widget
 /// 
@@ -210,30 +212,30 @@ class _MenuSidebarState extends State<MenuSidebar>
         children: [
           // App logo
           Container(
-            width: 50,
-            height: 50,
+            width: 60,
+            height: 60,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(18),
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(18),
               child: Image.asset(
                 'assets/logos/logo_black_bg.png',
-                width: 50,
-                height: 50,
+                width: 60,
+                height: 60,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
-                    width: 50,
-                    height: 50,
+                    width: 60,
+                    height: 60,
                     decoration: BoxDecoration(
                       color: neutralBlack,
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(18),
                     ),
                     child: const Icon(
                       Icons.fitness_center,
                       color: neutralWhite,
-                      size: 24,
+                      size: 28,
                     ),
                   );
                 },
@@ -242,26 +244,37 @@ class _MenuSidebarState extends State<MenuSidebar>
           ),
           const SizedBox(width: 16),
           // App name and tagline
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Habify',
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 22,
                     fontWeight: FontWeight.w700,
                     color: neutralBlack,
                     letterSpacing: 0,
+                    height: 1.2, // Reduced line height
                   ),
                 ),
-                SizedBox(height: 4),
                 Text(
-                  'Build Great Habits',
-                  style: TextStyle(
+                  DateFormat('EEEE').format(DateTime.now()), // Today's day
+                  style: const TextStyle(
                     fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: neutralBlack,
+                    height: 1.2, // Reduced line height
+                  ),
+                ),
+                const SizedBox(height: 0.5),
+                Text(
+                  DateFormat('MMMM dd, yyyy').format(DateTime.now()), // Today's date
+                  style: const TextStyle(
+                    fontSize: 12,
                     fontWeight: FontWeight.w500,
                     color: neutralMediumGray,
+                    height: 1.2, // Reduced line height
                   ),
                 ),
               ],
@@ -335,8 +348,7 @@ class _MenuSidebarState extends State<MenuSidebar>
             title: 'Contact Us',
             backgroundColor: const Color(0xFFDCEDFF), // Light blue
             onTap: () {
-              _closeMenu();
-              _showContactDialog(context);
+              _showContactDialog(context); // Don't close menu
             },
           ),
           
@@ -435,42 +447,14 @@ class _MenuSidebarState extends State<MenuSidebar>
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
       child: Row(
         children: [
-          // Version info
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: neutralWhite,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: neutralLightGray),
-            ),
-            child: const Text(
-              'v1.0.0',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: neutralMediumGray,
-              ),
-            ),
-          ),
-          
           const Spacer(),
-          
-          // Close button
-          GestureDetector(
-            onTap: _closeMenu,
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: neutralWhite,
-                shape: BoxShape.circle,
-                border: Border.all(color: neutralBlack, width: 1.5),
-              ),
-              child: const Icon(
-                Icons.close,
-                color: neutralBlack,
-                size: 18,
-              ),
+          // Version info
+          const Text(
+            'v1.0.0',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: neutralMediumGray,
             ),
           ),
         ],
@@ -487,54 +471,96 @@ class _MenuSidebarState extends State<MenuSidebar>
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          title: const Text(
-            'Contact Us',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: neutralBlack,
-            ),
+          title: Row(
+            children: [
+              Container(
+                width: 30,
+                height: 30,
+                decoration: const BoxDecoration(
+                  color: neutralBlack,
+                  shape: BoxShape.circle,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(6.0),
+                  child: Image.asset(
+                    'assets/icons/contact-icon.png',
+                    width: 18,
+                    height: 18,
+                    color: neutralWhite,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) => const Icon(
+                      Icons.support_agent,
+                      color: neutralWhite,
+                      size: 18,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'Contact Us',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: neutralBlack,
+                ),
+              ),
+            ],
           ),
-          content: const Column(
+          content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Get in touch with the Habify team:',
+              const Text(
+                'How can we help you today?',
                 style: TextStyle(
                   fontSize: 14,
                   color: neutralMediumGray,
                 ),
               ),
-              SizedBox(height: 16),
-              Row(
-                children: [
-                  Icon(Icons.email, color: primaryOrange, size: 20),
-                  SizedBox(width: 8),
-                  Text(
-                    'support@habify.app',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: neutralBlack,
-                    ),
-                  ),
-                ],
+              const SizedBox(height: 20),
+              
+              // Contact Support
+              _buildContactOption(
+                context: context,
+                icon: Icons.headset_mic,
+                title: 'Contact Support',
+                description: 'Get help with technical issues',
+                onTap: () => _sendEmail(
+                  context,
+                  subject: 'Support Request - Habify App',
+                  body: 'Hi Habify Team,\n\nI need help with:\n\n[Please describe your issue here]\n\nDevice: [Your device model]\nApp Version: 1.0.0\n\nThanks!',
+                ),
               ),
-              SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(Icons.web, color: primaryOrange, size: 20),
-                  SizedBox(width: 8),
-                  Text(
-                    'www.habify.app',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: neutralBlack,
-                    ),
-                  ),
-                ],
+              
+              const SizedBox(height: 12),
+              
+              // Send Suggestions
+              _buildContactOption(
+                context: context,
+                icon: Icons.lightbulb_outline,
+                title: 'Send Suggestions',
+                description: 'Share ideas to improve the app',
+                onTap: () => _sendEmail(
+                  context,
+                  subject: 'Feature Suggestion - Habify App',
+                  body: 'Hi Habify Team,\n\nI have a suggestion for the app:\n\n[Please describe your suggestion here]\n\nThis would help because:\n[Explain the benefit]\n\nThanks for building such a great app!',
+                ),
+              ),
+              
+              const SizedBox(height: 12),
+              
+              // Report a Bug
+              _buildContactOption(
+                context: context,
+                icon: Icons.bug_report,
+                title: 'Report a Bug',
+                description: 'Let us know about any issues',
+                onTap: () => _sendEmail(
+                  context,
+                  subject: 'Bug Report - Habify App',
+                  body: 'Hi Habify Team,\n\nI found a bug in the app:\n\nWhat happened:\n[Describe the bug]\n\nSteps to reproduce:\n1. [First step]\n2. [Second step]\n3. [Third step]\n\nExpected result:\n[What should happen]\n\nActual result:\n[What actually happened]\n\nDevice: [Your device model]\nApp Version: 1.0.0\n\nThanks!',
+                ),
               ),
             ],
           ),
@@ -542,8 +568,8 @@ class _MenuSidebarState extends State<MenuSidebar>
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               style: TextButton.styleFrom(
-                backgroundColor: primaryOrange,
-                foregroundColor: neutralWhite,
+                backgroundColor: neutralLightGray,
+                foregroundColor: neutralBlack,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -561,6 +587,156 @@ class _MenuSidebarState extends State<MenuSidebar>
         );
       },
     );
+  }
+
+  Widget _buildContactOption({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required String description,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: neutralWhite,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: neutralLightGray),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: primaryOrange.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                color: primaryOrange,
+                size: 18,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: neutralBlack,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    description,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: neutralMediumGray,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.arrow_forward_ios,
+              size: 14,
+              color: neutralMediumGray,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _sendEmail(BuildContext context, {required String subject, required String body}) async {
+    // Build the mailto URL
+    final String emailUrl = 'mailto:pixelwebstudio7@gmail.com?subject=${Uri.encodeComponent(subject)}&body=${Uri.encodeComponent(body)}';
+    final Uri emailUri = Uri.parse(emailUrl);
+    
+    Navigator.of(context).pop(); // Close the dialog first
+    
+    try {
+      // Try to launch the email app
+      bool launched = await launchUrl(
+        emailUri,
+        mode: LaunchMode.externalApplication,
+      );
+      
+      if (!launched) {
+        // If launch failed, show fallback message
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('No email app found!'),
+                  SizedBox(height: 4),
+                  Text('Please email us at: pixelwebstudio7@gmail.com'),
+                ],
+              ),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 4),
+              action: SnackBarAction(
+                label: 'Copy Email',
+                textColor: neutralWhite,
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Email copied: pixelwebstudio7@gmail.com'),
+                      backgroundColor: Color(0xFF4CAF50),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                },
+              ),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      // Handle any errors that occur during launch
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Cannot open email app'),
+                Text('Error: ${e.toString()}'),
+                const SizedBox(height: 4),
+                const Text('Please email us manually at: pixelwebstudio7@gmail.com'),
+              ],
+            ),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+            action: SnackBarAction(
+              label: 'Copy Email',
+              textColor: neutralWhite,
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Email copied: pixelwebstudio7@gmail.com'),
+                    backgroundColor: Color(0xFF4CAF50),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      }
+    }
   }
 
   void _showRateDialog(BuildContext context) {

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
+import '../screens/add_pomodoro/add_pomodoro_screen.dart';
+import '../screens/add_habit/add_habit_screen.dart';
 
 /// Menu Sidebar Widget
 /// 
@@ -221,13 +224,13 @@ class _MenuSidebarState extends State<MenuSidebar>
               borderRadius: BorderRadius.circular(18),
               child: Image.asset(
                 'assets/logos/logo_black_bg.png',
-                width: 60,
-                height: 60,
+                width: 65,
+                height: 65,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
-                    width: 60,
-                    height: 60,
+                    width: 65,
+                    height: 65,
                     decoration: BoxDecoration(
                       color: neutralBlack,
                       borderRadius: BorderRadius.circular(18),
@@ -251,17 +254,17 @@ class _MenuSidebarState extends State<MenuSidebar>
                 const Text(
                   'Habify',
                   style: TextStyle(
-                    fontSize: 22,
+                    fontSize: 23,
                     fontWeight: FontWeight.w700,
                     color: neutralBlack,
-                    letterSpacing: 0,
+                    letterSpacing: 0.0,
                     height: 1.2, // Reduced line height
                   ),
                 ),
                 Text(
                   DateFormat('EEEE').format(DateTime.now()), // Today's day
                   style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: neutralBlack,
                     height: 1.2, // Reduced line height
@@ -323,7 +326,12 @@ class _MenuSidebarState extends State<MenuSidebar>
             backgroundColor: const Color(0xFFFFE5E5), // Light pink
             onTap: () {
               _closeMenu();
-              Navigator.of(context).pushNamed('/add-habit');
+              Navigator.of(context).push(
+                CupertinoPageRoute(
+                  builder: (context) => const AddHabitScreen(),
+                  fullscreenDialog: true,
+                ),
+              );
             },
           ),
           
@@ -336,7 +344,12 @@ class _MenuSidebarState extends State<MenuSidebar>
             backgroundColor: const Color(0xFFFFFBC5), // Light yellow
             onTap: () {
               _closeMenu();
-              Navigator.of(context).pushNamed('/add-pomodoro');
+              Navigator.of(context).push(
+                CupertinoPageRoute(
+                  builder: (context) => const AddPomodoroScreen(),
+                  fullscreenDialog: true,
+                ),
+              );
             },
           ),
           

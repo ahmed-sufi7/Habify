@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../../providers/habit_provider.dart';
 import '../../providers/category_provider.dart';
@@ -8,6 +9,8 @@ import '../../models/habit.dart';
 import '../../widgets/calendar_widget.dart';
 import '../../widgets/live_pomodoro_indicator.dart';
 import '../../widgets/menu_sidebar.dart';
+import '../add_pomodoro/add_pomodoro_screen.dart';
+import '../add_habit/add_habit_screen.dart';
 import '../statistics/statistics_screen.dart';
 import '../pomodoro_timer/pomodoro_timer_screen.dart';
 
@@ -731,7 +734,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: () => Navigator.of(context).pushNamed('/add-habit'),
+                  onPressed: () => Navigator.of(context).push(
+                    CupertinoPageRoute(
+                      builder: (context) => const AddHabitScreen(),
+                      fullscreenDialog: true,
+                    ),
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryOrange,
                     foregroundColor: neutralWhite,
@@ -1325,7 +1333,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         GestureDetector(
                           onTap: () {
                             Navigator.of(context).pop(); // Close modal
-                            Navigator.of(context).pushNamed('/add-pomodoro');
+                            Navigator.of(context).push(
+                              CupertinoPageRoute(
+                                builder: (context) => const AddPomodoroScreen(),
+                                fullscreenDialog: true,
+                              ),
+                            );
                           },
                           child: Container(
                             width: double.infinity,
@@ -1357,7 +1370,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         GestureDetector(
                           onTap: () {
                             Navigator.of(context).pop(); // Close modal
-                            Navigator.of(context).pushNamed('/add-habit');
+                            Navigator.of(context).push(
+                              CupertinoPageRoute(
+                                builder: (context) => const AddHabitScreen(),
+                                fullscreenDialog: true,
+                              ),
+                            );
                           },
                           child: Container(
                             width: double.infinity,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -162,9 +163,15 @@ class HabifyApp extends StatelessWidget {
       case '/splash':
         return MaterialPageRoute(builder: (_) => const SplashScreen());
       case '/add-habit':
-        return MaterialPageRoute(builder: (_) => const AddHabitScreen());
+        return CupertinoPageRoute(
+          builder: (_) => const AddHabitScreen(),
+          fullscreenDialog: true,
+        );
       case '/add-pomodoro':
-        return MaterialPageRoute(builder: (_) => const AddPomodoroScreen());
+        return CupertinoPageRoute(
+          builder: (_) => const AddPomodoroScreen(),
+          fullscreenDialog: true,
+        );
       case '/statistics':
         return _createNoAnimationRoute(const StatisticsScreen());
       case '/habit-details':

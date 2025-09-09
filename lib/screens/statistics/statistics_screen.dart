@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../../providers/habit_provider.dart';
 import '../../providers/statistics_provider.dart';
@@ -8,6 +9,8 @@ import '../../widgets/live_pomodoro_indicator.dart';
 import '../../widgets/menu_sidebar.dart';
 import '../home/home_screen.dart';
 import '../pomodoro_timer/pomodoro_timer_screen.dart';
+import '../add_pomodoro/add_pomodoro_screen.dart';
+import '../add_habit/add_habit_screen.dart';
 
 enum StatisticsViewType { weekly, monthly, yearly }
 
@@ -1588,7 +1591,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         GestureDetector(
                           onTap: () {
                             Navigator.of(context).pop(); // Close modal
-                            Navigator.of(context).pushNamed('/add-pomodoro');
+                            Navigator.of(context).push(
+                              CupertinoPageRoute(
+                                builder: (context) => const AddPomodoroScreen(),
+                                fullscreenDialog: true,
+                              ),
+                            );
                           },
                           child: Container(
                             width: double.infinity,
@@ -1620,7 +1628,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         GestureDetector(
                           onTap: () {
                             Navigator.of(context).pop(); // Close modal
-                            Navigator.of(context).pushNamed('/add-habit');
+                            Navigator.of(context).push(
+                              CupertinoPageRoute(
+                                builder: (context) => const AddHabitScreen(),
+                                fullscreenDialog: true,
+                              ),
+                            );
                           },
                           child: Container(
                             width: double.infinity,

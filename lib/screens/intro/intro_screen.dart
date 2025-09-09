@@ -88,10 +88,6 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
     }
   }
 
-  void _skipToMain() {
-    // Skip to main app without additional setup
-    Navigator.of(context).pushReplacementNamed('/');
-  }
 
   void _completeSetup() async {
     // Add button press animation
@@ -102,8 +98,13 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
     final name = _nameController.text.trim();
     final ageText = _ageController.text.trim();
     
-    // Validate name (optional but if provided should be reasonable)
-    if (name.isNotEmpty && name.length < 2) {
+    // Validate name (required)
+    if (name.isEmpty) {
+      _showErrorDialog('Please enter your name to continue');
+      return;
+    }
+    
+    if (name.length < 2) {
       _showErrorDialog('Name must be at least 2 characters long');
       return;
     }
@@ -129,9 +130,7 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
     try {
       // Save user data
       final settingsProvider = context.read<AppSettingsProvider>();
-      if (name.isNotEmpty) {
-        await settingsProvider.setUserName(name);
-      }
+      await settingsProvider.setUserName(name);
       if (_selectedGender != null) {
         await settingsProvider.setUserGender(_selectedGender!);
       }
@@ -427,7 +426,7 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                           child: ElevatedButton(
                             onPressed: _nextStep,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: primaryDark,
+                              backgroundColor: const Color(0xFF2C2C2C),
                               foregroundColor: white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
@@ -461,36 +460,10 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
     return SafeArea(
       child: Column(
         children: [
-          // Header with skip button
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: _skipToMain,
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    overlayColor: Colors.transparent,
-                    splashFactory: NoSplash.splashFactory,
-                  ),
-                  child: const Text(
-                    'Skip',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: textPrimary,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
           // Scrollable content area
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+              padding: const EdgeInsets.fromLTRB(24, 36, 24, 24),
               child: SingleChildScrollView(
                 child: Column(
                   children: [
@@ -504,13 +477,13 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                   child: ClipOval(
                     child: Image.asset(
                       'assets/logos/logo_black_bg.png',
-                      width: 60,
-                      height: 60,
+                      width: 65,
+                      height: 65,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
-                          width: 60,
-                          height: 60,
+                          width: 65,
+                          height: 65,
                           decoration: const BoxDecoration(
                             color: primaryDark,
                             shape: BoxShape.circle,
@@ -737,7 +710,7 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _completeSetup,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _isLoading ? textSecondary : primaryDark,
+                        backgroundColor: _isLoading ? textSecondary : const Color(0xFF2C2C2C),
                         foregroundColor: white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),

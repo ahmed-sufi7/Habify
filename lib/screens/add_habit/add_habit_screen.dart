@@ -726,7 +726,6 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12), // Decreased border radius
                 ),
-                padding: const EdgeInsets.all(18), // components.primaryButton.padding
               ),
               child: _isSaving
                 ? const SizedBox(

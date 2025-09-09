@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:audioplayers/audioplayers.dart';
 import '../models/pomodoro_session.dart';
 import '../models/pomodoro_completion.dart';
 import '../services/database/pomodoro_service.dart';
@@ -20,6 +21,7 @@ enum SessionType {
 
 class PomodoroProvider extends ChangeNotifier {
   final PomodoroService _pomodoroService = PomodoroService();
+  final AudioPlayer _audioPlayer = AudioPlayer();
   
   // State variables
   List<PomodoroSession> _sessions = [];
@@ -435,8 +437,21 @@ class PomodoroProvider extends ChangeNotifier {
     _timerState = TimerState.completed;
     notifyListeners();
     
+    // Play completion sound
+    _playCompletionSound();
+    
     // Don't auto-complete database session, just mark as completed locally
     // Let the UI handle showing next session dialog
+  }
+  
+  // Play completion sound
+  Future<void> _playCompletionSound() async {
+    try {
+      await _audioPlayer.play(AssetSource('sounds/completion_chime.mp3'));
+    } catch (e) {
+      // Handle audio playback error silently
+      debugPrint('Error playing completion sound: $e');
+    }
   }
   
   // Current session management
@@ -656,6 +671,7 @@ class PomodoroProvider extends ChangeNotifier {
   @override
   void dispose() {
     _stopTimer();
+    _audioPlayer.dispose();
     super.dispose();
   }
 }

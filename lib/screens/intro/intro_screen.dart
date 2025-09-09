@@ -464,7 +464,7 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
           // Header with skip button
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -496,21 +496,21 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                   children: [
             // Logo section
             SizedBox(
-              height: 100,
+              height: 70,
               child: Center(
                 child: CircleAvatar(
-                  radius: 40,
+                  radius: 30,
                   backgroundColor: Colors.transparent,
                   child: ClipOval(
                     child: Image.asset(
                       'assets/logos/logo_black_bg.png',
-                      width: 80,
-                      height: 80,
+                      width: 60,
+                      height: 60,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
-                          width: 80,
-                          height: 80,
+                          width: 60,
+                          height: 60,
                           decoration: const BoxDecoration(
                             color: primaryDark,
                             shape: BoxShape.circle,
@@ -518,7 +518,7 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                           child: const Icon(
                             Icons.self_improvement,
                             color: white,
-                            size: 40,
+                            size: 30,
                           ),
                         );
                       },
@@ -527,7 +527,7 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                 ),
               ),
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 16),
 
             // Progress section
             const Text(

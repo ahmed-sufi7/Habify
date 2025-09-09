@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../providers/pomodoro_provider.dart';
+import '../pomodoro_timer/pomodoro_timer_screen.dart';
 
 class AddPomodoroScreen extends StatefulWidget {
   const AddPomodoroScreen({super.key});
@@ -83,12 +85,14 @@ class _AddPomodoroScreenState extends State<AddPomodoroScreen> with TickerProvid
 
       if (mounted) {
         // Navigate to Pomodoro timer screen
-        Navigator.of(context).pushReplacementNamed(
-          '/pomodoro-timer',
-          arguments: {
-            'sessionId': sessionId,
-            'sessionName': _nameController.text.trim(),
-          },
+        Navigator.of(context).pushReplacement(
+          CupertinoPageRoute(
+            builder: (context) => PomodoroTimerScreen(
+              sessionId: sessionId,
+              sessionName: _nameController.text.trim(),
+            ),
+            fullscreenDialog: true,
+          ),
         );
       }
     } catch (e) {

@@ -178,8 +178,9 @@ class HabifyApp extends StatelessWidget {
         // Extract habit ID from route arguments
         final habitId = settings.arguments as int?;
         if (habitId != null) {
-          return MaterialPageRoute(
+          return CupertinoPageRoute(
             builder: (_) => HabitDetailsScreen(habitId: habitId),
+            fullscreenDialog: true,
           );
         }
         return null;
@@ -187,11 +188,12 @@ class HabifyApp extends StatelessWidget {
         // Extract session data from route arguments
         final args = settings.arguments as Map<String, dynamic>?;
         if (args != null) {
-          return MaterialPageRoute(
+          return CupertinoPageRoute(
             builder: (_) => PomodoroTimerScreen(
               sessionId: args['sessionId'] as int,
               sessionName: args['sessionName'] as String,
             ),
+            fullscreenDialog: true,
           );
         }
         return null;

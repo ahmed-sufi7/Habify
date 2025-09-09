@@ -255,11 +255,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     
     if (activeSession != null && activeSession.id != null) {
       Navigator.of(context).push(
-        MaterialPageRoute(
+        CupertinoPageRoute(
           builder: (context) => PomodoroTimerScreen(
             sessionId: activeSession.id!,
             sessionName: activeSession.name,
           ),
+          fullscreenDialog: true,
         ),
       );
     }

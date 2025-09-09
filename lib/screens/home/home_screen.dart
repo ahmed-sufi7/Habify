@@ -11,6 +11,7 @@ import '../../widgets/live_pomodoro_indicator.dart';
 import '../../widgets/menu_sidebar.dart';
 import '../add_pomodoro/add_pomodoro_screen.dart';
 import '../add_habit/add_habit_screen.dart';
+import '../habit_details/habit_details_screen.dart';
 import '../statistics/statistics_screen.dart';
 import '../pomodoro_timer/pomodoro_timer_screen.dart';
 
@@ -357,11 +358,12 @@ class _HomeScreenState extends State<HomeScreen> {
     
     if (activeSession != null && activeSession.id != null) {
       Navigator.of(context).push(
-        MaterialPageRoute(
+        CupertinoPageRoute(
           builder: (context) => PomodoroTimerScreen(
             sessionId: activeSession.id!,
             sessionName: activeSession.name,
           ),
+          fullscreenDialog: true,
         ),
       );
     }
@@ -772,9 +774,11 @@ class _HomeScreenState extends State<HomeScreen> {
     
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).pushNamed(
-          '/habit-details',
-          arguments: habit.id,
+        Navigator.of(context).push(
+          CupertinoPageRoute(
+            builder: (context) => HabitDetailsScreen(habitId: habit.id!),
+            fullscreenDialog: true,
+          ),
         );
       },
       child: Container(

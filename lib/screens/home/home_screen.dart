@@ -580,7 +580,7 @@ class _HomeScreenState extends State<HomeScreen> {
             scrollDirection: Axis.horizontal,
             itemCount: dates.length,
             controller: ScrollController(
-              initialScrollOffset: (6 * 67.0) - (MediaQuery.of(context).size.width / 2) + 33.5, // Center today
+              initialScrollOffset: (6 * 67.0) - (MediaQuery.of(context).size.width / 2) + 27.5, // Center today
             ),
             itemBuilder: (context, index) {
               final date = dates[index];

@@ -536,8 +536,8 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                     'Let\'s get started with Habify!',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
+                      fontSize: 23,
+                      fontWeight: FontWeight.w600,
                       color: textPrimary,
                     ),
                   ),
@@ -549,12 +549,13 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                       const Text(
                         'Name',
                         style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
                           color: textPrimary,
+                          letterSpacing: 0.1,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
                       TextFormField(
                         controller: _nameController,
                         maxLength: 50,
@@ -577,28 +578,28 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                           filled: true,
                           fillColor: white,
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(12),
                             borderSide: const BorderSide(
                               color: Color(0xFF000000),
-                              width: 2,
+                              width: 1.5,
                             ),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(12),
                             borderSide: const BorderSide(
                               color: Color(0xFF000000),
-                              width: 2,
+                              width: 1.5,
                             ),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(12),
                             borderSide: const BorderSide(
-                              color: primaryBlue,
-                              width: 2,
+                              color: Color(0xFF000000),
+                              width: 1.5,
                             ),
                           ),
                           contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 20,
+                            horizontal: 16,
                             vertical: 16,
                           ),
                         ),
@@ -607,30 +608,32 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                       const Text(
                         'Gender (Optional)',
                         style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
                           color: textPrimary,
+                          letterSpacing: 0.1,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
                       GestureDetector(
                         onTap: _showGenderPicker,
                         child: Container(
                           width: double.infinity,
+                          height: 56,
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 16,
+                            horizontal: 16,
                           ),
                           decoration: BoxDecoration(
                             color: white,
                             border: Border.all(
                               color: const Color(0xFF000000),
-                              width: 2,
+                              width: 1.5,
                             ),
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
                                 _selectedGender ?? 'Select your gender',
@@ -653,12 +656,13 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                       const Text(
                         'Age (Optional)',
                         style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
                           color: textPrimary,
+                          letterSpacing: 0.1,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
                       TextFormField(
                         controller: _ageController,
                         keyboardType: TextInputType.number,
@@ -682,28 +686,28 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                           filled: true,
                           fillColor: white,
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(12),
                             borderSide: const BorderSide(
                               color: Color(0xFF000000),
-                              width: 2,
+                              width: 1.5,
                             ),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(12),
                             borderSide: const BorderSide(
                               color: Color(0xFF000000),
-                              width: 2,
+                              width: 1.5,
                             ),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(12),
                             borderSide: const BorderSide(
-                              color: primaryBlue,
-                              width: 2,
+                              color: Color(0xFF000000),
+                              width: 1.5,
                             ),
                           ),
                           contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 20,
+                            horizontal: 16,
                             vertical: 16,
                           ),
                         ),

@@ -39,7 +39,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
   String _selectedPriority = 'High';
   int _selectedHours = 0;
   int _selectedMinutes = 10;
-  int _selectedNotificationHour = 7;
+  int _selectedNotificationHour = 19;
   int _selectedNotificationMinute = 30;
   String _selectedRepetition = 'Daily';
   String _selectedCategory = 'Health & Fitness'; // First item selected by default
@@ -93,12 +93,14 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
     if (!mounted) return;
     
     try {
-      // Initialize category provider
+      // Store providers before async operations
       final categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
+      final habitProvider = Provider.of<HabitProvider>(context, listen: false);
+      
+      // Initialize category provider
       await categoryProvider.initialize();
       
       // Initialize habit provider
-      final habitProvider = Provider.of<HabitProvider>(context, listen: false);
       await habitProvider.initialize();
       
     } catch (e) {
@@ -526,7 +528,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
   void _showDurationPicker() {
     if (!mounted) return;
     
-    showDialog(
+    showCupertinoDialog<void>(
       context: context,
       barrierDismissible: true,
       builder: (context) => _DurationPickerDialog(
@@ -759,7 +761,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
   void _showNotificationTimePicker() {
     if (!mounted) return;
     
-    showDialog(
+    showCupertinoDialog<void>(
       context: context,
       barrierDismissible: true,
       builder: (context) => _NotificationTimePickerDialog(
@@ -801,7 +803,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
                     borderRadius: BorderRadius.circular(14),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         offset: const Offset(0, 1),
                         blurRadius: 3,
                         spreadRadius: 0,
@@ -1196,7 +1198,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
   void _showCreateCategoryDialog() {
     if (!mounted) return;
     
-    showDialog(
+    showCupertinoDialog<void>(
       context: context,
       barrierDismissible: true,
       builder: (context) => _CreateCategoryDialog(
@@ -1338,37 +1340,50 @@ class _CreateCategoryDialogState extends State<_CreateCategoryDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Create Custom Category'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text('Enter a name for your custom category:'),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _categoryController,
-            decoration: const InputDecoration(
-              hintText: 'Category name',
-              border: OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xFF000000), width: 1.5),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xFF000000), width: 1.5),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xFF000000), width: 1.5),
+    return CupertinoAlertDialog(
+      title: const Text(
+        'Create Custom Category',
+        style: TextStyle(
+          fontSize: 17,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      content: SizedBox(
+        height: 70,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Enter category name:',
+              style: TextStyle(
+                fontSize: 13,
+                color: CupertinoColors.secondaryLabel,
               ),
             ),
-            autofocus: true,
-          ),
-        ],
+            const SizedBox(height: 16),
+            CupertinoTextField(
+              controller: _categoryController,
+              placeholder: 'Category name',
+              autofocus: true,
+              style: const TextStyle(fontSize: 16),
+              maxLines: 1,
+              scrollPhysics: const NeverScrollableScrollPhysics(),
+            ),
+          ],
+        ),
       ),
       actions: [
-        TextButton(
+        CupertinoDialogAction(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: const Text(
+            'Cancel',
+            style: TextStyle(
+              color: CupertinoColors.systemBlue,
+              fontSize: 17,
+            ),
+          ),
         ),
-        TextButton(
+        CupertinoDialogAction(
           onPressed: () {
             final categoryName = _categoryController.text.trim();
             if (categoryName.isNotEmpty && categoryName.length <= 30) {
@@ -1380,7 +1395,15 @@ class _CreateCategoryDialogState extends State<_CreateCategoryDialog> {
               widget.onError('Category name must be 30 characters or less');
             }
           },
-          child: const Text('Create'),
+          isDefaultAction: true,
+          child: const Text(
+            'Create',
+            style: TextStyle(
+              color: CupertinoColors.systemBlue,
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
       ],
     );
@@ -1425,411 +1448,143 @@ class _DurationPickerDialogState extends State<_DurationPickerDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      child: Container(
-        width: 340,
-        decoration: BoxDecoration(
-          color: const Color(0xFFFFFFFF),
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF000000).withValues(alpha: 0.1),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-              spreadRadius: 0,
-            ),
-          ],
+    return CupertinoAlertDialog(
+      title: const Text(
+        'Set Duration',
+        style: TextStyle(
+          fontSize: 17,
+          fontWeight: FontWeight.w600,
         ),
+      ),
+      content: SizedBox(
+        width: 280,
+        height: 250,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            // Modern header with gradient background
+            const SizedBox(height: 16),
+            const Text(
+              'Choose hours and minutes for your habit',
+              style: TextStyle(
+                fontSize: 13,
+                color: CupertinoColors.secondaryLabel,
+              ),
+            ),
+            const SizedBox(height: 20),
+            // Current selection display
             Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF2C2C2C),
-                    Color(0xFF1A1A1A),
-                  ],
-                ),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  topRight: Radius.circular(24),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: CupertinoColors.white,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: CupertinoColors.separator,
+                  width: 0.5,
                 ),
               ),
-              child: Column(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    'Duration',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFFFFFFFF),
-                      letterSpacing: 0.5,
-                    ),
+                  const Icon(
+                    CupertinoIcons.time,
+                    color: CupertinoColors.systemBlue,
+                    size: 18,
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(width: 8),
                   Text(
-                    'Set your habit duration',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w400,
-                      color: const Color(0xFFFFFFFF).withValues(alpha: 0.7),
+                    _formatDuration(currentHours, currentMinutes),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: CupertinoColors.label,
                     ),
                   ),
                 ],
               ),
             ),
-            
-            // Content area
-            Container(
-              padding: const EdgeInsets.all(16),
-              child: Column(
+            const SizedBox(height: 20),
+            // iOS-style duration picker with vertical scrolling
+            Expanded(
+              child: Row(
                 children: [
-                  // Modern time display
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFFF8F9FF),
-                          Color(0xFFF0F2F5),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: const Color(0xFFE1E5E9),
-                        width: 1,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                  // Hour picker
+                  Expanded(
+                    child: Column(
                       children: [
-                        Icon(
-                          Icons.access_time_rounded,
-                          color: const Color(0xFF2C2C2C).withValues(alpha: 0.6),
-                          size: 20,
+                        const Text(
+                          'Hours',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: CupertinoColors.secondaryLabel,
+                          ),
                         ),
-                        const SizedBox(width: 12),
-                        Text(
-                          _formatDuration(currentHours, currentMinutes),
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF2C2C2C),
-                            letterSpacing: 1,
+                        const SizedBox(height: 8),
+                        Expanded(
+                          child: CupertinoPicker(
+                            itemExtent: 32.0,
+                            scrollController: FixedExtentScrollController(
+                              initialItem: currentHours,
+                            ),
+                            onSelectedItemChanged: (int value) {
+                              setState(() {
+                                currentHours = value;
+                              });
+                            },
+                            children: List<Widget>.generate(4, (int index) {
+                              return Center(
+                                child: Text(
+                                  '$index',
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              );
+                            }),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
-            
-                  // Modern picker cards
-                  Row(
-                    children: [
-                      // Hours card
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFFFFF),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: const Color(0xFFE1E5E9),
-                              width: 1,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF000000).withValues(alpha: 0.04),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
+                  // Minutes picker
+                  Expanded(
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Minutes',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: CupertinoColors.secondaryLabel,
                           ),
-                          child: Column(
-                            children: [
-                              // Card header
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.symmetric(vertical: 8),
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFF8F9FF),
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(16),
-                                    topRight: Radius.circular(16),
+                        ),
+                        const SizedBox(height: 8),
+                        Expanded(
+                          child: CupertinoPicker(
+                            itemExtent: 32.0,
+                            scrollController: FixedExtentScrollController(
+                              initialItem: [5, 10, 15, 30].indexOf(currentMinutes),
+                            ),
+                            onSelectedItemChanged: (int value) {
+                              setState(() {
+                                currentMinutes = [5, 10, 15, 30][value];
+                              });
+                            },
+                            children: [5, 10, 15, 30].map<Widget>((int minutes) {
+                              return Center(
+                                child: Text(
+                                  '$minutes',
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
-                                child: const Text(
-                                  'Hours',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF2C2C2C),
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                              ),
-                              // Picker area
-                              Container(
-                                height: 120,
-                                padding: const EdgeInsets.all(8),
-                                child: Stack(
-                                  children: [
-                                    // Selection highlight
-                                    Center(
-                                      child: Container(
-                                        height: 40,
-                                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                                        decoration: BoxDecoration(
-                                          gradient: const LinearGradient(
-                                            colors: [
-                                              Color(0xFF2C2C2C),
-                                              Color(0xFF1A1A1A),
-                                            ],
-                                          ),
-                                          borderRadius: BorderRadius.circular(12),
-                                        ),
-                                      ),
-                                    ),
-                                    // Scroll view
-                                    ListWheelScrollView.useDelegate(
-                                      itemExtent: 40,
-                                      physics: const FixedExtentScrollPhysics(),
-                                      controller: FixedExtentScrollController(initialItem: currentHours),
-                                      diameterRatio: 2.0,
-                                      perspective: 0.002,
-                                      onSelectedItemChanged: (index) {
-                                        setState(() {
-                                          currentHours = index;
-                                        });
-                                      },
-                                      childDelegate: ListWheelChildBuilderDelegate(
-                                        builder: (context, index) {
-                                          if (index < 0 || index > 23) return null;
-                                          final isSelected = index == currentHours;
-                                          return Container(
-                                            alignment: Alignment.center,
-                                            child: Text(
-                                              index.toString().padLeft(2, '0'),
-                                              style: TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.w700,
-                                                color: isSelected 
-                                                  ? const Color(0xFFFFFFFF) 
-                                                  : const Color(0xFF6C757D),
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                        childCount: 24,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                              );
+                            }).toList(),
                           ),
                         ),
-                      ),
-                      
-                      const SizedBox(width: 16),
-                      
-                      // Modern separator
-                      Container(
-                        margin: const EdgeInsets.only(top: 12),
-                        height: 60,
-                        width: 3,
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Color(0xFFE1E5E9),
-                              Color(0xFF2C2C2C),
-                              Color(0xFFE1E5E9),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                      
-                      const SizedBox(width: 16),
-                      
-                      // Minutes card
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFFFFF),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: const Color(0xFFE1E5E9),
-                              width: 1,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF000000).withValues(alpha: 0.04),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              // Card header
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.symmetric(vertical: 8),
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFF8F9FF),
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(16),
-                                    topRight: Radius.circular(16),
-                                  ),
-                                ),
-                                child: const Text(
-                                  'Minutes',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF2C2C2C),
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                              ),
-                              // Picker area
-                              Container(
-                                height: 120,
-                                padding: const EdgeInsets.all(8),
-                                child: Stack(
-                                  children: [
-                                    // Selection highlight
-                                    Center(
-                                      child: Container(
-                                        height: 40,
-                                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                                        decoration: BoxDecoration(
-                                          gradient: const LinearGradient(
-                                            colors: [
-                                              Color(0xFF2C2C2C),
-                                              Color(0xFF1A1A1A),
-                                            ],
-                                          ),
-                                          borderRadius: BorderRadius.circular(12),
-                                        ),
-                                      ),
-                                    ),
-                                    // Scroll view
-                                    ListWheelScrollView.useDelegate(
-                                      itemExtent: 40,
-                                      physics: const FixedExtentScrollPhysics(),
-                                      controller: FixedExtentScrollController(initialItem: currentMinutes ~/ 5),
-                                      diameterRatio: 2.0,
-                                      perspective: 0.002,
-                                      onSelectedItemChanged: (index) {
-                                        setState(() {
-                                          currentMinutes = index * 5;
-                                        });
-                                      },
-                                      childDelegate: ListWheelChildBuilderDelegate(
-                                        builder: (context, index) {
-                                          if (index < 0 || index > 11) return null;
-                                          final minutes = index * 5;
-                                          final isSelected = minutes == currentMinutes;
-                                          return Container(
-                                            alignment: Alignment.center,
-                                            child: Text(
-                                              minutes.toString().padLeft(2, '0'),
-                                              style: TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.w700,
-                                                color: isSelected 
-                                                  ? const Color(0xFFFFFFFF) 
-                                                  : const Color(0xFF6C757D),
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                        childCount: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  
-                  // Modern action buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              side: const BorderSide(color: Color(0xFFE1E5E9), width: 1),
-                            ),
-                          ),
-                          child: const Text(
-                            'Cancel',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF6C757D),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        flex: 2,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            widget.onDurationChanged(currentHours, currentMinutes);
-                            Navigator.of(context).pop();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF2C2C2C),
-                            foregroundColor: const Color(0xFFFFFFFF),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            elevation: 0,
-                          ),
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.check, size: 20),
-                              SizedBox(width: 8),
-                              Text(
-                                'Set Duration',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -1837,6 +1592,33 @@ class _DurationPickerDialogState extends State<_DurationPickerDialog> {
           ],
         ),
       ),
+      actions: [
+        CupertinoDialogAction(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text(
+            'Cancel',
+            style: TextStyle(
+              fontSize: 17,
+              color: CupertinoColors.systemBlue,
+            ),
+          ),
+        ),
+        CupertinoDialogAction(
+          isDefaultAction: true,
+          onPressed: () {
+            widget.onDurationChanged(currentHours, currentMinutes);
+            Navigator.of(context).pop();
+          },
+          child: const Text(
+            'Set Duration',
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+              color: CupertinoColors.systemBlue,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -1869,358 +1651,203 @@ class _NotificationTimePickerDialogState extends State<_NotificationTimePickerDi
     currentMinute = widget.initialMinute;
   }
 
-  String _formatTime(int hour, int minute) {
-    final displayMinute = minute.toString().padLeft(2, '0');
-    return '$hour:$displayMinute';
-  }
+  int get _current24Hour => isAM ? (currentHour == 12 ? 0 : currentHour) : (currentHour == 12 ? 12 : currentHour + 12);
 
-  int get _current24Hour {
-    // Validate currentHour is in expected range (1-12)
-    if (currentHour < 1 || currentHour > 12) {
-      debugPrint('Invalid currentHour: $currentHour, defaulting to 12');
-      currentHour = 12;
-    }
-    
-    if (currentHour == 12) {
-      return isAM ? 0 : 12;
-    }
-    
-    final result = isAM ? currentHour : currentHour + 12;
-    
-    // Validate result is in 24-hour range
-    if (result < 0 || result > 23) {
-      debugPrint('Invalid 24-hour conversion: $result, defaulting to 0');
-      return 0;
-    }
-    
-    return result;
+  String _formatTime(int hour, int minute) {
+    final displayHour = hour == 0 ? 12 : (hour <= 12 ? hour : hour - 12);
+    final displayMinute = minute.toString().padLeft(2, '0');
+    final period = hour < 12 ? 'AM' : 'PM';
+    return '$displayHour:$displayMinute $period';
   }
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      child: Container(
-        width: 340,
-        decoration: BoxDecoration(
-          color: const Color(0xFFFFFFFF),
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF000000).withValues(alpha: 0.1),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-              spreadRadius: 0,
-            ),
-          ],
+    return CupertinoAlertDialog(
+      title: const Text(
+        'Set Notification Time',
+        style: TextStyle(
+          fontSize: 17,
+          fontWeight: FontWeight.w600,
         ),
+      ),
+      content: SizedBox(
+        width: 280,
+        height: 250,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            // Modern header
+            const SizedBox(height: 16),
+            const Text(
+              'Choose when to receive habit reminders',
+              style: TextStyle(
+                fontSize: 13,
+                color: CupertinoColors.secondaryLabel,
+              ),
+            ),
+            const SizedBox(height: 20),
+            // Current time display
             Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF2C2C2C),
-                    Color(0xFF1A1A1A),
-                  ],
-                ),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  topRight: Radius.circular(24),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: CupertinoColors.white,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: CupertinoColors.separator,
+                  width: 0.5,
                 ),
               ),
-              child: Column(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    'Notification Time',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFFFFFFFF),
-                      letterSpacing: 0.5,
-                    ),
+                  const Icon(
+                    CupertinoIcons.bell,
+                    color: CupertinoColors.systemBlue,
+                    size: 18,
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(width: 8),
                   Text(
-                    'Set your reminder time',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w400,
-                      color: const Color(0xFFFFFFFF).withValues(alpha: 0.7),
+                    _formatTime(_current24Hour, currentMinute),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: CupertinoColors.label,
                     ),
                   ),
                 ],
               ),
             ),
-            
-            // Content area
-            Container(
-              padding: const EdgeInsets.all(16),
-              child: Column(
+            const SizedBox(height: 20),
+            // iOS-style time picker with vertical scrolling
+            Expanded(
+              child: Row(
                 children: [
-                  // Time display
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFF8F9FF), Color(0xFFF0F2F5)],
-                      ),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFE1E5E9)),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                  // Hour picker
+                  Expanded(
+                    child: Column(
                       children: [
-                        Icon(Icons.notifications_rounded, color: const Color(0xFF2C2C2C).withValues(alpha: 0.6), size: 20),
-                        const SizedBox(width: 12),
-                        Text(_formatTime(currentHour, currentMinute), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: Color(0xFF2C2C2C))),
+                        const Text(
+                          'Hour',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: CupertinoColors.secondaryLabel,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Expanded(
+                          child: CupertinoPicker(
+                            itemExtent: 32.0,
+                            scrollController: FixedExtentScrollController(
+                              initialItem: currentHour - 1,
+                            ),
+                            onSelectedItemChanged: (int value) {
+                              setState(() {
+                                currentHour = value + 1;
+                              });
+                            },
+                            children: List<Widget>.generate(12, (int index) {
+                              return Center(
+                                child: Text(
+                                  '${index + 1}',
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              );
+                            }),
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  
-                  // Picker cards
-                  Row(
-                    children: [
-                      // Hour picker
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: const Color(0xFFE1E5E9)),
-                            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
-                          ),
-                          child: Column(
-                            children: [
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.symmetric(vertical: 8),
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFF8F9FF),
-                                  borderRadius: BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
-                                ),
-                                child: const Text('Hour', textAlign: TextAlign.center, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF2C2C2C))),
-                              ),
-                              Container(
-                                height: 120,
-                                padding: const EdgeInsets.all(8),
-                                child: Stack(
-                                  children: [
-                                    Center(
-                                      child: Container(
-                                        height: 40,
-                                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                                        decoration: BoxDecoration(
-                                          gradient: const LinearGradient(colors: [Color(0xFF2C2C2C), Color(0xFF1A1A1A)]),
-                                          borderRadius: BorderRadius.circular(12),
-                                        ),
-                                      ),
-                                    ),
-                                    ListWheelScrollView.useDelegate(
-                                      itemExtent: 40,
-                                      physics: const FixedExtentScrollPhysics(),
-                                      controller: FixedExtentScrollController(initialItem: currentHour - 1),
-                                      diameterRatio: 2.0,
-                                      perspective: 0.002,
-                                      onSelectedItemChanged: (index) => setState(() => currentHour = index + 1),
-                                      childDelegate: ListWheelChildBuilderDelegate(
-                                        builder: (context, index) {
-                                          if (index < 0 || index > 11) return null;
-                                          final hour = index + 1;
-                                          final isSelected = hour == currentHour;
-                                          return Container(
-                                            alignment: Alignment.center,
-                                            child: Text('$hour', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: isSelected ? Colors.white : const Color(0xFF6C757D))),
-                                          );
-                                        },
-                                        childCount: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                  // Minute picker
+                  Expanded(
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Minute',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: CupertinoColors.secondaryLabel,
                           ),
                         ),
-                      ),
-                      
-                      const SizedBox(width: 12),
-                      
-                      // Minute picker
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: const Color(0xFFE1E5E9)),
-                            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
-                          ),
-                          child: Column(
-                            children: [
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.symmetric(vertical: 8),
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFF8F9FF),
-                                  borderRadius: BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
-                                ),
-                                child: const Text('Minute', textAlign: TextAlign.center, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF2C2C2C))),
-                              ),
-                              Container(
-                                height: 120,
-                                padding: const EdgeInsets.all(8),
-                                child: Stack(
-                                  children: [
-                                    Center(
-                                      child: Container(
-                                        height: 40,
-                                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                                        decoration: BoxDecoration(
-                                          gradient: const LinearGradient(colors: [Color(0xFF2C2C2C), Color(0xFF1A1A1A)]),
-                                          borderRadius: BorderRadius.circular(12),
-                                        ),
-                                      ),
-                                    ),
-                                    ListWheelScrollView.useDelegate(
-                                      itemExtent: 40,
-                                      physics: const FixedExtentScrollPhysics(),
-                                      controller: FixedExtentScrollController(initialItem: currentMinute),
-                                      diameterRatio: 2.0,
-                                      perspective: 0.002,
-                                      onSelectedItemChanged: (index) => setState(() => currentMinute = index),
-                                      childDelegate: ListWheelChildBuilderDelegate(
-                                        builder: (context, index) {
-                                          if (index < 0 || index > 59) return null;
-                                          final isSelected = index == currentMinute;
-                                          return Container(
-                                            alignment: Alignment.center,
-                                            child: Text(index.toString().padLeft(2, '0'), style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: isSelected ? Colors.white : const Color(0xFF6C757D))),
-                                          );
-                                        },
-                                        childCount: 60,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      
-                      const SizedBox(width: 12),
-                      
-                      // AM/PM picker
-                      Container(
-                        width: 80,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: const Color(0xFFE1E5E9)),
-                          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
-                        ),
-                        child: Column(
-                          children: [
-                            Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              decoration: const BoxDecoration(
-                                color: Color(0xFFF8F9FF),
-                                borderRadius: BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
-                              ),
-                              child: const Text('Period', textAlign: TextAlign.center, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF2C2C2C))),
+                        const SizedBox(height: 8),
+                        Expanded(
+                          child: CupertinoPicker(
+                            itemExtent: 32.0,
+                            scrollController: FixedExtentScrollController(
+                              initialItem: currentMinute,
                             ),
-                            Container(
-                              height: 120,
-                              padding: const EdgeInsets.all(8),
-                              child: Stack(
-                                children: [
-                                  Center(
-                                    child: Container(
-                                      height: 40,
-                                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                                      decoration: BoxDecoration(
-                                        gradient: const LinearGradient(colors: [Color(0xFF2C2C2C), Color(0xFF1A1A1A)]),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                    ),
+                            onSelectedItemChanged: (int value) {
+                              setState(() {
+                                currentMinute = value;
+                              });
+                            },
+                            children: List<Widget>.generate(60, (int index) {
+                              return Center(
+                                child: Text(
+                                  index.toString().padLeft(2, '0'),
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500,
                                   ),
-                                  ListWheelScrollView.useDelegate(
-                                    itemExtent: 40,
-                                    physics: const FixedExtentScrollPhysics(),
-                                    controller: FixedExtentScrollController(initialItem: isAM ? 0 : 1),
-                                    diameterRatio: 2.0,
-                                    perspective: 0.002,
-                                    onSelectedItemChanged: (index) => setState(() => isAM = index == 0),
-                                    childDelegate: ListWheelChildBuilderDelegate(
-                                      builder: (context, index) {
-                                        if (index < 0 || index > 1) return null;
-                                        final period = index == 0 ? 'AM' : 'PM';
-                                        final isSelected = (index == 0 && isAM) || (index == 1 && !isAM);
-                                        return Container(
-                                          alignment: Alignment.center,
-                                          child: Text(period, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: isSelected ? Colors.white : const Color(0xFF6C757D))),
-                                        );
-                                      },
-                                      childCount: 2,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                                ),
+                              );
+                            }),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 20),
-                  
-                  // Action buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: Color(0xFFE1E5E9))),
+                  // AM/PM picker
+                  Expanded(
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Period',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: CupertinoColors.secondaryLabel,
                           ),
-                          child: const Text('Cancel', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF6C757D))),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        flex: 2,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            widget.onTimeChanged(_current24Hour, currentMinute);
-                            Navigator.of(context).pop();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF2C2C2C),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            elevation: 0,
-                          ),
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.notifications, size: 20, color: Colors.white),
-                              SizedBox(width: 8),
-                              Text('Set Time', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white)),
+                        const SizedBox(height: 8),
+                        Expanded(
+                          child: CupertinoPicker(
+                            itemExtent: 32.0,
+                            scrollController: FixedExtentScrollController(
+                              initialItem: isAM ? 0 : 1,
+                            ),
+                            onSelectedItemChanged: (int value) {
+                              setState(() {
+                                isAM = value == 0;
+                              });
+                            },
+                            children: const [
+                              Center(
+                                child: Text(
+                                  'AM',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                              Center(
+                                child: Text(
+                                  'PM',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -2228,6 +1855,34 @@ class _NotificationTimePickerDialogState extends State<_NotificationTimePickerDi
           ],
         ),
       ),
+      actions: [
+        CupertinoDialogAction(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text(
+            'Cancel',
+            style: TextStyle(
+              fontSize: 17,
+              color: CupertinoColors.systemBlue,
+            ),
+          ),
+        ),
+        CupertinoDialogAction(
+          isDefaultAction: true,
+          onPressed: () {
+            widget.onTimeChanged(_current24Hour, currentMinute);
+            Navigator.of(context).pop();
+          },
+          child: const Text(
+            'Set Time',
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+              color: CupertinoColors.systemBlue,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
+

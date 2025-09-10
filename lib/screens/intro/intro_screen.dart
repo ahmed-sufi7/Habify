@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../providers/app_settings_provider.dart';
@@ -160,93 +161,120 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
   }
 
   void _showGenderPicker() {
-    showDialog(
+    showCupertinoDialog<void>(
       context: context,
+      barrierDismissible: true,
       builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: backgroundLight,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Text(
-                  'Select Gender',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: textPrimary,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24),
-                ...['Male', 'Female', 'Other', 'Prefer not to say'].map(
-                  (gender) => Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          _selectedGender = gender;
-                        });
-                        Navigator.of(context).pop();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _selectedGender == gender ? primaryDark : white,
-                        foregroundColor: _selectedGender == gender ? white : textPrimary,
-                        elevation: 0,
-                        side: BorderSide(
-                          color: _selectedGender == gender ? primaryDark : const Color(0xFFE5E7EB),
-                          width: 1,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: Text(
-                        gender,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text(
-                    'Cancel',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: textSecondary,
-                    ),
-                  ),
-                ),
-              ],
+        return CupertinoAlertDialog(
+          title: const Text(
+            'Select Gender',
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
             ),
           ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 16),
+              const Text(
+                'Choose your gender preference',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: CupertinoColors.secondaryLabel,
+                ),
+              ),
+              const SizedBox(height: 20),
+              // Gender options list
+              ...['Male', 'Female', 'Other', 'Prefer not to say'].map(
+                (gender) => CupertinoButton(
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  onPressed: () {
+                    setState(() {
+                      _selectedGender = gender;
+                    });
+                    Navigator.of(context).pop();
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        gender,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: _selectedGender == gender 
+                              ? FontWeight.w600 
+                              : FontWeight.w400,
+                          color: _selectedGender == gender
+                              ? CupertinoColors.systemBlue
+                              : CupertinoColors.label,
+                        ),
+                      ),
+                      if (_selectedGender == gender)
+                        const Icon(
+                          CupertinoIcons.checkmark,
+                          color: CupertinoColors.systemBlue,
+                          size: 18,
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  fontSize: 17,
+                  color: CupertinoColors.systemBlue,
+                ),
+              ),
+            ),
+          ],
         );
       },
     );
   }
 
   void _showErrorDialog(String message) {
-    showDialog(
+    showCupertinoDialog<void>(
       context: context,
+      barrierDismissible: true,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Error'),
-          content: Text(message),
+        return CupertinoAlertDialog(
+          title: const Text(
+            'Error',
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          content: Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              message,
+              style: const TextStyle(
+                fontSize: 13,
+                color: CupertinoColors.label,
+              ),
+            ),
+          ),
           actions: [
-            TextButton(
+            CupertinoDialogAction(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
+              child: const Text(
+                'OK',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                  color: CupertinoColors.systemBlue,
+                ),
+              ),
             ),
           ],
         );
@@ -445,7 +473,7 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                       );
                     },
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
@@ -460,246 +488,236 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
     return SafeArea(
       child: Column(
         children: [
-          // Scrollable content area
+          // Main content area - no scroll needed
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 48, 24, 24),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-            // Logo section
-            SizedBox(
-              height: 70,
-              child: Center(
-                child: CircleAvatar(
-                  radius: 30,
-                  backgroundColor: Colors.transparent,
-                  child: ClipOval(
-                    child: Image.asset(
-                      'assets/logos/logo_black_bg.png',
-                      width: 65,
-                      height: 65,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          width: 65,
-                          height: 65,
-                          decoration: const BoxDecoration(
-                            color: primaryDark,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.self_improvement,
-                            color: white,
-                            size: 30,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Progress section
-            const Text(
-              'Let\'s get started with Habify!',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: textPrimary,
-              ),
-            ),
-            const SizedBox(height: 48),
-
-            // Form fields
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: double.infinity),
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
+                  const SizedBox(height: 60),
+                  // Logo section
+                  SizedBox(
+                    height: 60,
+                    child: Center(
+                      child: CircleAvatar(
+                        radius: 30,
+                        backgroundColor: Colors.transparent,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.asset(
+                            'assets/logos/logo_black_bg.png',
+                            width: 60,
+                            height: 60,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                width: 60,
+                                height: 60,
+                                decoration: BoxDecoration(
+                                  color: primaryDark,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Icon(
+                                  Icons.self_improvement,
+                                  color: white,
+                                  size: 28,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 36),
+                  // Progress section
                   const Text(
-                    'Name',
+                    'Let\'s get started with Habify!',
+                    textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
                       color: textPrimary,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: _nameController,
-                    maxLength: 50,
-                    textCapitalization: TextCapitalization.words,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
-                    ],
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                      color:
-                          textPrimary, // Dark text color for contrast with white background
-                    ),
-                    decoration: InputDecoration(
-                      counterText: '', // Hide character counter
-                      hintText: 'Enter your name',
-                      hintStyle: const TextStyle(
-                        fontSize: 16,
-                        color: textSecondary,
-                      ),
-                      filled: true,
-                      fillColor: white,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(
-                          color: Color(0xFF000000),
-                          width: 2,
+                  const SizedBox(height: 40),
+                  // Form fields
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Name',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: textPrimary,
                         ),
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(
-                          color: Color(0xFF000000),
-                          width: 2,
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _nameController,
+                        maxLength: 50,
+                        textCapitalization: TextCapitalization.words,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+                        ],
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                          color: textPrimary,
                         ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(
-                          color: primaryBlue,
-                          width: 2,
-                        ),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 16,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  const Text(
-                    'Gender (Optional)',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  GestureDetector(
-                    onTap: _showGenderPicker,
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 16,
-                      ),
-                      decoration: BoxDecoration(
-                        color: white,
-                        border: Border.all(
-                          color: const Color(0xFF000000),
-                          width: 2,
-                        ),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            _selectedGender ?? 'Select your gender',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                              color: _selectedGender != null ? textPrimary : textSecondary,
+                        decoration: InputDecoration(
+                          counterText: '',
+                          hintText: 'Enter your name',
+                          hintStyle: const TextStyle(
+                            fontSize: 16,
+                            color: textSecondary,
+                          ),
+                          filled: true,
+                          fillColor: white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF000000),
+                              width: 2,
                             ),
                           ),
-                          const Icon(
-                            Icons.keyboard_arrow_down,
-                            size: 20,
-                            color: textPrimary,
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF000000),
+                              width: 2,
+                            ),
                           ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: const BorderSide(
+                              color: primaryBlue,
+                              width: 2,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 16,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Gender (Optional)',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      GestureDetector(
+                        onTap: _showGenderPicker,
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 16,
+                          ),
+                          decoration: BoxDecoration(
+                            color: white,
+                            border: Border.all(
+                              color: const Color(0xFF000000),
+                              width: 2,
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                _selectedGender ?? 'Select your gender',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
+                                  color: _selectedGender != null ? textPrimary : textSecondary,
+                                ),
+                              ),
+                              const Icon(
+                                Icons.keyboard_arrow_down,
+                                size: 20,
+                                color: textPrimary,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Age (Optional)',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _ageController,
+                        keyboardType: TextInputType.number,
+                        maxLength: 3,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(3),
                         ],
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                          color: textPrimary,
+                        ),
+                        decoration: InputDecoration(
+                          counterText: '',
+                          hintText: 'Enter your age',
+                          hintStyle: const TextStyle(
+                            fontSize: 16,
+                            color: textSecondary,
+                          ),
+                          filled: true,
+                          fillColor: white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF000000),
+                              width: 2,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF000000),
+                              width: 2,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: const BorderSide(
+                              color: primaryBlue,
+                              width: 2,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 16,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  const Text(
-                    'Age (Optional)',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: _ageController,
-                    keyboardType: TextInputType.number,
-                    maxLength: 3,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(3),
                     ],
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                      color:
-                          textPrimary, // Dark text color for contrast with white background
-                    ),
-                    decoration: InputDecoration(
-                      counterText: '', // Hide character counter
-                      hintText: 'Enter your age',
-                      hintStyle: const TextStyle(
-                        fontSize: 16,
-                        color: textSecondary,
-                      ),
-                      filled: true,
-                      fillColor: white,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(
-                          color: Color(0xFF000000),
-                          width: 2,
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(
-                          color: Color(0xFF000000),
-                          width: 2,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(
-                          color: primaryBlue,
-                          width: 2,
-                        ),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 16,
-                      ),
-                    ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 40),
-                  ],
-                ),
-              ),
-            ),
           ),
-        // Fixed button at bottom
-        Container(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-          child:
-            AnimatedBuilder(
+          // Fixed button at bottom
+          Container(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+            child: AnimatedBuilder(
               animation: _completeButtonScale,
               builder: (context, child) {
                 return Transform.scale(
@@ -734,7 +752,7 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                 );
               },
             ),
-        ),
+          ),
         ],
       ),
     );

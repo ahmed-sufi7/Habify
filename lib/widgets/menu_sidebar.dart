@@ -479,120 +479,114 @@ class _MenuSidebarState extends State<MenuSidebar>
     showCupertinoDialog<void>(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: const Color(0xFFFAFAFA),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+        return CupertinoAlertDialog(
+          title: const Text(
+            'Contact Us',
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-          title: Row(
-            children: [
-              Container(
-                width: 30,
-                height: 30,
-                decoration: const BoxDecoration(
-                  color: neutralBlack,
-                  shape: BoxShape.circle,
+          content: SizedBox(
+            width: 280,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 4),
+                const Text(
+                  'How can we help you today?',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: CupertinoColors.secondaryLabel,
+                  ),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(6.0),
-                  child: Image.asset(
-                    'assets/icons/contact-icon.png',
-                    width: 18,
-                    height: 18,
-                    color: neutralWhite,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) => const Icon(
-                      Icons.support_agent,
-                      color: neutralWhite,
-                      size: 18,
+                const SizedBox(height: 16),
+                
+                // Contact Support
+                CupertinoButton(
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                  onPressed: () => _sendEmail(
+                    context,
+                    subject: 'Support Request - Habify App',
+                    body: 'Hi Habify Team,\n\nI need help with:\n\n[Please describe your issue here]\n\nDevice: [Your device model]\nApp Version: 1.0.0\n\nThanks!',
+                  ),
+                  child: const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Contact Support',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w400,
+                        color: CupertinoColors.systemBlue,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                'Contact Us',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: neutralBlack,
+                
+                Container(
+                  height: 0.5,
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  color: CupertinoColors.separator,
                 ),
-              ),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'How can we help you today?',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: neutralMediumGray,
+                
+                // Send Suggestions
+                CupertinoButton(
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                  onPressed: () => _sendEmail(
+                    context,
+                    subject: 'Feature Suggestion - Habify App',
+                    body: 'Hi Habify Team,\n\nI have a suggestion for the app:\n\n[Please describe your suggestion here]\n\nThis would help because:\n[Explain the benefit]\n\nThanks for building such a great app!',
+                  ),
+                  child: const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Send Suggestions',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w400,
+                        color: CupertinoColors.systemBlue,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              
-              // Contact Support
-              _buildContactOption(
-                context: context,
-                icon: Icons.headset_mic,
-                title: 'Contact Support',
-                description: 'Get help with technical issues',
-                onTap: () => _sendEmail(
-                  context,
-                  subject: 'Support Request - Habify App',
-                  body: 'Hi Habify Team,\n\nI need help with:\n\n[Please describe your issue here]\n\nDevice: [Your device model]\nApp Version: 1.0.0\n\nThanks!',
+                
+                Container(
+                  height: 0.5,
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  color: CupertinoColors.separator,
                 ),
-              ),
-              
-              const SizedBox(height: 12),
-              
-              // Send Suggestions
-              _buildContactOption(
-                context: context,
-                icon: Icons.lightbulb_outline,
-                title: 'Send Suggestions',
-                description: 'Share ideas to improve the app',
-                onTap: () => _sendEmail(
-                  context,
-                  subject: 'Feature Suggestion - Habify App',
-                  body: 'Hi Habify Team,\n\nI have a suggestion for the app:\n\n[Please describe your suggestion here]\n\nThis would help because:\n[Explain the benefit]\n\nThanks for building such a great app!',
+                
+                // Report a Bug
+                CupertinoButton(
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                  onPressed: () => _sendEmail(
+                    context,
+                    subject: 'Bug Report - Habify App',
+                    body: 'Hi Habify Team,\n\nI found a bug in the app:\n\nWhat happened:\n[Describe the bug]\n\nSteps to reproduce:\n1. [First step]\n2. [Second step]\n3. [Third step]\n\nExpected result:\n[What should happen]\n\nActual result:\n[What actually happened]\n\nDevice: [Your device model]\nApp Version: 1.0.0\n\nThanks!',
+                  ),
+                  child: const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Report a Bug',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w400,
+                        color: CupertinoColors.systemBlue,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              
-              const SizedBox(height: 12),
-              
-              // Report a Bug
-              _buildContactOption(
-                context: context,
-                icon: Icons.bug_report,
-                title: 'Report a Bug',
-                description: 'Let us know about any issues',
-                onTap: () => _sendEmail(
-                  context,
-                  subject: 'Bug Report - Habify App',
-                  body: 'Hi Habify Team,\n\nI found a bug in the app:\n\nWhat happened:\n[Describe the bug]\n\nSteps to reproduce:\n1. [First step]\n2. [Second step]\n3. [Third step]\n\nExpected result:\n[What should happen]\n\nActual result:\n[What actually happened]\n\nDevice: [Your device model]\nApp Version: 1.0.0\n\nThanks!',
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
           actions: [
-            TextButton(
+            CupertinoDialogAction(
               onPressed: () => Navigator.of(context).pop(),
-              style: TextButton.styleFrom(
-                backgroundColor: neutralLightGray,
-                foregroundColor: neutralBlack,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
               child: const Text(
                 'Close',
                 style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 17,
+                  color: CupertinoColors.systemBlue,
                 ),
               ),
             ),
@@ -602,72 +596,6 @@ class _MenuSidebarState extends State<MenuSidebar>
     );
   }
 
-  Widget _buildContactOption({
-    required BuildContext context,
-    required IconData icon,
-    required String title,
-    required String description,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: neutralWhite,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: neutralLightGray),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: primaryOrange.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icon,
-                color: primaryOrange,
-                size: 18,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: neutralBlack,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    description,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: neutralMediumGray,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Icon(
-              Icons.arrow_forward_ios,
-              size: 14,
-              color: neutralMediumGray,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   void _sendEmail(BuildContext context, {required String subject, required String body}) async {
     // Build the mailto URL

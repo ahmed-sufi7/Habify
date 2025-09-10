@@ -451,21 +451,33 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                         child: SizedBox(
                           width: double.infinity,
                           height: 56,
-                          child: ElevatedButton(
+                          child: CupertinoButton(
                             onPressed: _nextStep,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF2C2C2C),
-                              foregroundColor: white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
+                            padding: EdgeInsets.zero,
+                            child: Container(
+                              width: double.infinity,
+                              height: 56,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF2C2C2C),
+                                borderRadius: BorderRadius.circular(14),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    offset: const Offset(0, 1),
+                                    blurRadius: 3,
+                                    spreadRadius: 0,
+                                  ),
+                                ],
                               ),
-                              elevation: 2,
-                            ),
-                            child: const Text(
-                              'Get Started',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
+                              child: const Center(
+                                child: Text(
+                                  'Get Started',
+                                  style: TextStyle(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w600,
+                                    color: CupertinoColors.white,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -729,28 +741,39 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                   child: SizedBox(
                     width: double.infinity,
                     height: 56,
-                    child: ElevatedButton(
+                    child: CupertinoButton(
                       onPressed: _isLoading ? null : _completeSetup,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _isLoading ? textSecondary : const Color(0xFF2C2C2C),
-                        foregroundColor: white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                      padding: EdgeInsets.zero,
+                      child: Container(
+                        width: double.infinity,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: _isLoading ? CupertinoColors.inactiveGray : const Color(0xFF2C2C2C),
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              offset: const Offset(0, 1),
+                              blurRadius: 3,
+                              spreadRadius: 0,
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: _isLoading
+                              ? const CupertinoActivityIndicator(
+                                  color: CupertinoColors.white,
+                                )
+                              : const Text(
+                                  'Start my First Habit',
+                                  style: TextStyle(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w600,
+                                    color: CupertinoColors.white,
+                                  ),
+                                ),
                         ),
                       ),
-                      child: _isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(white),
-                              ),
-                            )
-                          : const Text(
-                              'Start my First Habit',
-                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                            ),
                     ),
                   ),
                 );

@@ -211,9 +211,10 @@ class _EditHabitScreenState extends State<EditHabitScreen> with TickerProviderSt
         Text(
           'Name',
           style: const TextStyle(
-            fontSize: 16,
+            fontSize: 15,
             fontWeight: FontWeight.w600,
             color: Color(0xFF000000),
+            letterSpacing: 0.1,
           ),
         ),
         const SizedBox(height: 6),
@@ -323,9 +324,10 @@ class _EditHabitScreenState extends State<EditHabitScreen> with TickerProviderSt
         Text(
           label,
           style: const TextStyle(
-            fontSize: 16,
+            fontSize: 15,
             fontWeight: FontWeight.w600,
             color: Color(0xFF000000),
+            letterSpacing: 0.1,
           ),
         ),
         const SizedBox(height: 6),
@@ -450,9 +452,10 @@ class _EditHabitScreenState extends State<EditHabitScreen> with TickerProviderSt
         Text(
           'Duration',
           style: const TextStyle(
-            fontSize: 16,
+            fontSize: 15,
             fontWeight: FontWeight.w600,
             color: Color(0xFF000000),
+            letterSpacing: 0.1,
           ),
         ),
         const SizedBox(height: 6),
@@ -465,21 +468,17 @@ class _EditHabitScreenState extends State<EditHabitScreen> with TickerProviderSt
               borderRadius: BorderRadius.circular(12),
             ),
             child: Padding(
-              padding: const EdgeInsets.only(
-                left: 20,
-                right: 16,
-                top: 4,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Expanded(
-                    child: Text(
-                      _formatDuration(_selectedHours, _selectedMinutes),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF000000),
-                      ),
+                  Text(
+                    _formatDuration(_selectedHours, _selectedMinutes),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF1C1C1E),
                     ),
                   ),
                   const Icon(
@@ -503,9 +502,10 @@ class _EditHabitScreenState extends State<EditHabitScreen> with TickerProviderSt
         Text(
           'Notification',
           style: const TextStyle(
-            fontSize: 16,
+            fontSize: 15,
             fontWeight: FontWeight.w600,
             color: Color(0xFF000000),
+            letterSpacing: 0.1,
           ),
         ),
         const SizedBox(height: 6),
@@ -518,21 +518,17 @@ class _EditHabitScreenState extends State<EditHabitScreen> with TickerProviderSt
               borderRadius: BorderRadius.circular(12),
             ),
             child: Padding(
-              padding: const EdgeInsets.only(
-                left: 20,
-                right: 16,
-                top: 4,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Expanded(
-                    child: Text(
-                      _formatNotificationTime(_selectedNotificationHour, _selectedNotificationMinute),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF000000),
-                      ),
+                  Text(
+                    _formatNotificationTime(_selectedNotificationHour, _selectedNotificationMinute),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF1C1C1E),
                     ),
                   ),
                   const Icon(
@@ -556,9 +552,10 @@ class _EditHabitScreenState extends State<EditHabitScreen> with TickerProviderSt
         Text(
           'Category',
           style: const TextStyle(
-            fontSize: 16,
+            fontSize: 15,
             fontWeight: FontWeight.w600,
             color: Color(0xFF000000),
+            letterSpacing: 0.1,
           ),
         ),
         const SizedBox(height: 6),
@@ -624,9 +621,10 @@ class _EditHabitScreenState extends State<EditHabitScreen> with TickerProviderSt
         Text(
           'Description',
           style: const TextStyle(
-            fontSize: 16,
+            fontSize: 15,
             fontWeight: FontWeight.w600,
             color: Color(0xFF000000),
+            letterSpacing: 0.1,
           ),
         ),
         const SizedBox(height: 6),
@@ -698,7 +696,7 @@ class _EditHabitScreenState extends State<EditHabitScreen> with TickerProviderSt
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                padding: const EdgeInsets.all(18),
+                padding: EdgeInsets.zero,
               ),
               child: _isSaving
                 ? const SizedBox(
@@ -712,7 +710,7 @@ class _EditHabitScreenState extends State<EditHabitScreen> with TickerProviderSt
                 : const Text(
                     'Update Habit',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 17,
                       fontWeight: FontWeight.w600,
                       color: Color(0xFFFFFFFF),
                     ),

@@ -1114,7 +1114,7 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
     if (_habit == null) return;
     
     final result = await Navigator.of(context).push<Map<String, dynamic>>(
-      MaterialPageRoute(
+      CupertinoPageRoute(
         builder: (context) => EditHabitScreen(habit: _habit!),
       ),
     );

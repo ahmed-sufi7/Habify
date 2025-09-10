@@ -392,36 +392,50 @@ class _EditHabitScreenState extends State<EditHabitScreen> with TickerProviderSt
                 ),
               ),
               const SizedBox(height: 20),
-              // Options list
-              ...options.map((String option) {
+              // Options list with iOS-style separators
+              ...options.asMap().entries.map((entry) {
+                final int index = entry.key;
+                final String option = entry.value;
                 final bool isSelected = currentValue == option;
-                return CupertinoButton(
-                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                  onPressed: () {
-                    onChanged(option);
-                    Navigator.of(context).pop();
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        option,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                          color: isSelected
-                              ? CupertinoColors.systemBlue
-                              : CupertinoColors.label,
-                        ),
+                final bool isLast = index == options.length - 1;
+                
+                return Column(
+                  children: [
+                    CupertinoButton(
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+                      onPressed: () {
+                        onChanged(option);
+                        Navigator.of(context).pop();
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            option,
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                              color: isSelected
+                                  ? CupertinoColors.systemBlue
+                                  : CupertinoColors.label,
+                            ),
+                          ),
+                          if (isSelected)
+                            const Icon(
+                              CupertinoIcons.checkmark,
+                              color: CupertinoColors.systemBlue,
+                              size: 18,
+                            ),
+                        ],
                       ),
-                      if (isSelected)
-                        const Icon(
-                          CupertinoIcons.checkmark,
-                          color: CupertinoColors.systemBlue,
-                          size: 18,
-                        ),
-                    ],
-                  ),
+                    ),
+                    if (!isLast)
+                      Container(
+                        height: 0.5,
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        color: CupertinoColors.separator,
+                      ),
+                  ],
                 );
               }),
             ],

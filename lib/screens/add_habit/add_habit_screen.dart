@@ -366,7 +366,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF000000),
+                      color: Color(0xFF1C1C1E),
                     ),
                   ),
                   const Icon(
@@ -484,25 +484,21 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
               borderRadius: BorderRadius.circular(12), // Decreased border radius
             ),
             child: Padding(
-              padding: const EdgeInsets.only(
-                left: 20, // Left padding to match other dropdowns
-                right: 16, // Right padding for arrow positioning
-                top: 4,   // Small top padding for better alignment
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Expanded(
-                    child: Text(
-                      _formatDuration(_selectedHours, _selectedMinutes),
-                      style: const TextStyle(
-                        fontSize: 16, // typography.hierarchy.buttonText.fontSize
-                        fontWeight: FontWeight.w500, // typography.hierarchy.buttonText.fontWeight
-                        color: Color(0xFF000000), // pillButton.states.default.textColor
-                      ),
+                  Text(
+                    _formatDuration(_selectedHours, _selectedMinutes),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF1C1C1E),
                     ),
                   ),
                   const Icon(
-                    Icons.keyboard_arrow_down, // Same as other dropdowns
+                    Icons.keyboard_arrow_down,
                     size: 20,
                     color: Color(0xFF000000),
                   ),
@@ -713,25 +709,21 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
               borderRadius: BorderRadius.circular(12), // Decreased border radius
             ),
             child: Padding(
-              padding: const EdgeInsets.only(
-                left: 20, // Left padding to match other dropdowns
-                right: 16, // Right padding for arrow positioning
-                top: 4,   // Small top padding for better alignment
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Expanded(
-                    child: Text(
-                      _formatNotificationTime(_selectedNotificationHour, _selectedNotificationMinute),
-                      style: const TextStyle(
-                        fontSize: 16, // typography.hierarchy.buttonText.fontSize
-                        fontWeight: FontWeight.w500, // typography.hierarchy.buttonText.fontWeight
-                        color: Color(0xFF000000), // pillButton.states.default.textColor
-                      ),
+                  Text(
+                    _formatNotificationTime(_selectedNotificationHour, _selectedNotificationMinute),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF1C1C1E),
                     ),
                   ),
                   const Icon(
-                    Icons.keyboard_arrow_down, // Same as other dropdowns
+                    Icons.keyboard_arrow_down,
                     size: 20,
                     color: Color(0xFF000000),
                   ),
@@ -1530,7 +1522,7 @@ class _DurationPickerDialogState extends State<_DurationPickerDialog> {
                                 currentHours = value;
                               });
                             },
-                            children: List<Widget>.generate(4, (int index) {
+                            children: List<Widget>.generate(24, (int index) {
                               return Center(
                                 child: Text(
                                   '$index',
@@ -1563,24 +1555,24 @@ class _DurationPickerDialogState extends State<_DurationPickerDialog> {
                           child: CupertinoPicker(
                             itemExtent: 32.0,
                             scrollController: FixedExtentScrollController(
-                              initialItem: [5, 10, 15, 30].indexOf(currentMinutes),
+                              initialItem: currentMinutes,
                             ),
                             onSelectedItemChanged: (int value) {
                               setState(() {
-                                currentMinutes = [5, 10, 15, 30][value];
+                                currentMinutes = value;
                               });
                             },
-                            children: [5, 10, 15, 30].map<Widget>((int minutes) {
+                            children: List<Widget>.generate(60, (int index) {
                               return Center(
                                 child: Text(
-                                  '$minutes',
+                                  index.toString().padLeft(2, '0'),
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               );
-                            }).toList(),
+                            }),
                           ),
                         ),
                       ],

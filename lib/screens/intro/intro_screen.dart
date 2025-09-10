@@ -463,7 +463,7 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
           // Scrollable content area
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 36, 24, 24),
+              padding: const EdgeInsets.fromLTRB(24, 48, 24, 24),
               child: SingleChildScrollView(
                 child: Column(
                   children: [
@@ -500,7 +500,7 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
 
             // Progress section
             const Text(

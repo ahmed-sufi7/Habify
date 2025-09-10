@@ -407,7 +407,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
                   color: CupertinoColors.secondaryLabel,
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
               // Options list with iOS-style separators
               ...options.asMap().entries.map((entry) {
                 final int index = entry.key;
@@ -418,7 +418,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
                 return Column(
                   children: [
                     CupertinoButton(
-                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
                       onPressed: () {
                         onChanged(option);
                         Navigator.of(context).pop();

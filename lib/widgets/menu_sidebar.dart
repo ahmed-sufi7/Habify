@@ -476,7 +476,7 @@ class _MenuSidebarState extends State<MenuSidebar>
   }
 
   void _showContactDialog(BuildContext context) {
-    showDialog(
+    showCupertinoDialog<void>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -753,7 +753,7 @@ class _MenuSidebarState extends State<MenuSidebar>
   }
 
   void _showRateDialog(BuildContext context) {
-    showDialog(
+    showCupertinoDialog<void>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(

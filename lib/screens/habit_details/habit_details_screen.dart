@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../../providers/habit_provider.dart';
 import '../../models/habit.dart';
@@ -739,25 +740,52 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
   }
 
   void _showDeleteConfirmation() {
-    showDialog(
+    showCupertinoDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          backgroundColor: Colors.grey[100],
-          title: const Text('Delete Habit'),
-          content: Text('Are you sure you want to delete "${_habit!.name}"? This action cannot be undone.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+        return CupertinoAlertDialog(
+          title: const Text(
+            'Delete Habit',
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
             ),
-            TextButton(
+          ),
+          content: Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(
+              'Are you sure you want to delete "${_habit!.name}"? This action cannot be undone.',
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w400,
+                  color: CupertinoColors.activeBlue,
+                ),
+              ),
+            ),
+            CupertinoDialogAction(
+              isDestructiveAction: true,
               onPressed: () {
                 Navigator.pop(context);
                 _deleteHabit();
               },
-              style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text('Delete'),
+              child: const Text(
+                'Delete',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ],
         );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../providers/habit_provider.dart';
@@ -119,8 +120,20 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
     return Scaffold(
       backgroundColor: const Color(0xFFFFFFFF), // layout.screen.backgroundColor
       appBar: _buildAppBar(),
-      body: SingleChildScrollView(
-        child: _buildScrollableBody(),
+      body: Column(
+        children: [
+          // Scrollable content area
+          Expanded(
+            child: SingleChildScrollView(
+              child: _buildScrollableBody(),
+            ),
+          ),
+          // Fixed button at bottom
+          Container(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+            child: _buildCreateButton(),
+          ),
+        ],
       ),
     );
   }
@@ -192,11 +205,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
           
           // Description field
           _buildDescriptionField(),
-          const SizedBox(height: 24), // Spacing before button
-          
-          // Create button
-          _buildCreateButton(),
-          const SizedBox(height: 20), // Bottom spacing for scroll content
+          const SizedBox(height: 24), // Bottom spacing for scroll content
         ],
       ),
     );
@@ -206,12 +215,13 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           'Name',
-          style: const TextStyle(
-            fontSize: 16, // typography.hierarchy.sectionLabel.fontSize
-            fontWeight: FontWeight.w600, // Matched to Category title font weight
-            color: Color(0xFF000000), // typography.hierarchy.sectionLabel.color
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF000000),
+            letterSpacing: 0.1,
           ),
         ),
         const SizedBox(height: 6), // Reduced label to field spacing
@@ -222,7 +232,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
             borderRadius: BorderRadius.circular(12), // Decreased border radius
             border: Border.all(
               color: const Color(0xFF000000), // components.textInput.border
-              width: 2,
+              width: 1.5,
             ),
           ),
           child: Center(
@@ -328,61 +338,42 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
         Text(
           label,
           style: const TextStyle(
-            fontSize: 16, // typography.hierarchy.sectionLabel.fontSize
-            fontWeight: FontWeight.w600, // Matched to Category title font weight
-            color: Color(0xFF000000), // typography.hierarchy.sectionLabel.color
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF000000),
+            letterSpacing: 0.1,
           ),
         ),
         const SizedBox(height: 6), // Reduced label to field spacing
-        Container(
-          height: 56, // components.pillButton.height
-          decoration: BoxDecoration(
-            color: backgroundColor, // components.pillButton.variants colors
-            borderRadius: BorderRadius.circular(12), // Decreased border radius
-          ),
-          child: Center(
-            child: DropdownButtonFormField<String>(
-              initialValue: value,
-              items: options.map((option) => DropdownMenuItem(
-                value: option,
-                child: Text(
-                  option,
-                  style: const TextStyle(
-                    fontSize: 16, // typography.hierarchy.buttonText.fontSize
-                    fontWeight: FontWeight.w500, // typography.hierarchy.buttonText.fontWeight
-                    color: Color(0xFF000000), // pillButton.states.default.textColor
+        GestureDetector(
+          onTap: () => _showDropdownPicker(label, value, options, onChanged),
+          child: Container(
+            height: 56,
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    value,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF000000),
+                    ),
                   ),
-                ),
-              )).toList(),
-              onChanged: onChanged,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFF000000),
+                  const Icon(
+                    Icons.keyboard_arrow_down,
+                    size: 20,
+                    color: Color(0xFF000000),
+                  ),
+                ],
               ),
-              decoration: InputDecoration(
-                contentPadding: const EdgeInsets.only(
-                  left: 20, // Left padding for text
-                  right: 10, // Reduced right padding to give more space for arrow
-                  top: 4,   // Small top padding for better visual centering
-                  bottom: 0, // No bottom padding
-                ),
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-              ),
-              icon: Padding(
-                padding: const EdgeInsets.only(right: 16), // Add padding to position arrow better
-                child: const Icon(
-                  Icons.keyboard_arrow_down, // interactions.dropdowns.indicator: chevron_down
-                  size: 20,
-                  color: Color(0xFF000000),
-                ),
-              ),
-              dropdownColor: const Color(0xFFFFFFFF),
-              elevation: 2,
-              borderRadius: BorderRadius.circular(8),
-              isExpanded: true,
             ),
           ),
         ),
@@ -390,16 +381,95 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
     );
   }
 
+  void _showDropdownPicker(String label, String currentValue, List<String> options, void Function(String?) onChanged) {
+    showCupertinoDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: Text(
+            'Select $label',
+            style: const TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 16),
+              Text(
+                'Choose your preferred ${label.toLowerCase()}',
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: CupertinoColors.secondaryLabel,
+                ),
+              ),
+              const SizedBox(height: 20),
+              // Options list
+              ...options.map((String option) {
+                final bool isSelected = currentValue == option;
+                return CupertinoButton(
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  onPressed: () {
+                    onChanged(option);
+                    Navigator.of(context).pop();
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        option,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                          color: isSelected
+                              ? CupertinoColors.systemBlue
+                              : CupertinoColors.label,
+                        ),
+                      ),
+                      if (isSelected)
+                        const Icon(
+                          CupertinoIcons.checkmark,
+                          color: CupertinoColors.systemBlue,
+                          size: 18,
+                        ),
+                    ],
+                  ),
+                );
+              }),
+            ],
+          ),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  fontSize: 17,
+                  color: CupertinoColors.systemBlue,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildDurationPicker() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           'Duration',
-          style: const TextStyle(
-            fontSize: 16, // typography.hierarchy.sectionLabel.fontSize
-            fontWeight: FontWeight.w600, // Matched to Category title font weight
-            color: Color(0xFF000000), // typography.hierarchy.sectionLabel.color
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF000000),
+            letterSpacing: 0.1,
           ),
         ),
         const SizedBox(height: 6), // Reduced label to field spacing
@@ -478,12 +548,13 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Category', // formStructure.sections[3].label
-          style: const TextStyle(
-            fontSize: 16, // typography.hierarchy.sectionLabel.fontSize
-            fontWeight: FontWeight.w600, // typography.hierarchy.sectionLabel.fontWeight
-            color: Color(0xFF000000), // typography.hierarchy.sectionLabel.color
+        const Text(
+          'Category',
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF000000),
+            letterSpacing: 0.1,
           ),
         ),
         const SizedBox(height: 6), // Reduced label to field spacing
@@ -529,7 +600,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
             color: isSelected 
               ? const Color(0xFF2C2C2C) // Same color as background when selected to hide border
               : const Color(0xFF000000), // Visible border when unselected
-            width: 2, // Keep consistent border width
+            width: 1.5, // Keep consistent border width
           ),
         ),
         child: Text(
@@ -550,12 +621,13 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           'Description',
-          style: const TextStyle(
-            fontSize: 16, // typography.hierarchy.sectionLabel.fontSize
-            fontWeight: FontWeight.w600, // Matched to Category title font weight
-            color: Color(0xFF000000), // typography.hierarchy.sectionLabel.color
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF000000),
+            letterSpacing: 0.1,
           ),
         ),
         const SizedBox(height: 6), // Reduced label to field spacing
@@ -568,7 +640,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
             borderRadius: BorderRadius.circular(12), // Decreased border radius
             border: Border.all(
               color: const Color(0xFF000000), // components.textArea.border
-              width: 2,
+              width: 1.5,
             ),
           ),
           child: Semantics(
@@ -620,12 +692,13 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           'Notification',
-          style: const TextStyle(
-            fontSize: 16, // typography.hierarchy.sectionLabel.fontSize
-            fontWeight: FontWeight.w600, // typography.hierarchy.sectionLabel.fontWeight
-            color: Color(0xFF000000), // typography.hierarchy.sectionLabel.color
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF000000),
+            letterSpacing: 0.1,
           ),
         ),
         const SizedBox(height: 6), // Reduced label to field spacing
@@ -717,34 +790,40 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
               label: 'Create habit button',
               hint: 'Tap to create your new habit',
               button: true,
-              child: ElevatedButton(
+              child: CupertinoButton(
                 onPressed: _isSaving ? null : _createHabit,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2C2C2C), // components.primaryButton.backgroundColor (accent.black)
-                foregroundColor: const Color(0xFFFFFFFF), // components.primaryButton.textColor
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12), // Decreased border radius
+                padding: EdgeInsets.zero,
+                child: Container(
+                  width: double.infinity,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: _isSaving ? CupertinoColors.inactiveGray : const Color(0xFF2C2C2C),
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        offset: const Offset(0, 1),
+                        blurRadius: 3,
+                        spreadRadius: 0,
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: _isSaving
+                        ? const CupertinoActivityIndicator(
+                            color: CupertinoColors.white,
+                          )
+                        : const Text(
+                            'Create Habit',
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w600,
+                              color: CupertinoColors.white,
+                            ),
+                          ),
+                  ),
                 ),
               ),
-              child: _isSaving
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                : const Text(
-                    'Create',
-                style: TextStyle(
-                  fontSize: 18, // components.primaryButton.fontSize
-                  fontWeight: FontWeight.w600, // components.primaryButton.fontWeight
-                  color: Color(0xFFFFFFFF), // components.primaryButton.textColor
-                ),
-              ),
-            ),
             ),
           ),
         );
@@ -1180,37 +1259,47 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
     // Sanitize error message to prevent displaying sensitive information
     final sanitizedMessage = _sanitizeErrorMessage(message);
     
-    showDialog(
+    showCupertinoDialog<void>(
       context: context,
       barrierDismissible: true,
-      builder: (context) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(Icons.error_outline, color: Color(0xFFE53E3E)),
-            SizedBox(width: 8),
-            Text('Error'),
-          ],
-        ),
-        content: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 300),
-          child: SingleChildScrollView(
-            child: Text(
-              sanitizedMessage,
-              style: const TextStyle(fontSize: 14),
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: const Text(
+            'Error',
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
             ),
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              if (mounted) {
-                Navigator.of(context).pop();
-              }
-            },
-            child: const Text('OK'),
+          content: Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              sanitizedMessage,
+              style: const TextStyle(
+                fontSize: 13,
+                color: CupertinoColors.label,
+              ),
+            ),
           ),
-        ],
-      ),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () {
+                if (mounted) {
+                  Navigator.of(context).pop();
+                }
+              },
+              child: const Text(
+                'OK',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                  color: CupertinoColors.systemBlue,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -1261,13 +1350,13 @@ class _CreateCategoryDialogState extends State<_CreateCategoryDialog> {
             decoration: const InputDecoration(
               hintText: 'Category name',
               border: OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xFF000000), width: 2),
+                borderSide: BorderSide(color: Color(0xFF000000), width: 1.5),
               ),
               enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xFF000000), width: 2),
+                borderSide: BorderSide(color: Color(0xFF000000), width: 1.5),
               ),
               focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xFF000000), width: 2),
+                borderSide: BorderSide(color: Color(0xFF000000), width: 1.5),
               ),
             ),
             autofocus: true,

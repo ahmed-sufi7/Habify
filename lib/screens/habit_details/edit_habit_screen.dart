@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../providers/habit_provider.dart';
@@ -223,7 +224,7 @@ class _EditHabitScreenState extends State<EditHabitScreen> with TickerProviderSt
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: const Color(0xFF000000),
-              width: 2,
+              width: 1.5,
             ),
           ),
           child: Center(
@@ -328,59 +329,117 @@ class _EditHabitScreenState extends State<EditHabitScreen> with TickerProviderSt
           ),
         ),
         const SizedBox(height: 6),
-        Container(
-          height: 56,
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Center(
-            child: DropdownButtonFormField<String>(
-              initialValue: value,
-              items: options.map((option) => DropdownMenuItem(
-                value: option,
-                child: Text(
-                  option,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
+        GestureDetector(
+          onTap: () => _showDropdownPicker(label, value, options, onChanged),
+          child: Container(
+            height: 56,
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    value,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF1C1C1E),
+                    ),
+                  ),
+                  const Icon(
+                    Icons.keyboard_arrow_down,
+                    size: 20,
                     color: Color(0xFF000000),
                   ),
-                ),
-              )).toList(),
-              onChanged: onChanged,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFF000000),
+                ],
               ),
-              decoration: InputDecoration(
-                contentPadding: const EdgeInsets.only(
-                  left: 20,
-                  right: 10,
-                  top: 4,
-                  bottom: 0,
-                ),
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-              ),
-              icon: Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: const Icon(
-                  Icons.keyboard_arrow_down,
-                  size: 20,
-                  color: Color(0xFF000000),
-                ),
-              ),
-              dropdownColor: const Color(0xFFFFFFFF),
-              elevation: 2,
-              borderRadius: BorderRadius.circular(8),
-              isExpanded: true,
             ),
           ),
         ),
       ],
+    );
+  }
+
+  void _showDropdownPicker(String label, String currentValue, List<String> options, void Function(String?) onChanged) {
+    showCupertinoDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: Text(
+            'Select $label',
+            style: const TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 16),
+              Text(
+                'Choose your preferred ${label.toLowerCase()}',
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: CupertinoColors.secondaryLabel,
+                ),
+              ),
+              const SizedBox(height: 20),
+              // Options list
+              ...options.map((String option) {
+                final bool isSelected = currentValue == option;
+                return CupertinoButton(
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  onPressed: () {
+                    onChanged(option);
+                    Navigator.of(context).pop();
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        option,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                          color: isSelected
+                              ? CupertinoColors.systemBlue
+                              : CupertinoColors.label,
+                        ),
+                      ),
+                      if (isSelected)
+                        const Icon(
+                          CupertinoIcons.checkmark,
+                          color: CupertinoColors.systemBlue,
+                          size: 18,
+                        ),
+                    ],
+                  ),
+                );
+              }),
+            ],
+          ),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  fontSize: 17,
+                  color: CupertinoColors.systemBlue,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -541,7 +600,7 @@ class _EditHabitScreenState extends State<EditHabitScreen> with TickerProviderSt
             color: isSelected 
               ? const Color(0xFF2C2C2C)
               : const Color(0xFF000000),
-            width: 2,
+            width: 1.5,
           ),
         ),
         child: Text(
@@ -580,7 +639,7 @@ class _EditHabitScreenState extends State<EditHabitScreen> with TickerProviderSt
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: const Color(0xFF000000),
-              width: 2,
+              width: 1.5,
             ),
           ),
           child: TextFormField(

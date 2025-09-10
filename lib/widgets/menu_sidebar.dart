@@ -373,8 +373,7 @@ class _MenuSidebarState extends State<MenuSidebar>
             title: 'Rate This App',
             backgroundColor: const Color(0xFFC4DBE6), // Light blue-gray
             onTap: () {
-              _closeMenu();
-              _showRateDialog(context);
+              _showRateDialog(context); // Don't close menu
             },
           ),
         ],
@@ -684,112 +683,51 @@ class _MenuSidebarState extends State<MenuSidebar>
     showCupertinoDialog<void>(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: const Color(0xFFFAFAFA),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: Row(
-            children: [
-              Container(
-                width: 30,
-                height: 30,
-                decoration: const BoxDecoration(
-                  color: neutralBlack,
-                  shape: BoxShape.circle,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(6.0),
-                  child: Image.asset(
-                    'assets/icons/rate-icon.png',
-                    width: 18,
-                    height: 18,
-                    color: neutralWhite,
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                'Rate Habify',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: neutralBlack,
-                ),
-              ),
-            ],
+        return CupertinoAlertDialog(
+          title: const Text(
+            'Rate Habify',
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           content: const Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              SizedBox(height: 4),
               Text(
                 'Enjoying Habify? Help us grow by rating the app!',
                 style: TextStyle(
-                  fontSize: 14,
-                  color: neutralMediumGray,
+                  fontSize: 13,
+                  color: CupertinoColors.secondaryLabel,
                 ),
-              ),
-              SizedBox(height: 16),
-              Text(
-                '⭐ Your feedback helps us improve',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: neutralBlack,
-                ),
-              ),
-              SizedBox(height: 8),
-              Text(
-                '📱 Takes just a few seconds',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: neutralBlack,
-                ),
+                textAlign: TextAlign.center,
               ),
             ],
           ),
           actions: [
-            TextButton(
+            CupertinoDialogAction(
               onPressed: () => Navigator.of(context).pop(),
-              style: TextButton.styleFrom(
-                foregroundColor: neutralMediumGray,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              ),
               child: const Text(
                 'Maybe Later',
                 style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 17,
+                  color: CupertinoColors.systemBlue,
                 ),
               ),
             ),
-            TextButton(
+            CupertinoDialogAction(
+              isDefaultAction: true,
               onPressed: () {
                 Navigator.of(context).pop();
-                // TODO: Add actual rating functionality (launch store)
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Thanks! This would open the app store.'),
-                    backgroundColor: primaryOrange,
-                  ),
-                );
+                _launchPlayStore();
               },
-              style: TextButton.styleFrom(
-                backgroundColor: primaryOrange,
-                foregroundColor: neutralWhite,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
               child: const Text(
                 'Rate Now',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 17,
                   fontWeight: FontWeight.w600,
+                  color: CupertinoColors.systemBlue,
                 ),
               ),
             ),
@@ -797,5 +735,43 @@ class _MenuSidebarState extends State<MenuSidebar>
         );
       },
     );
+  }
+
+  void _launchPlayStore() async {
+    // Habify app package name for Play Store
+    const String packageName = 'com.habify.app';
+    
+    final String playStoreUrl = 'https://play.google.com/store/apps/details?id=$packageName';
+    final Uri playStoreUri = Uri.parse(playStoreUrl);
+    
+    try {
+      bool launched = await launchUrl(
+        playStoreUri,
+        mode: LaunchMode.externalApplication,
+      );
+      
+      if (!launched) {
+        // Fallback: Try to open in browser
+        await launchUrl(
+          playStoreUri,
+          mode: LaunchMode.platformDefault,
+        );
+      }
+    } catch (e) {
+      // Handle any errors
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Could not open Play Store. Please search for "Habify" in the Play Store.'),
+            backgroundColor: Colors.red,
+            action: SnackBarAction(
+              label: 'OK',
+              textColor: Colors.white,
+              onPressed: () {},
+            ),
+          ),
+        );
+      }
+    }
   }
 }

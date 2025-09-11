@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../providers/pomodoro_provider.dart';
+import '../../services/pomodoro_notification_service.dart';
 
 class PomodoroTimerScreen extends StatefulWidget {
   final int sessionId;
@@ -21,6 +22,7 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
     with TickerProviderStateMixin {
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
+  final PomodoroNotificationService _notificationService = PomodoroNotificationService();
 
   @override
   void initState() {
@@ -91,6 +93,10 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
     // Properly cleanup animation controller
     _pulseController.stop();
     _pulseController.dispose();
+    
+    // Don't stop notifications when just navigating away - only stop when timer is actually stopped
+    // Notifications should persist when user navigates to other screens
+    
     super.dispose();
   }
 
@@ -101,16 +107,19 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
       // Pause the timer
       provider.pauseTimer();
       _pulseController.stop();
+      _notificationService.stopProgressNotifications();
     } else if (provider.isPaused) {
       // Resume the timer
       provider.resumeTimer();
       _pulseController.repeat(reverse: true);
+      _startNotificationUpdates(provider);
     } else if (provider.isIdle || provider.isCompleted) {
       // Start the timer for the loaded session (only if there's an active session)
       if (provider.activeSession != null) {
         provider.startLoadedTimer();
         if (provider.isRunning) {
           _pulseController.repeat(reverse: true);
+          _startNotificationUpdates(provider);
         }
       }
     }
@@ -124,6 +133,7 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
     // Complete current timer and show next session dialog
     provider.stopLoadedTimer();
     _pulseController.stop();
+    _notificationService.stopProgressNotifications();
     
     if (mounted) {
       // Show completion message
@@ -145,6 +155,9 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
     
     // Stop animation
     _pulseController.stop();
+    
+    // Stop notifications only when actually terminating the session
+    _notificationService.stopProgressNotifications();
     
     // Completely terminate the session
     provider.terminateCurrentSession();
@@ -307,6 +320,14 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
       final isLongBreak = provider.currentSessionNumber % 4 == 0;
       final breakType = isLongBreak ? 'Long Break' : 'Short Break';
       
+      // Show completion notification
+      _notificationService.showSessionCompleteNotification(
+        sessionName: widget.sessionName,
+        completedSessionType: SessionType.work,
+        nextSessionType: breakType,
+        sessionId: widget.sessionId,
+      );
+      
       _showNextSessionDialog(
         title: 'Work Session Complete!',
         message: 'Time for a $breakType. Ready to continue?',
@@ -319,12 +340,21 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
           provider.startLoadedTimer();
           if (provider.isRunning) {
             _pulseController.repeat(reverse: true);
+            _startNotificationUpdates(provider);
           }
         },
       );
     } else {
       // After break, move to next work session or finish
       if (provider.currentSessionNumber < (provider.activeSession?.sessionsCount ?? 4)) {
+        // Show completion notification
+        _notificationService.showSessionCompleteNotification(
+          sessionName: widget.sessionName,
+          completedSessionType: provider.currentSessionType,
+          nextSessionType: 'Work Session',
+          sessionId: widget.sessionId,
+        );
+        
         _showNextSessionDialog(
           title: 'Break Complete!',
           message: 'Ready for the next work session?',
@@ -338,10 +368,17 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
             provider.startLoadedTimer();
             if (provider.isRunning) {
               _pulseController.repeat(reverse: true);
+              _startNotificationUpdates(provider);
             }
           },
         );
       } else {
+        // Show all sessions complete notification
+        _notificationService.showAllSessionsCompleteNotification(
+          sessionName: widget.sessionName,
+          totalSessions: provider.activeSession?.sessionsCount ?? 4,
+          sessionId: widget.sessionId,
+        );
         _showCompletionDialog();
       }
     }
@@ -1069,6 +1106,15 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
               : null,
         ),
       ],
+    );
+  }
+
+  // Helper method to start notification updates
+  void _startNotificationUpdates(PomodoroProvider provider) {
+    _notificationService.startProgressNotifications(
+      pomodoroProvider: provider,
+      sessionId: widget.sessionId,
+      sessionName: widget.sessionName,
     );
   }
 

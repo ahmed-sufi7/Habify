@@ -16,6 +16,10 @@ import 'screens/statistics/statistics_screen.dart';
 import 'screens/habit_details/habit_details_screen.dart';
 import 'services/first_time_user_service.dart';
 import 'services/notification_service.dart';
+import 'services/pomodoro_notification_service.dart';
+
+// Global navigation key for handling notification taps
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   // Ensure Flutter binding is initialized
@@ -49,6 +53,12 @@ void main() async {
   try {
     await NotificationService.initialize();
     await NotificationService.requestPermissions();
+    
+    // Initialize Pomodoro notifications
+    await PomodoroNotificationService().initialize();
+    
+    // Setup notification tap handler
+    PomodoroNotificationService().onNotificationTapped = _handleNotificationTap;
   } catch (e) {
     debugPrint('Notification service initialization failed: $e');
     // Continue with app startup even if notifications fail
@@ -71,6 +81,36 @@ void main() async {
   ]);
   
   runApp(const HabifyApp());
+}
+
+// Handle notification taps for Pomodoro timer
+void _handleNotificationTap(String payload) {
+  final context = navigatorKey.currentContext;
+  if (context == null) return;
+
+  final parts = payload.split(':');
+  if (parts.length < 3) return;
+
+  final action = parts[0];
+  final sessionId = int.tryParse(parts[1]);
+  final sessionName = parts[2];
+
+  if (sessionId == null) return;
+
+  switch (action) {
+    case 'pomodoro_timer':
+    case 'pomodoro_complete':
+    case 'pomodoro_finished':
+      // Navigate to timer screen
+      navigatorKey.currentState?.pushNamed(
+        '/pomodoro-timer',
+        arguments: {
+          'sessionId': sessionId,
+          'sessionName': sessionName,
+        },
+      );
+      break;
+  }
 }
 
 class HabifyApp extends StatelessWidget {
@@ -110,6 +150,7 @@ class HabifyApp extends StatelessWidget {
           return MaterialApp(
             title: 'Habify - Habit Tracker',
             debugShowCheckedModeBanner: false,
+            navigatorKey: navigatorKey,
             
             // Theme configuration
             theme: ThemeData(

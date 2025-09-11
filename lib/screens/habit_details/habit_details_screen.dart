@@ -775,7 +775,6 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
   void _deleteHabit() async {
     try {
       final habitProvider = Provider.of<HabitProvider>(context, listen: false);
-      final habitName = _habit!.name;
       
       
       // Delete the habit

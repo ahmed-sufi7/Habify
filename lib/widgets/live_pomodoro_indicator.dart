@@ -79,7 +79,7 @@ class _LivePomodoroIndicatorState extends State<LivePomodoroIndicator>
         return GestureDetector(
           onTap: widget.onTap,
           child: Container(
-            margin: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+            margin: const EdgeInsets.fromLTRB(16, 8, 16, 4),
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
               color: _getBackgroundColor(pomodoroProvider),

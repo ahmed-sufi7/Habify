@@ -329,7 +329,6 @@ class _MenuSidebarState extends State<MenuSidebar>
               Navigator.of(context).push(
                 CupertinoPageRoute(
                   builder: (context) => const AddHabitScreen(),
-                  fullscreenDialog: true,
                 ),
               );
             },
@@ -347,7 +346,6 @@ class _MenuSidebarState extends State<MenuSidebar>
               Navigator.of(context).push(
                 CupertinoPageRoute(
                   builder: (context) => const AddPomodoroScreen(),
-                  fullscreenDialog: true,
                 ),
               );
             },

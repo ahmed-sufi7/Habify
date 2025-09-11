@@ -777,29 +777,6 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
       final habitProvider = Provider.of<HabitProvider>(context, listen: false);
       final habitName = _habit!.name;
       
-      // Show loading indicator
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Row(
-              children: [
-                SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                ),
-                SizedBox(width: 12),
-                Text('Deleting habit...'),
-              ],
-            ),
-            backgroundColor: Colors.orange,
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
       
       // Delete the habit
       final success = await habitProvider.deleteHabit(_habit!.id!);
@@ -811,26 +788,6 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
         if (success) {
           // Navigate back to home screen first
           Navigator.of(context).pop();
-          
-          // Show success message
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  const Icon(Icons.check_circle, color: Colors.white, size: 20),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text('$habitName deleted successfully')),
-                ],
-              ),
-              backgroundColor: Colors.green,
-              duration: const Duration(seconds: 3),
-              behavior: SnackBarBehavior.floating,
-              margin: const EdgeInsets.all(16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-          );
         } else {
           // Show error message
           ScaffoldMessenger.of(context).showSnackBar(
@@ -1089,28 +1046,6 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
     if (result != null && result['success'] == true) {
       // Reload habit details after successful edit
       _loadHabitDetails();
-      
-      // Show success message
-      if (mounted && result['message'] != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.check_circle, color: Colors.white, size: 20),
-                const SizedBox(width: 8),
-                Expanded(child: Text(result['message'])),
-              ],
-            ),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 3),
-            behavior: SnackBarBehavior.floating,
-            margin: const EdgeInsets.all(16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-        );
-      }
     }
   }
 }

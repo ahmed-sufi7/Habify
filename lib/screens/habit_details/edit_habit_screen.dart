@@ -256,7 +256,7 @@ class _EditHabitScreenState extends State<EditHabitScreen> with TickerProviderSt
                 ),
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 20,
-                  vertical: 0,
+                  vertical: 16,
                 ),
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,

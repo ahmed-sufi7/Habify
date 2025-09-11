@@ -662,15 +662,19 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
             ),
           ),
           
-          const SizedBox(height: 12),
+          const SizedBox(height: 6),
           
-          Text(
-            _habit!.description,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              color: mediumGray,
-              height: 1.6,
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              _habit!.description,
+              textAlign: TextAlign.start,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                color: mediumGray,
+                height: 1.6,
+              ),
             ),
           ),
         ],

@@ -113,8 +113,77 @@ void _handleNotificationTap(String payload) {
   }
 }
 
-class HabifyApp extends StatelessWidget {
+class HabifyApp extends StatefulWidget {
   const HabifyApp({super.key});
+
+  @override
+  State<HabifyApp> createState() => _HabifyAppState();
+}
+
+class _HabifyAppState extends State<HabifyApp> with WidgetsBindingObserver {
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    
+    switch (state) {
+      case AppLifecycleState.detached:
+        // App is being destroyed - clear notifications
+        _clearNotificationsOnAppDestroy();
+        break;
+      case AppLifecycleState.paused:
+        // App moved to background - notifications should continue
+        break;
+      case AppLifecycleState.resumed:
+        // App came to foreground - check if timer is still valid
+        _checkTimerValidityOnResume();
+        break;
+      case AppLifecycleState.inactive:
+        // App is transitioning states
+        break;
+      case AppLifecycleState.hidden:
+        // App is hidden but still running
+        break;
+    }
+  }
+
+  void _clearNotificationsOnAppDestroy() {
+    try {
+      PomodoroNotificationService().stopProgressNotifications();
+    } catch (e) {
+      debugPrint('Error clearing notifications on app destroy: $e');
+    }
+  }
+
+  void _checkTimerValidityOnResume() {
+    // When app resumes, check if we have any stale notifications
+    // This helps clean up if the system killed the app process while in background
+    try {
+      final context = navigatorKey.currentContext;
+      if (context != null) {
+        final pomodoroProvider = Provider.of<PomodoroProvider>(context, listen: false);
+        
+        // If no active session but we might have notifications, clear them
+        if (pomodoroProvider.activeSession == null || !pomodoroProvider.hasActiveTimer) {
+          PomodoroNotificationService().stopProgressNotifications();
+        }
+      }
+    } catch (e) {
+      debugPrint('Error checking timer validity on resume: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

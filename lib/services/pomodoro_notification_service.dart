@@ -49,6 +49,9 @@ class PomodoroNotificationService {
       await _createNotificationChannel();
     }
 
+    // Clear any existing notifications from previous sessions
+    await _notificationsPlugin.cancelAll();
+
     _isInitialized = true;
   }
 
@@ -99,12 +102,14 @@ class PomodoroNotificationService {
       channelDescription: _channelDescription,
       importance: Importance.low,
       priority: Priority.low,
-      ongoing: true, // Makes it non-dismissible during timer
-      autoCancel: false,
+      ongoing: false, // Make it dismissible
+      autoCancel: true,
       showWhen: false,
       enableVibration: false,
       playSound: false,
       silent: true,
+      // Add timeout mechanism - notification will auto-dismiss after 10 seconds of no updates
+      timeoutAfter: 10000,
       // Progress bar configuration
       showProgress: true,
       maxProgress: 100,
@@ -155,8 +160,18 @@ class PomodoroNotificationService {
       sessionName: sessionName,
     );
 
-    // Start periodic updates (every second for real-time progress)
+    // Start periodic updates (every second for real-time progress with validity checking)
     _progressUpdateTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+      // First check if timer is still valid
+      if (!pomodoroProvider.hasActiveTimer || pomodoroProvider.activeSession == null) {
+        // No valid active timer, clean up notifications immediately
+        timer.cancel();
+        _progressUpdateTimer = null;
+        await _notificationsPlugin.cancel(_notificationId);
+        return;
+      }
+      
+      // If timer is running, update notification
       if (pomodoroProvider.isRunning) {
         await showPomodoroTimerNotification(
           pomodoroProvider: pomodoroProvider,
@@ -164,9 +179,10 @@ class PomodoroNotificationService {
           sessionName: sessionName,
         );
       } else {
-        // Timer is not running, stop updates
+        // Timer is paused/stopped but session still exists, stop updates
         timer.cancel();
         _progressUpdateTimer = null;
+        await _notificationsPlugin.cancel(_notificationId);
       }
     });
   }
@@ -329,6 +345,7 @@ class PomodoroNotificationService {
       );
     }
   }
+
 
   void dispose() {
     _progressUpdateTimer?.cancel();

@@ -701,15 +701,9 @@ class _HomeScreenState extends State<HomeScreen> {
         if (todayHabits.isEmpty) {
           return Container(
             margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-            child: Column(
+            child: const Column(
               children: [
-                const Icon(
-                  Icons.add_circle_outline,
-                  size: 64,
-                  color: neutralMediumGray,
-                ),
-                const SizedBox(height: 16),
-                const Text(
+                Text(
                   'No habits for today',
                   style: TextStyle(
                     fontSize: 18,
@@ -717,31 +711,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: neutralMediumGray,
                   ),
                 ),
-                const SizedBox(height: 8),
-                const Text(
+                SizedBox(height: 8),
+                Text(
                   'Add your first habit to get started!',
                   style: TextStyle(
                     fontSize: 14,
                     color: neutralMediumGray,
                   ),
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: () => Navigator.of(context).push(
-                    CupertinoPageRoute(
-                      builder: (context) => const AddHabitScreen(),
-                      fullscreenDialog: true,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryOrange,
-                    foregroundColor: neutralWhite,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  child: const Text('Add Habit'),
                 ),
               ],
             ),

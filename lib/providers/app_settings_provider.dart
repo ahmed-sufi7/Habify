@@ -531,8 +531,4 @@ class AppSettingsProvider extends ChangeNotifier {
     }
   }
   
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }

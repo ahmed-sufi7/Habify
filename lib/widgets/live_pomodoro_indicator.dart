@@ -151,7 +151,6 @@ class _LivePomodoroIndicatorState extends State<LivePomodoroIndicator>
                       animation: _pulseAnimation,
                       builder: (context, child) {
                         final isAnimating = pomodoroProvider.isRunning;
-                        final isWorkSession = pomodoroProvider.currentSessionType == SessionType.work;
                         
                         return Transform.scale(
                           scale: isAnimating ? _pulseAnimation.value : 1.0,

@@ -39,8 +39,8 @@ class NotificationService {
     final payload = response.payload;
     if (payload != null) {
       try {
-        final data = jsonDecode(payload);
-        // Handle navigation based on data if needed
+        jsonDecode(payload);
+        // Handle navigation based on payload if needed
       } catch (e) {
         // Handle error
       }

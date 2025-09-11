@@ -39,11 +39,9 @@ class _MenuSidebarState extends State<MenuSidebar>
     with TickerProviderStateMixin {
 
   // Design colors matching home and stats screens
-  static const Color primaryOrange = Color(0xFFFF6B35);
   static const Color neutralWhite = Color(0xFFFFFFFF);
   static const Color neutralBlack = Color(0xFF000000);
   static const Color neutralMediumGray = Color(0xFF666666);
-  static const Color neutralLightGray = Color(0xFFE0E0E0);
 
   late AnimationController _animationController;
   late Animation<double> _slideAnimation;
@@ -301,9 +299,10 @@ class _MenuSidebarState extends State<MenuSidebar>
             title: 'Home',
             backgroundColor: const Color(0xFFE8F5EA), // Light green
             onTap: () async {
+              final navigator = Navigator.of(context);
               await _closeMenu();
               if (mounted) {
-                Navigator.of(context).pushReplacement(
+                navigator.pushReplacement(
                   PageRouteBuilder(
                     pageBuilder: (context, animation, secondaryAnimation) => const HomeScreen(),
                     transitionDuration: Duration.zero,
@@ -322,9 +321,10 @@ class _MenuSidebarState extends State<MenuSidebar>
             title: 'Statistics',
             backgroundColor: const Color(0xFFD0D7F9), // Light purple-blue
             onTap: () async {
+              final navigator = Navigator.of(context);
               await _closeMenu();
               if (mounted) {
-                Navigator.of(context).pushReplacement(
+                navigator.pushReplacement(
                   PageRouteBuilder(
                     pageBuilder: (context, animation, secondaryAnimation) => const StatisticsScreen(),
                     transitionDuration: Duration.zero,

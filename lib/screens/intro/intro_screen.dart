@@ -37,7 +37,6 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
 
   // Design color palette
   static const Color primaryDark = Color(0xFF000000);
-  static const Color primaryBlue = Color(0xFF4A5FBD);
   static const Color accentBlue = Color(0xFFC8D4F0);
   static const Color backgroundLight = Color(0xFFF8F9FA);
   static const Color textPrimary = Color(0xFF2D2D2D);
@@ -91,6 +90,10 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
 
 
   void _completeSetup() async {
+    // Get providers before any async operations
+    final settingsProvider = context.read<AppSettingsProvider>();
+    final navigator = Navigator.of(context);
+
     // Add button press animation
     await _completeButtonController.forward();
     await _completeButtonController.reverse();
@@ -130,7 +133,6 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
 
     try {
       // Save user data
-      final settingsProvider = context.read<AppSettingsProvider>();
       await settingsProvider.setUserName(name);
       if (_selectedGender != null) {
         await settingsProvider.setUserGender(_selectedGender!);
@@ -150,7 +152,7 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
 
       // Navigate to add habit screen
       if (mounted) {
-        Navigator.of(context).pushReplacementNamed('/add-habit');
+        navigator.pushReplacementNamed('/add-habit');
       }
     } catch (e) {
       setState(() {
@@ -302,9 +304,10 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
+        final navigator = Navigator.of(context);
         final shouldPop = await _onWillPop();
         if (shouldPop && mounted) {
-          Navigator.of(context).pop();
+          navigator.pop();
         }
       },
       child: Scaffold(
@@ -462,7 +465,7 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                                 borderRadius: BorderRadius.circular(14),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
+                                    color: Colors.black.withValues(alpha: 0.1),
                                     offset: const Offset(0, 1),
                                     blurRadius: 3,
                                     spreadRadius: 0,
@@ -752,7 +755,7 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                           borderRadius: BorderRadius.circular(14),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.black.withValues(alpha: 0.1),
                               offset: const Offset(0, 1),
                               blurRadius: 3,
                               spreadRadius: 0,

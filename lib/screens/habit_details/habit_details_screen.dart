@@ -31,22 +31,12 @@ class HabitDetailsScreen extends StatefulWidget {
 class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
   // Design colors from Habit_details.json
   static const Color primaryBackground = Color(0xFFFFFFFF);
-  static const Color surfaceBackground = Color(0xFFF8F9FA);
-  static const Color cardBackground = Color(0xFFFFFFFF);
   static const Color primaryOrange = Color(0xFFFF6B35);
-  static const Color orangeLight = Color(0xFFFFE4DC);
-  static const Color blueAccent = Color(0xFFE8F2FF);
-  static const Color darkBlue = Color(0xFF2E4A6B);
-  static const Color lightBlue = Color(0xFFB8D4F0);
   static const Color neutralBlack = Color(0xFF000000);
   static const Color darkGray = Color(0xFF2C2C2C);
   static const Color mediumGray = Color(0xFF6B7280);
   static const Color lightGray = Color(0xFFF3F4F6);
   static const Color neutralWhite = Color(0xFFFFFFFF);
-  static const Color paleBlue = Color(0xFFE8F2FF);
-  static const Color streakCompleted = Color(0xFF2C2C2C);
-  static const Color streakIncomplete = Color(0xFFF3F4F6);
-  static const Color streakFlame = Color(0xFFFF6B35);
 
   Habit? _habit;
   bool _isLoading = true;
@@ -545,21 +535,6 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
   }
 
 
-  bool _isHabitCompletedOnDate(HabitProvider habitProvider, DateTime date) {
-    final today = DateTime.now();
-    final isToday = _isSameDay(date, today);
-    
-    if (isToday) {
-      return habitProvider.isHabitCompletedToday(_habit!.id!);
-    } else {
-      // For past days, estimate based on current streak
-      final currentStreak = habitProvider.getCurrentStreak(_habit!.id!);
-      final daysSinceDate = today.difference(date).inDays;
-      
-      // If current streak is longer than days since date, it was likely completed
-      return currentStreak > daysSinceDate;
-    }
-  }
 
   Widget _buildGoalsSection() {
     return Consumer<HabitProvider>(
@@ -1080,12 +1055,6 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
     };
   }
 
-  String _getFrequencyText() {
-    // For now, return a simple frequency text
-    // This could be expanded based on habit frequency settings
-    return 'Daily routine';
-  }
-
   String _formatTime12Hour(String timeString) {
     try {
       final timeParts = timeString.split(':');
@@ -1102,12 +1071,6 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
     } catch (e) {
       return timeString;
     }
-  }
-
-  bool _isSameDay(DateTime date1, DateTime date2) {
-    return date1.year == date2.year &&
-           date1.month == date2.month &&
-           date1.day == date2.day;
   }
 
   void _navigateToEditHabit() async {

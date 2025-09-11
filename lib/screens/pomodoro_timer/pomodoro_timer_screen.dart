@@ -276,7 +276,7 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
                           borderRadius: BorderRadius.circular(26),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFFF44336).withOpacity(0.3),
+                              color: const Color(0xFFF44336).withValues(alpha: 0.3),
                               offset: const Offset(0, 4),
                               blurRadius: 12,
                             ),
@@ -490,7 +490,7 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
                           borderRadius: BorderRadius.circular(26),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF2C2C2C).withOpacity(0.3),
+                              color: const Color(0xFF2C2C2C).withValues(alpha: 0.3),
                               offset: const Offset(0, 4),
                               blurRadius: 12,
                             ),
@@ -598,7 +598,7 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
                       borderRadius: BorderRadius.circular(28),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF4CAF50).withOpacity(0.3),
+                          color: const Color(0xFF4CAF50).withValues(alpha: 0.3),
                           offset: const Offset(0, 6),
                           blurRadius: 16,
                         ),
@@ -725,7 +725,7 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
                       color: const Color(0xFFFFFFFF),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
+                          color: Colors.black.withValues(alpha: 0.08),
                           offset: const Offset(0, 6),
                           blurRadius: 20,
                           spreadRadius: 0,
@@ -863,7 +863,7 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
               borderRadius: BorderRadius.circular(28),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
+                  color: Colors.black.withValues(alpha: 0.08),
                   offset: const Offset(0, 2),
                   blurRadius: 8,
                   spreadRadius: 0,
@@ -905,7 +905,7 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
           borderRadius: BorderRadius.circular(36),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF2C2C2C).withOpacity(0.3),
+              color: const Color(0xFF2C2C2C).withValues(alpha: 0.3),
               offset: const Offset(0, 4),
               blurRadius: 16,
               spreadRadius: 0,

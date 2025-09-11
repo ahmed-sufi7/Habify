@@ -14,14 +14,21 @@ class ProviderInitializationHelper {
     _isInitializing = true;
     
     try {
+      // Get all providers before any async operations
+      final appSettingsProvider = Provider.of<AppSettingsProvider>(context, listen: false);
+      final categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
+      final habitProvider = Provider.of<HabitProvider>(context, listen: false);
+      final pomodoroProvider = Provider.of<PomodoroProvider>(context, listen: false);
+      final statisticsProvider = Provider.of<StatisticsProvider>(context, listen: false);
+      
       // Phase 1: Initialize core providers (Theme, App Settings)
-      await _initializeCoreProviders(context);
+      await _initializeCoreProviders(appSettingsProvider);
       
       // Phase 2: Initialize data providers (Categories first, then others)
-      await _initializeDataProviders(context);
+      await _initializeDataProviders(categoryProvider, habitProvider, pomodoroProvider);
       
       // Phase 3: Initialize dependent providers (Statistics)
-      await _initializeDependentProviders(context);
+      await _initializeDependentProviders(statisticsProvider);
       
       _isInitialized = true;
     } catch (e) {
@@ -33,29 +40,30 @@ class ProviderInitializationHelper {
   }
   
   /// Initialize core providers that don't depend on data
-  static Future<void> _initializeCoreProviders(BuildContext context) async {
+  static Future<void> _initializeCoreProviders(AppSettingsProvider appSettingsProvider) async {
     // Theme Provider - already initialized in provider tree
     
     // App Settings Provider - already initialized in provider tree
-    final appSettingsProvider = Provider.of<AppSettingsProvider>(context, listen: false);
     if (!appSettingsProvider.isInitialized) {
       await appSettingsProvider.initialize();
     }
   }
   
   /// Initialize data providers in dependency order
-  static Future<void> _initializeDataProviders(BuildContext context) async {
+  static Future<void> _initializeDataProviders(
+    CategoryProvider categoryProvider,
+    HabitProvider habitProvider, 
+    PomodoroProvider pomodoroProvider
+  ) async {
     try {
+      
       // Categories first (required by Habits)
-      final categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
       await categoryProvider.initialize();
       
       // Habits (depends on categories)
-      final habitProvider = Provider.of<HabitProvider>(context, listen: false);
       await habitProvider.initialize();
       
       // Pomodoro (independent)
-      final pomodoroProvider = Provider.of<PomodoroProvider>(context, listen: false);
       await pomodoroProvider.initialize();
       
       // Note: Notification provider removed - using simple notification service instead
@@ -67,10 +75,9 @@ class ProviderInitializationHelper {
   }
   
   /// Initialize providers that depend on other data providers
-  static Future<void> _initializeDependentProviders(BuildContext context) async {
+  static Future<void> _initializeDependentProviders(StatisticsProvider statisticsProvider) async {
     try {
       // Statistics (depends on all other data providers)
-      final statisticsProvider = Provider.of<StatisticsProvider>(context, listen: false);
       await statisticsProvider.initialize();
       
     } catch (e) {
@@ -114,13 +121,6 @@ class ProviderInitializationHelper {
   /// Refresh all providers
   static Future<void> refreshAllProviders(BuildContext context) async {
     try {
-      final providers = [
-        Provider.of<CategoryProvider>(context, listen: false),
-        Provider.of<HabitProvider>(context, listen: false),
-        Provider.of<PomodoroProvider>(context, listen: false),
-        Provider.of<StatisticsProvider>(context, listen: false),
-      ];
-      
       // Providers are automatically initialized, no need to call refresh
     } catch (e) {
       debugPrint('Provider refresh error: $e');
@@ -146,11 +146,11 @@ class ProviderInitializer extends StatefulWidget {
   final Widget? errorWidget;
   
   const ProviderInitializer({
-    Key? key,
+    super.key,
     required this.child,
     this.loadingWidget,
     this.errorWidget,
-  }) : super(key: key);
+  });
   
   @override
   State<ProviderInitializer> createState() => _ProviderInitializerState();

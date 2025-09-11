@@ -23,10 +23,9 @@ class StatisticsScreen extends StatefulWidget {
 
 class _StatisticsScreenState extends State<StatisticsScreen> {
   // Design colors from home_design.json for consistency
-  static const Color primaryOrange = Color(0xFFFF6B35);
+  //static const Color primaryOrange = Color(0xFFFF6B35);
   static const Color neutralWhite = Color(0xFFFFFFFF);
   static const Color neutralBlack = Color(0xFF000000);
-  static const Color neutralMediumGray = Color(0xFF666666);
   static const Color neutralLightGray = Color(0xFFE0E0E0);
 
   // View navigation state
@@ -37,7 +36,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   
   // Animation state tracking
   bool _shouldAnimateBars = false;
-  StatisticsViewType? _previousViewType;
   bool _isMenuOpen = false;
 
   @override
@@ -502,7 +500,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       child: GestureDetector(
         onTap: () {
           setState(() {
-            _previousViewType = _viewType;
             _viewType = viewType;
             _shouldAnimateBars = true;
           });
@@ -972,18 +969,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             final value = chartData[key] ?? 0.0;
                             final barHeight = (value / maxValue) * 130; // Max 130px for the bar area, leaving space for percentage labels
                             
-                            Color barColor;
-                            if (value >= 0.8) {
-                              barColor = const Color(0xFF4CAF50); // Green for excellent
-                            } else if (value >= 0.6) {
-                              barColor = primaryOrange; // Orange for good
-                            } else if (value >= 0.4) {
-                              barColor = const Color(0xFFFFA726); // Light orange for fair
-                            } else if (value >= 0.2) {
-                              barColor = const Color(0xFFFFCC80); // Very light orange for poor
-                            } else {
-                              barColor = neutralLightGray; // Gray for very poor
-                            }
+                            Color barColor = neutralWhite; // All bars in white color
                             
                             return Expanded(
                               child: Padding(
@@ -1013,7 +999,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                       width: double.infinity,
                                       height: _shouldAnimateBars ? 0.0 : barHeight.clamp(4.0, 130.0), // Start from 0 when animating
                                       decoration: BoxDecoration(
-                                        color: neutralWhite, // White color
+                                        color: barColor, // Dynamic color based on performance
                                         borderRadius: BorderRadius.circular(20), // Pill shape
                                       ),
                                     ),
@@ -1054,288 +1040,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     );
   }
 
-  Widget _buildCategoryBreakdown() {
-    return Consumer<HabitProvider>(
-      builder: (context, habitProvider, child) {
-        final habitsByCategory = habitProvider.habitsByCategory;
-        
-        if (habitsByCategory.isEmpty) {
-          return const SizedBox.shrink();
-        }
-        
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: neutralWhite,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: neutralBlack.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Habits by Category',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: neutralBlack,
-                  letterSpacing: 0.3,
-                ),
-              ),
-              const SizedBox(height: 20),
-              
-              ...habitsByCategory.entries.map((entry) => _buildCategoryItem(
-                entry.key, 
-                entry.value.length,
-                _getCategoryColor(entry.key),
-              )),
-            ],
-          ),
-        );
-      },
-    );
-  }
 
-  Widget _buildCategoryItem(String categoryName, int habitCount, Color color) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Icon(
-              _getCategoryIcon(categoryName),
-              color: color,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              categoryName,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: neutralBlack,
-              ),
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              '$habitCount',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: color,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Color _getCategoryColor(String categoryName) {
-    switch (categoryName) {
-      case 'Health & Fitness':
-        return const Color(0xFF4CAF50);
-      case 'Learning':
-        return const Color(0xFF2C2C2C);
-      case 'Social':
-        return const Color(0xFFE91E63);
-      case 'Productivity':
-        return const Color(0xFF2196F3);
-      case 'Mindfulness':
-        return const Color(0xFFFF9800);
-      case 'Other':
-        return const Color(0xFF607D8B);
-      default:
-        return neutralMediumGray;
-    }
-  }
-
-  IconData _getCategoryIcon(String categoryName) {
-    switch (categoryName) {
-      case 'Health & Fitness':
-        return Icons.fitness_center;
-      case 'Learning':
-        return Icons.school;
-      case 'Social':
-        return Icons.people;
-      case 'Productivity':
-        return Icons.work;
-      case 'Mindfulness':
-        return Icons.self_improvement;
-      case 'Other':
-        return Icons.more_horiz;
-      default:
-        return Icons.star;
-    }
-  }
-
-  Widget _buildHabitBreakdown() {
-    return Consumer<HabitProvider>(
-      builder: (context, habitProvider, child) {
-        final habits = habitProvider.habits;
-        
-        if (habits.isEmpty) {
-          return Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              color: neutralWhite,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Column(
-              children: [
-                Icon(
-                  Icons.bar_chart_outlined,
-                  size: 48,
-                  color: neutralMediumGray,
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'No habits to analyze',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: neutralMediumGray,
-                  ),
-                ),
-                Text(
-                  'Add some habits to see detailed statistics',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: neutralMediumGray,
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
-        
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: neutralWhite,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: neutralBlack.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Habit Breakdown',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: neutralBlack,
-                  letterSpacing: 0.3,
-                ),
-              ),
-              const SizedBox(height: 20),
-              
-              ...habits.take(5).map((habit) => _buildHabitBreakdownItem(habit, habitProvider)),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildHabitBreakdownItem(dynamic habit, HabitProvider habitProvider) {
-    final streak = habitProvider.getCurrentStreak(habit.id!);
-    final completionRate = habitProvider.getHabitCompletionRate(habit.id!);
-    
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        children: [
-          // Habit icon
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: neutralBlack,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: _getHabitIcon(habit),
-          ),
-          
-          const SizedBox(width: 12),
-          
-          // Habit details
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  habit.name,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: neutralBlack,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Streak: $streak days • ${(completionRate * 100).toStringAsFixed(0)}% completed',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: neutralMediumGray,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          
-          // Progress indicator
-          Container(
-            width: 50,
-            height: 8,
-            decoration: BoxDecoration(
-              color: neutralLightGray,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: FractionallySizedBox(
-              alignment: Alignment.centerLeft,
-              widthFactor: completionRate,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: primaryOrange,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildBottomNavigation() {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -1449,50 +1154,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     );
   }
 
-  Color _getConsistencyScoreColor(double score) {
-    if (score >= 80) {
-      return const Color(0xFFE8F5E8); // Light green for excellent
-    } else if (score >= 60) {
-      return const Color(0xFFFFEAE4); // Light orange for good
-    } else if (score >= 40) {
-      return const Color(0xFFFFF3E0); // Light yellow for fair
-    } else {
-      return const Color(0xFFFFEBEE); // Light red for needs improvement
-    }
-  }
 
-  Color _getConsistencyScoreValueColor(double score) {
-    if (score >= 80) {
-      return const Color(0xFF4CAF50); // Green for excellent (80-100)
-    } else if (score >= 60) {
-      return primaryOrange; // Orange for good (60-79)
-    } else if (score >= 40) {
-      return const Color(0xFFF57F17); // Amber for fair (40-59)
-    } else {
-      return const Color(0xFFD32F2F); // Red for needs improvement (0-39)
-    }
-  }
-
-  Widget _getHabitIcon(dynamic habit) {
-    switch (habit.categoryId) {
-      case 1: // Health & Fitness
-        return const Icon(
-          Icons.fitness_center,
-          size: 20,
-          color: neutralWhite,
-        );
-      case 2: // Learning
-        return const Icon(Icons.school, size: 20, color: neutralWhite);
-      case 3: // Social
-        return const Icon(Icons.people, size: 20, color: neutralWhite);
-      case 4: // Productivity
-        return const Icon(Icons.work, size: 20, color: neutralWhite);
-      case 5: // Mindfulness
-        return const Icon(Icons.self_improvement, size: 20, color: neutralWhite);
-      default: // Other
-        return const Icon(Icons.star, size: 20, color: neutralWhite);
-    }
-  }
 
   void _navigateToHome() {
     Navigator.of(context).pushReplacement(
@@ -1616,7 +1278,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w600,
-                                  color: const Color(0xFF2C2C2C),
+                                  color: Color(0xFF2C2C2C),
                                 ),
                               ),
                             ),

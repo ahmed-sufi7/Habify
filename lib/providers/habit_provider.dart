@@ -9,13 +9,13 @@ class HabitProvider extends ChangeNotifier {
   // State variables
   List<Habit> _habits = [];
   List<Category> _categories = [];
-  Map<int, bool> _todayCompletionStatus = {};
-  Map<int, int> _currentStreaks = {};
+  final Map<int, bool> _todayCompletionStatus = {};
+  final Map<int, int> _currentStreaks = {};
   bool _isLoading = false;
   String? _error;
   
   // Calendar data cache - pre-loaded for fast calendar rendering
-  Map<String, Map<DateTime, Map<String, dynamic>>> _calendarCache = {};
+  final Map<String, Map<DateTime, Map<String, dynamic>>> _calendarCache = {};
   DateTime? _lastCalendarCacheUpdate;
   
   // Getters
@@ -958,7 +958,7 @@ class HabitProvider extends ChangeNotifier {
   Future<int> getHabitCompletedCount(int habitId) async {
     try {
       final stats = await _habitService.getHabitStats(habitId);
-      return (stats?['completion_stats'] as Map<String, dynamic>?)?['completed_count'] ?? 0;
+      return (stats['completion_stats'] as Map<String, dynamic>?)?['completed_count'] ?? 0;
     } catch (e) {
       return 0;
     }
@@ -967,7 +967,7 @@ class HabitProvider extends ChangeNotifier {
   Future<int> getHabitMissedCount(int habitId) async {
     try {
       final stats = await _habitService.getHabitStats(habitId);
-      return (stats?['completion_stats'] as Map<String, dynamic>?)?['missed_count'] ?? 0;
+      return (stats['completion_stats'] as Map<String, dynamic>?)?['missed_count'] ?? 0;
     } catch (e) {
       return 0;
     }
@@ -976,7 +976,7 @@ class HabitProvider extends ChangeNotifier {
   Future<int> getLongestStreak(int habitId) async {
     try {
       final stats = await _habitService.getHabitStats(habitId);
-      return (stats?['completion_stats'] as Map<String, dynamic>?)?['longest_streak'] ?? 0;
+      return (stats['completion_stats'] as Map<String, dynamic>?)?['longest_streak'] ?? 0;
     } catch (e) {
       return 0;
     }
@@ -985,7 +985,7 @@ class HabitProvider extends ChangeNotifier {
   Future<double> getCompletionRate(int habitId) async {
     try {
       final stats = await _habitService.getHabitStats(habitId);
-      return ((stats?['completion_stats'] as Map<String, dynamic>?)?['completion_rate'] as num?)?.toDouble() ?? 0.0;
+      return ((stats['completion_stats'] as Map<String, dynamic>?)?['completion_rate'] as num?)?.toDouble() ?? 0.0;
     } catch (e) {
       return 0.0;
     }
@@ -996,8 +996,4 @@ class HabitProvider extends ChangeNotifier {
     await initialize();
   }
   
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }

@@ -433,8 +433,8 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
     // Add haptic feedback
     // HapticFeedback.lightImpact();
     
-    // TODO: Add functionality to show habit details for that date
-    // or navigate to a detailed view
+    // Date tap functionality can be implemented here
+    // to show habit details or navigate to a detailed view
   }
 
   String _getMonthYearString(DateTime date) {

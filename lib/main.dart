@@ -30,19 +30,24 @@ void main() async {
   
   // Initialize Firebase
   try {
+    debugPrint('🚀 Initializing Firebase...');
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    debugPrint('✅ Firebase Core initialized successfully');
     
     // Set up background message handler
     FirebaseMessaging.onBackgroundMessage(FirebaseMessagingService.handleBackgroundMessage);
+    debugPrint('📨 Background message handler set');
     
     // Initialize Firebase Messaging
     await FirebaseMessagingService.initialize();
+    debugPrint('✅ Firebase Messaging initialized successfully');
     
   } catch (e) {
     // Handle Firebase initialization error gracefully
-    debugPrint('Firebase initialization failed: $e');
+    debugPrint('❌ Firebase initialization failed: $e');
+    debugPrint('📋 Stack trace: ${StackTrace.current}');
   }
   
   // Initialize database
@@ -81,8 +86,8 @@ void main() async {
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.dark,
-      systemNavigationBarColor: Colors.white,
-      systemNavigationBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.black,
+      systemNavigationBarIconBrightness: Brightness.light,
     ),
   );
   

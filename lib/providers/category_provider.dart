@@ -382,8 +382,4 @@ class CategoryProvider extends ChangeNotifier {
     return null;
   }
   
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }

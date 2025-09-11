@@ -39,12 +39,6 @@ class _HomeScreenState extends State<HomeScreen> {
   static const Color neutralBlack = Color(0xFF000000);
   static const Color neutralMediumGray = Color(0xFF666666);
   static const Color neutralLightGray = Color(0xFFE0E0E0);
-  static const Color neutralBackgroundGray = Color(0xFFF5F5F5);
-  static const Color accentGreen = Color(0xFF4CAF50);
-  static const Color accentGreenLight = Color(0xFFC8E6C9);
-  static const Color accentBlue = Color(0xFFE3F2FD);
-  static const Color accentPurple = Color(0xFFE1BEE7);
-  static const Color accentYellow = Color(0xFFF9F9C4);
 
   @override
   void initState() {
@@ -85,9 +79,6 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isToggling = false;
   bool _isMenuOpen = false;
   
-  // Cache for expensive calculations to avoid rebuilds
-  final Map<String, dynamic> _cache = {};
-  DateTime? _lastCacheUpdate;
   
 
   Future<void> _onHabitToggle(int habitId, bool isCompleted) async {
@@ -1187,12 +1178,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  bool _isSameDay(DateTime date1, DateTime date2) {
-    // Normalize both dates to compare only the date part
-    final d1 = DateTime(date1.year, date1.month, date1.day);
-    final d2 = DateTime(date2.year, date2.month, date2.day);
-    return d1.isAtSameMomentAs(d2);
-  }
 
   bool _isDateCompleted(DateTime date, HabitProvider habitProvider) {
     // This would check if any habits were completed on this date
@@ -1361,7 +1346,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w600,
-                                  color: const Color(0xFF2C2C2C),
+                                  color: Color(0xFF2C2C2C),
                                 ),
                               ),
                             ),

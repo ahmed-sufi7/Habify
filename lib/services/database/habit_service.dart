@@ -3,7 +3,6 @@ import '../../database/daos/category_dao.dart';
 import '../../database/daos/habit_completion_dao.dart';
 import '../../models/habit.dart';
 import '../../models/category.dart';
-import '../../models/habit_completion.dart';
 
 class HabitService {
   final HabitDao _habitDao = HabitDao();
@@ -135,8 +134,6 @@ class HabitService {
 
     await _completionDao.markHabitCompleted(habitId, completionDate, notes: notes);
 
-    // Check for streak milestones and create celebration notifications
-    final currentStreak = await _completionDao.calculateCurrentStreak(habitId, completionDate);
     // Note: Streak celebrations are now handled by the simple notification service
   }
 
@@ -305,89 +302,9 @@ class HabitService {
   ) async {
     // Note: Notification management is now handled by NotificationService
 
-    // Generate schedule times based on repetition pattern
-    final scheduleTimes = _generateScheduleTimes(
-      notificationTime,
-      repetitionPattern,
-      customDays,
-      startDate,
-      endDate,
-    );
-
     // Note: Notifications are now handled by the simple notification service in AddHabitScreen
   }
 
-  List<DateTime> _generateScheduleTimes(
-    String notificationTime,
-    String repetitionPattern,
-    List<int> customDays,
-    DateTime startDate,
-    DateTime? endDate,
-  ) {
-    final scheduleTimes = <DateTime>[];
-    final timeParts = notificationTime.split(':');
-    final hour = int.parse(timeParts[0]);
-    final minute = int.parse(timeParts[1]);
-
-    final now = DateTime.now();
-    final effectiveStartDate = startDate.isAfter(now) ? startDate : now;
-    final effectiveEndDate = endDate ?? now.add(const Duration(days: 365)); // Schedule for 1 year if no end date
-
-    for (var date = effectiveStartDate; 
-         date.isBefore(effectiveEndDate) && date.difference(now).inDays < 365; 
-         date = date.add(const Duration(days: 1))) {
-      
-      final scheduledDateTime = DateTime(date.year, date.month, date.day, hour, minute);
-      
-      // Skip if the time has already passed today
-      if (scheduledDateTime.isBefore(now)) continue;
-
-      final weekday = date.weekday; // 1 = Monday, 7 = Sunday
-      bool shouldSchedule = false;
-
-      switch (repetitionPattern) {
-        case 'Everyday':
-          shouldSchedule = true;
-          break;
-        case 'Weekdays':
-          shouldSchedule = weekday >= 1 && weekday <= 5;
-          break;
-        case 'Weekends':
-          shouldSchedule = weekday == 6 || weekday == 7;
-          break;
-        case 'Monday':
-          shouldSchedule = weekday == 1;
-          break;
-        case 'Tuesday':
-          shouldSchedule = weekday == 2;
-          break;
-        case 'Wednesday':
-          shouldSchedule = weekday == 3;
-          break;
-        case 'Thursday':
-          shouldSchedule = weekday == 4;
-          break;
-        case 'Friday':
-          shouldSchedule = weekday == 5;
-          break;
-        case 'Saturday':
-          shouldSchedule = weekday == 6;
-          break;
-        case 'Sunday':
-          shouldSchedule = weekday == 7;
-          break;
-        case 'Custom':
-          shouldSchedule = customDays.contains(weekday);
-          break;
-      }
-
-      if (shouldSchedule) {
-        scheduleTimes.add(scheduledDateTime);
-      }
-    }
-
-    return scheduleTimes;
-  }
 
   // Data export/import
   Future<Map<String, dynamic>> exportHabitData(int habitId) async {

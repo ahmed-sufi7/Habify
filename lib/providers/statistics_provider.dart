@@ -37,7 +37,7 @@ class StatisticsProvider extends ChangeNotifier {
   String? _error;
   
   // Cache for expensive calculations
-  Map<String, dynamic> _statsCache = {};
+  final Map<String, dynamic> _statsCache = {};
   DateTime? _lastCacheUpdate;
   static const Duration _cacheValidDuration = Duration(minutes: 15);
   
@@ -676,8 +676,4 @@ class StatisticsProvider extends ChangeNotifier {
     notifyListeners();
   }
   
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }

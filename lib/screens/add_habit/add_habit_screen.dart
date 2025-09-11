@@ -271,7 +271,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
                 ),
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 20,
-                  vertical: 0, // Let Center widget handle vertical centering
+                  vertical: 16, // Proper vertical padding for easier touch
                 ),
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,

@@ -74,3 +74,9 @@ node_modules/
 # Task files
 # tasks.json
 # tasks/ 
+
+# Firebase configuration files (contains sensitive API keys)
+android/app/google-services.json
+lib/firebase_options.dart
+lib/services/firebase_messaging_service.dart
+firebase.json

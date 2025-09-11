@@ -131,23 +131,111 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
     
     if (!provider.isRunning && !provider.isPaused) return;
     
-    // Complete current timer and show next session dialog
+    // Show skip confirmation dialog
+    showCupertinoDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: const Text(
+            'Skip Session?',
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          content: const Padding(
+            padding: EdgeInsets.only(top: 8),
+            child: Text(
+              'Are you sure you want to skip the current session and move to the next one?',
+              style: TextStyle(
+                fontSize: 13,
+                color: CupertinoColors.secondaryLabel,
+              ),
+            ),
+          ),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  fontSize: 17,
+                  color: CupertinoColors.activeBlue,
+                ),
+              ),
+            ),
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              onPressed: () {
+                Navigator.of(context).pop(); // Close confirmation dialog
+                _performSkip(provider);
+              },
+              child: const Text(
+                'Skip',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                  color: CupertinoColors.activeBlue,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _performSkip(PomodoroProvider provider) {
+    // Complete current timer and move directly to next session
     provider.stopLoadedTimer();
     _pulseController.stop();
     _notificationService.stopProgressNotifications();
     
     if (mounted) {
-      // Show completion message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${provider.currentSessionDescription} skipped!'),
-          backgroundColor: const Color(0xFF4CAF50),
-          duration: const Duration(seconds: 2),
-        ),
-      );
+      // Move directly to next session without showing dialog or notification
+      _moveToNextSessionDirectly(provider);
+    }
+  }
+
+  void _moveToNextSessionDirectly(PomodoroProvider provider) {
+    if (provider.currentSessionType == SessionType.work) {
+      // After work, move to break
+      final isLongBreak = provider.currentSessionNumber % 4 == 0;
       
-      // Move to next session
-      _moveToNextSessionDialog(provider);
+      provider.moveToNextSession(
+        isLongBreak ? SessionType.longBreak : SessionType.shortBreak, 
+        isLongBreak
+      );
+      // Auto-start the next session
+      provider.startLoadedTimer();
+      if (provider.isRunning) {
+        _pulseController.repeat(reverse: true);
+        _startNotificationUpdates(provider);
+      }
+    } else {
+      // After break, move to next work session or finish
+      if (provider.currentSessionNumber < (provider.activeSession?.sessionsCount ?? 4)) {
+        provider.moveToNextSession(
+          SessionType.work, 
+          false, 
+          provider.currentSessionNumber + 1
+        );
+        // Auto-start the next session
+        provider.startLoadedTimer();
+        if (provider.isRunning) {
+          _pulseController.repeat(reverse: true);
+          _startNotificationUpdates(provider);
+        }
+      } else {
+        // Show all sessions complete notification
+        _notificationService.showAllSessionsCompleteNotification(
+          sessionName: widget.sessionName,
+          totalSessions: provider.activeSession?.sessionsCount ?? 4,
+          sessionId: widget.sessionId,
+        );
+        _showCompletionDialog();
+      }
     }
   }
 
@@ -248,6 +336,7 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
       _showNextSessionDialog(
         title: 'Work Session Complete!',
         message: 'Time for a $breakType. Ready to continue?',
+        provider: provider,
         onStart: () {
           provider.moveToNextSession(
             isLongBreak ? SessionType.longBreak : SessionType.shortBreak, 
@@ -275,6 +364,7 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
         _showNextSessionDialog(
           title: 'Break Complete!',
           message: 'Ready for the next work session?',
+          provider: provider,
           onStart: () {
             provider.moveToNextSession(
               SessionType.work, 
@@ -305,6 +395,7 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
     required String title,
     required String message,
     required VoidCallback onStart,
+    required PomodoroProvider provider,
   }) {
     showCupertinoDialog(
       context: context,
@@ -330,9 +421,12 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
           ),
           actions: [
             CupertinoDialogAction(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _loadNextSessionInPausedState(provider);
+              },
               child: const Text(
-                'Skip',
+                'Cancel',
                 style: TextStyle(
                   fontSize: 17,
                   color: CupertinoColors.activeBlue,
@@ -358,6 +452,37 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
         );
       },
     );
+  }
+
+  void _loadNextSessionInPausedState(PomodoroProvider provider) {
+    if (provider.currentSessionType == SessionType.work) {
+      // After work, move to break
+      final isLongBreak = provider.currentSessionNumber % 4 == 0;
+      
+      provider.moveToNextSession(
+        isLongBreak ? SessionType.longBreak : SessionType.shortBreak, 
+        isLongBreak
+      );
+      // Don't auto-start - leave in paused state
+    } else {
+      // After break, move to next work session or finish
+      if (provider.currentSessionNumber < (provider.activeSession?.sessionsCount ?? 4)) {
+        provider.moveToNextSession(
+          SessionType.work, 
+          false, 
+          provider.currentSessionNumber + 1
+        );
+        // Don't auto-start - leave in paused state
+      } else {
+        // Show all sessions complete notification
+        _notificationService.showAllSessionsCompleteNotification(
+          sessionName: widget.sessionName,
+          totalSessions: provider.activeSession?.sessionsCount ?? 4,
+          sessionId: widget.sessionId,
+        );
+        _showCompletionDialog();
+      }
+    }
   }
 
   void _showCompletionDialog() {
@@ -637,9 +762,10 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
     return Consumer<PomodoroProvider>(
       builder: (context, provider, child) {
         return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Skip button
               _buildControlButton(
@@ -650,6 +776,8 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
                 iconColor: const Color(0xFF2C2C2C),
               ),
               
+              const SizedBox(width: 32),
+              
               // Main Play/Pause button
               _buildMainControlButton(
                 icon: provider.isRunning 
@@ -657,9 +785,16 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
                     : provider.isPaused 
                         ? Icons.play_arrow
                         : Icons.play_arrow,
+                label: provider.isRunning 
+                    ? 'Pause' 
+                    : provider.isPaused 
+                        ? 'Resume'
+                        : 'Start',
                 onTap: _handlePlayPause,
                 isPlaying: provider.isRunning,
               ),
+              
+              const SizedBox(width: 32),
               
               // Stop button  
               _buildControlButton(
@@ -689,11 +824,11 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 56,
-            height: 56,
+            width: 52,
+            height: 52,
             decoration: BoxDecoration(
               color: backgroundColor,
-              borderRadius: BorderRadius.circular(28),
+              borderRadius: BorderRadius.circular(26),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.08),
@@ -706,10 +841,10 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
             child: Icon(
               icon,
               color: iconColor,
-              size: 24,
+              size: 22,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 5),
           Text(
             label,
             style: const TextStyle(
@@ -725,31 +860,46 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
 
   Widget _buildMainControlButton({
     required IconData icon,
+    required String label,
     required VoidCallback onTap,
     required bool isPlaying,
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        width: 72,
-        height: 72,
-        decoration: BoxDecoration(
-          color: const Color(0xFF2C2C2C),
-          borderRadius: BorderRadius.circular(36),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF2C2C2C).withValues(alpha: 0.3),
-              offset: const Offset(0, 4),
-              blurRadius: 16,
-              spreadRadius: 0,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 66,
+            height: 66,
+            decoration: BoxDecoration(
+              color: const Color(0xFF2C2C2C),
+              borderRadius: BorderRadius.circular(33),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF2C2C2C).withValues(alpha: 0.3),
+                  offset: const Offset(0, 4),
+                  blurRadius: 16,
+                  spreadRadius: 0,
+                ),
+              ],
             ),
-          ],
-        ),
-        child: Icon(
-          icon,
-          color: const Color(0xFFFFFFFF),
-          size: 32,
-        ),
+            child: Icon(
+              icon,
+              color: const Color(0xFFFFFFFF),
+              size: 30,
+            ),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF666666),
+            ),
+          ),
+        ],
       ),
     );
   }

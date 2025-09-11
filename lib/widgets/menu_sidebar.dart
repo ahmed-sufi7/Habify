@@ -4,6 +4,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
 import '../screens/add_pomodoro/add_pomodoro_screen.dart';
 import '../screens/add_habit/add_habit_screen.dart';
+import '../screens/home/home_screen.dart';
+import '../screens/statistics/statistics_screen.dart';
 
 /// Menu Sidebar Widget
 /// 
@@ -126,7 +128,7 @@ class _MenuSidebarState extends State<MenuSidebar>
     _dragDistance = 0.0;
   }
 
-  void _closeMenu() async {
+  Future<void> _closeMenu() async {
     await _animationController.reverse();
     widget.onClose?.call();
   }
@@ -298,9 +300,17 @@ class _MenuSidebarState extends State<MenuSidebar>
             iconPath: 'assets/icons/home-active.png',
             title: 'Home',
             backgroundColor: const Color(0xFFE8F5EA), // Light green
-            onTap: () {
-              _closeMenu();
-              Navigator.of(context).pushReplacementNamed('/home');
+            onTap: () async {
+              await _closeMenu();
+              if (mounted) {
+                Navigator.of(context).pushReplacement(
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) => const HomeScreen(),
+                    transitionDuration: Duration.zero,
+                    reverseTransitionDuration: Duration.zero,
+                  ),
+                );
+              }
             },
           ),
           
@@ -311,9 +321,17 @@ class _MenuSidebarState extends State<MenuSidebar>
             iconPath: 'assets/icons/stats-active.png',
             title: 'Statistics',
             backgroundColor: const Color(0xFFD0D7F9), // Light purple-blue
-            onTap: () {
-              _closeMenu();
-              Navigator.of(context).pushReplacementNamed('/statistics');
+            onTap: () async {
+              await _closeMenu();
+              if (mounted) {
+                Navigator.of(context).pushReplacement(
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) => const StatisticsScreen(),
+                    transitionDuration: Duration.zero,
+                    reverseTransitionDuration: Duration.zero,
+                  ),
+                );
+              }
             },
           ),
           

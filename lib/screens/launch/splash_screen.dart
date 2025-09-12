@@ -20,10 +20,38 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _initializeApp() async {
     try {
-      // Wait for brief display duration
-      await Future.delayed(const Duration(seconds: 2));
+      // Start user status check immediately
+      final startTime = DateTime.now();
       
-      // Navigate to appropriate screen
+      // Check user status quickly
+      bool isNewUser = false;
+      try {
+        // Ensure service is initialized (should be from main.dart)
+        if (!FirstTimeUserService.isServiceInitialized()) {
+          await FirstTimeUserService.initialize();
+        }
+        
+        isNewUser = FirstTimeUserService.isFirstTimeUser() || 
+                   !FirstTimeUserService.isOnboardingCompleted();
+      } catch (error) {
+        debugPrint('User status check error: $error');
+        // Default to new user on error
+        isNewUser = true;
+      }
+      
+      // For new users, show splash very briefly (300ms)  
+      // For returning users, show splash briefly (800ms)
+      final targetDelay = isNewUser 
+          ? const Duration(milliseconds: 300) 
+          : const Duration(milliseconds: 800);
+      
+      final elapsed = DateTime.now().difference(startTime);
+      final remainingDelay = targetDelay - elapsed;
+      
+      if (remainingDelay.inMilliseconds > 0) {
+        await Future.delayed(remainingDelay);
+      }
+      
       if (mounted) {
         _navigateToNextScreen();
       }
@@ -31,8 +59,8 @@ class _SplashScreenState extends State<SplashScreen> {
     } catch (error) {
       debugPrint('Splash screen initialization error: $error');
       
-      // Still navigate after a delay even if there's an error
-      await Future.delayed(const Duration(seconds: 1));
+      // Quick fallback navigation for any errors
+      await Future.delayed(const Duration(milliseconds: 800));
       if (mounted) {
         _navigateToNextScreen();
       }

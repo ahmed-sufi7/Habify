@@ -14,6 +14,11 @@ class FirstTimeUserService {
   
   static SharedPreferences? _prefs;
   
+  /// Check if the service has been initialized
+  static bool isServiceInitialized() {
+    return _prefs != null;
+  }
+  
   /// Initialize the service and SharedPreferences
   static Future<void> initialize() async {
     try {

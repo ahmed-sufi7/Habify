@@ -28,60 +28,16 @@ void main() async {
   // Ensure Flutter binding is initialized
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize Firebase
-  try {
-    debugPrint('🚀 Initializing Firebase...');
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    debugPrint('✅ Firebase Core initialized successfully');
-    
-    // Set up background message handler
-    FirebaseMessaging.onBackgroundMessage(FirebaseMessagingService.handleBackgroundMessage);
-    debugPrint('📨 Background message handler set');
-    
-    // Initialize Firebase Messaging
-    await FirebaseMessagingService.initialize();
-    debugPrint('✅ Firebase Messaging initialized successfully');
-    
-  } catch (e) {
-    // Handle Firebase initialization error gracefully
-    debugPrint('❌ Firebase initialization failed: $e');
-    debugPrint('📋 Stack trace: ${StackTrace.current}');
-  }
+  // Only initialize essential services that must be ready immediately
   
-  // Initialize database
-  try {
-    await DatabaseManager().initialize();
-  } catch (e) {
-    debugPrint('Database initialization failed: $e');
-    // Continue with app startup even if database fails
-  }
-  
-  // Initialize first-time user service
+  // Initialize first-time user service (needed for splash screen routing)
   try {
     await FirstTimeUserService.initialize();
   } catch (e) {
     debugPrint('FirstTimeUserService initialization failed: $e');
-    // Continue with app startup even if service fails
   }
   
-  // Initialize notifications
-  try {
-    await NotificationService.initialize();
-    await NotificationService.requestPermissions();
-    
-    // Initialize Pomodoro notifications
-    await PomodoroNotificationService().initialize();
-    
-    // Setup notification tap handler
-    PomodoroNotificationService().onNotificationTapped = _handleNotificationTap;
-  } catch (e) {
-    debugPrint('Notification service initialization failed: $e');
-    // Continue with app startup even if notifications fail
-  }
-  
-  // Set system UI overlay style
+  // Set system UI overlay style (visual - should be immediate)
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -97,7 +53,65 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
   
+  // Start the app immediately - other services will initialize in background
   runApp(const HabifyApp());
+  
+  // Initialize heavy services in background after app starts
+  _initializeBackgroundServices();
+}
+
+/// Initialize heavy services in background without blocking UI
+void _initializeBackgroundServices() {
+  // Run in background without awaiting to not block UI
+  Future.microtask(() async {
+    debugPrint('🔄 Starting background service initialization...');
+    
+    // Initialize Firebase
+    try {
+      debugPrint('🚀 Initializing Firebase...');
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      debugPrint('✅ Firebase Core initialized successfully');
+      
+      // Set up background message handler
+      FirebaseMessaging.onBackgroundMessage(FirebaseMessagingService.handleBackgroundMessage);
+      debugPrint('📨 Background message handler set');
+      
+      // Initialize Firebase Messaging
+      await FirebaseMessagingService.initialize();
+      debugPrint('✅ Firebase Messaging initialized successfully');
+      
+    } catch (e) {
+      debugPrint('❌ Firebase initialization failed: $e');
+    }
+    
+    // Initialize database
+    try {
+      await DatabaseManager().initialize();
+      debugPrint('✅ Database initialized successfully');
+    } catch (e) {
+      debugPrint('❌ Database initialization failed: $e');
+    }
+    
+    // Initialize notifications
+    try {
+      await NotificationService.initialize();
+      await NotificationService.requestPermissions();
+      
+      // Initialize Pomodoro notifications
+      await PomodoroNotificationService().initialize();
+      
+      // Setup notification tap handler
+      PomodoroNotificationService().onNotificationTapped = _handleNotificationTap;
+      
+      debugPrint('✅ Notification services initialized successfully');
+    } catch (e) {
+      debugPrint('❌ Notification service initialization failed: $e');
+    }
+    
+    debugPrint('✅ All background services initialized!');
+  });
 }
 
 // Handle notification taps for Pomodoro timer

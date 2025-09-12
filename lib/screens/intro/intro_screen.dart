@@ -132,23 +132,29 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
     });
 
     try {
-      // Save user data
-      await settingsProvider.setUserName(name);
+      // Save user data in parallel operations
+      final futures = <Future>[];
+      
+      // Save to settings provider
+      futures.add(settingsProvider.setUserName(name));
       if (_selectedGender != null) {
-        await settingsProvider.setUserGender(_selectedGender!);
+        futures.add(settingsProvider.setUserGender(_selectedGender!));
       }
       if (ageText.isNotEmpty) {
         final age = int.tryParse(ageText);
         if (age != null && age >= 1 && age <= 120) {
-          await settingsProvider.setUserAge(age);
+          futures.add(settingsProvider.setUserAge(age));
         }
       }
-
-      // Mark onboarding as completed
-      await FirstTimeUserService.markOnboardingComplete();
-      await FirstTimeUserService.markFirstLaunchComplete();
-      await settingsProvider.markOnboardingComplete();
-      await settingsProvider.markFirstLaunchComplete();
+      
+      // Mark completion in both services (they handle different aspects)
+      futures.add(FirstTimeUserService.markOnboardingComplete());
+      futures.add(FirstTimeUserService.markFirstLaunchComplete());
+      futures.add(settingsProvider.markOnboardingComplete());
+      futures.add(settingsProvider.markFirstLaunchComplete());
+      
+      // Wait for all operations to complete in parallel
+      await Future.wait(futures);
 
       // Navigate to add habit screen
       if (mounted) {

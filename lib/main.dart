@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'firebase_options.dart';
-
 import 'providers/providers.dart';
 import 'database/database_manager.dart';
 import 'screens/launch/splash_screen.dart';
@@ -19,7 +15,6 @@ import 'screens/habit_details/habit_details_screen.dart';
 import 'services/first_time_user_service.dart';
 import 'services/notification_service.dart';
 import 'services/pomodoro_notification_service.dart';
-import 'services/firebase_messaging_service.dart';
 
 // Global navigation key for handling notification taps
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -66,25 +61,6 @@ void _initializeBackgroundServices() {
   Future.microtask(() async {
     debugPrint('🔄 Starting background service initialization...');
     
-    // Initialize Firebase
-    try {
-      debugPrint('🚀 Initializing Firebase...');
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
-      debugPrint('✅ Firebase Core initialized successfully');
-      
-      // Set up background message handler
-      FirebaseMessaging.onBackgroundMessage(FirebaseMessagingService.handleBackgroundMessage);
-      debugPrint('📨 Background message handler set');
-      
-      // Initialize Firebase Messaging
-      await FirebaseMessagingService.initialize();
-      debugPrint('✅ Firebase Messaging initialized successfully');
-      
-    } catch (e) {
-      debugPrint('❌ Firebase initialization failed: $e');
-    }
     
     // Initialize database
     try {

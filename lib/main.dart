@@ -32,6 +32,12 @@ void main() async {
     debugPrint('FirstTimeUserService initialization failed: $e');
   }
   
+  // Force status bar to always show and never hide
+  SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.manual,
+    overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
+  );
+
   // Set system UI overlay style (visual - should be immediate)
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(

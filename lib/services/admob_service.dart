@@ -13,7 +13,7 @@ class AdMobService {
   int _habitsCompletedCount = 0;
 
   // Ad IDs - Test vs Production
-  static const bool _useTestAds = true; // Set to false for production
+  static const bool _useTestAds = false; // Set to false for production
 
   // Test Ad IDs (always work for testing)
   static const String _testInterstitialAdUnitId = 'ca-app-pub-3940256099942544/1033173712';

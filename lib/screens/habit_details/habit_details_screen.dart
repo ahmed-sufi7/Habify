@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../../providers/habit_provider.dart';
 import '../../models/habit.dart';
+import '../../services/admob_service.dart';
 import 'edit_habit_screen.dart';
 
 /// Habit Details Screen - Shows detailed information about a specific habit
@@ -45,6 +46,17 @@ class _HabitDetailsScreenState extends State<HabitDetailsScreen> {
   void initState() {
     super.initState();
     _loadHabitDetails();
+    // Show interstitial ad when habit details screen opens
+    _showHabitDetailsAd();
+  }
+
+  void _showHabitDetailsAd() {
+    // Add a small delay to let the screen load first
+    Future.delayed(const Duration(seconds: 1), () {
+      if (mounted) {
+        AdMobService().showAdInHabitDetails();
+      }
+    });
   }
 
   void _loadHabitDetails() async {

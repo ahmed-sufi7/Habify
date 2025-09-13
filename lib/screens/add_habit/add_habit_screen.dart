@@ -6,6 +6,7 @@ import '../../providers/habit_provider.dart';
 import '../../providers/category_provider.dart';
 import '../../database/database_manager.dart';
 import '../../services/notification_service.dart';
+import '../../services/admob_service.dart';
 
 // Custom exception classes for better error handling
 class ValidationException implements Exception {
@@ -900,11 +901,18 @@ class _AddHabitScreenState extends State<AddHabitScreen> with TickerProviderStat
   }
 
   void _navigateToHomeWithSuccess() {
-    // Navigate back with success result
-    Navigator.of(context).pop({
-      'success': true,
-      'message': 'Habit created successfully!',
-    });
+    // Show interstitial ad after habit creation
+    AdMobService().showAdAfterHabitCreation(
+      onAdClosed: () {
+        // Navigate back with success result after ad closes
+        if (mounted) {
+          Navigator.of(context).pop({
+            'success': true,
+            'message': 'Habit created successfully!',
+          });
+        }
+      },
+    );
   }
 
   String _sanitizeInput(String input) {

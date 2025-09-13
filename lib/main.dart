@@ -15,6 +15,7 @@ import 'screens/habit_details/habit_details_screen.dart';
 import 'services/first_time_user_service.dart';
 import 'services/notification_service.dart';
 import 'services/pomodoro_notification_service.dart';
+import 'services/admob_service.dart';
 
 // Global navigation key for handling notification taps
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -80,16 +81,24 @@ void _initializeBackgroundServices() {
     try {
       await NotificationService.initialize();
       await NotificationService.requestPermissions();
-      
+
       // Initialize Pomodoro notifications
       await PomodoroNotificationService().initialize();
-      
+
       // Setup notification tap handler
       PomodoroNotificationService().onNotificationTapped = _handleNotificationTap;
-      
+
       debugPrint('✅ Notification services initialized successfully');
     } catch (e) {
       debugPrint('❌ Notification service initialization failed: $e');
+    }
+
+    // Initialize AdMob service
+    try {
+      await AdMobService().initialize();
+      debugPrint('✅ AdMob service initialized successfully');
+    } catch (e) {
+      debugPrint('❌ AdMob service initialization failed: $e');
     }
     
     debugPrint('✅ All background services initialized!');

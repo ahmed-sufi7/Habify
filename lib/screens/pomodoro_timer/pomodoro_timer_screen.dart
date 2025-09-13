@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../providers/pomodoro_provider.dart';
 import '../../services/pomodoro_notification_service.dart';
+import '../../services/admob_service.dart';
 
 class PomodoroTimerScreen extends StatefulWidget {
   final int sessionId;
@@ -241,18 +242,25 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
 
   void _terminateSessionAndGoHome() {
     final provider = Provider.of<PomodoroProvider>(context, listen: false);
-    
+
     // Stop animation
     _pulseController.stop();
-    
+
     // Stop notifications only when actually terminating the session
     _notificationService.stopProgressNotifications();
-    
+
     // Completely terminate the session
     provider.terminateCurrentSession();
-    
-    // Navigate to home screen, removing all previous routes
-    Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+
+    // Show interstitial ad after stopping Pomodoro session
+    AdMobService().showAdAfterPomodoroSession(
+      onAdClosed: () {
+        // Navigate to home screen after ad closes
+        if (mounted) {
+          Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+        }
+      },
+    );
   }
 
   void _handleStop() {
@@ -564,8 +572,16 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
                     ),
                     child: TextButton(
                       onPressed: () {
-                        Navigator.of(context).pop();
-                        Navigator.of(context).pop(); // Go back to previous screen
+                        Navigator.of(context).pop(); // Close completion dialog
+                        // Show interstitial ad after completing all sessions
+                        AdMobService().showAdAfterPomodoroSession(
+                          onAdClosed: () {
+                            // Navigate back to previous screen after ad closes
+                            if (mounted) {
+                              Navigator.of(context).pop();
+                            }
+                          },
+                        );
                       },
                       style: TextButton.styleFrom(
                         shape: RoundedRectangleBorder(

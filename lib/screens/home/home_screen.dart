@@ -9,6 +9,7 @@ import '../../models/habit.dart';
 import '../../widgets/calendar_widget.dart';
 import '../../widgets/live_pomodoro_indicator.dart';
 import '../../widgets/menu_sidebar.dart';
+import '../../services/admob_service.dart';
 import '../add_pomodoro/add_pomodoro_screen.dart';
 import '../add_habit/add_habit_screen.dart';
 import '../habit_details/habit_details_screen.dart';
@@ -103,7 +104,10 @@ class _HomeScreenState extends State<HomeScreen> {
       
       if (isCompleted) {
         final success = await habitProvider.completeHabit(habitId);
-        if (!success && mounted) {
+        if (success) {
+          // Show interstitial ad after every 3 habits completion
+          AdMobService().incrementHabitCompletion();
+        } else if (mounted) {
           // Show error feedback
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Failed to complete habit')),

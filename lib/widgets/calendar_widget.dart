@@ -96,7 +96,7 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
             ],
           ),
           child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -108,8 +108,6 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
                   _buildWeekdayHeaders(),
                   const SizedBox(height: 12),
                   _buildScrollableCalendar(),
-                  // Minimal padding for safe area
-                  SizedBox(height: MediaQuery.of(context).padding.bottom + 4),
                 ],
               ),
           ),
@@ -217,7 +215,7 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
 
   Widget _buildScrollableCalendar() {
     return SizedBox(
-      height: 280, // Fixed height for calendar grid
+      height: 264, // Optimized height for 6 rows (44px per row + 6px spacing × 5)
       child: PageView.builder(
         controller: _pageController,
         itemCount: _maxPages, // Prevent infinite scrolling

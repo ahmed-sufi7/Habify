@@ -96,20 +96,19 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
             ],
           ),
           child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Drag handle
-                  _buildDragHandle(),
-                  const SizedBox(height: 12),
-                  _buildHeader(),
-                  const SizedBox(height: 20),
-                  _buildWeekdayHeaders(),
-                  const SizedBox(height: 12),
-                  _buildScrollableCalendar(),
-                ],
-              ),
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+            child: Column(
+              children: [
+                // Drag handle
+                _buildDragHandle(),
+                const SizedBox(height: 12),
+                _buildHeader(),
+                const SizedBox(height: 20),
+                _buildWeekdayHeaders(),
+                const SizedBox(height: 12),
+                _buildScrollableCalendar(),
+              ],
+            ),
           ),
         );
       },
@@ -214,8 +213,7 @@ class _HabitCalendarWidgetState extends State<HabitCalendarWidget>
   }
 
   Widget _buildScrollableCalendar() {
-    return SizedBox(
-      height: 264, // Optimized height for 6 rows (44px per row + 6px spacing × 5)
+    return Expanded(
       child: PageView.builder(
         controller: _pageController,
         itemCount: _maxPages, // Prevent infinite scrolling
